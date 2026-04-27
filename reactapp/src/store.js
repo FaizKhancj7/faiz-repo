@@ -3,11 +3,13 @@
 
 import { configureStore } from '@reduxjs/toolkit';
 import userReducer from './userSlice';
+import startupReducer from './slices/startupSlice';
 
-// We create the store and add our userReducer to it.
+// We create the store and add our reducers to it.
 const store = configureStore({
     reducer: {
-        user: userReducer
+        user: userReducer,
+        startup: startupReducer
     }
 });
 

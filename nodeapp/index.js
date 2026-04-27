@@ -9,6 +9,7 @@ require('dotenv').config();
 
 // We import the router that handles all user-related paths (like signup and login)
 const userRouter = require('./routers/userRouter');
+const startupRouter = require('./routers/startupProfileRoutes');
 
 const app = express();
 const PORT = 8080;
@@ -33,6 +34,7 @@ mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/startupnest
 // ROUTE SETUP
 // We tell the app to use the userRouter for any path that starts with /user
 app.use('/user', userRouter);
+app.use('/startup', startupRouter);
 
 // GLOBAL ERROR HANDLER
 // This function catches any errors that happen in our app and sends a simple message back

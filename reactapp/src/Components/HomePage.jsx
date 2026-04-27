@@ -1,22 +1,16 @@
-// This file is the redesigned Landing Page of the application (HomePage).
-// It features a full-screen hero with a background image and a contact section.
+/**
+ * HomePage Component
+ * This is the landing page for all authenticated users.
+ * It features a full-screen hero with a background image and a contact section.
+ * Note: The navbar is handled at the App.jsx layout level.
+ */
 
 import React from 'react';
-import { useSelector } from 'react-redux';
-import MentorNavbar from '../MentorComponents/MentorNavbar';
-import EntrepreneurNavbar from '../EntrepreneurComponents/EntrepreneurNavbar';
 
 const HomePage = () => {
-    // We check the Redux store to see what the user's role is to show the correct Navbar
-    const { isAuthenticated, role } = useSelector((state) => state.user);
-
     return (
         <div className="min-h-screen flex flex-col font-sans">
-            {/* Top: Role-based Navbar (Only shows if logged in) */}
-            {isAuthenticated && (
-                role === 'Mentor' ? <MentorNavbar /> : <EntrepreneurNavbar />
-            )}
-
+            
             {/* Section 1: Hero Section */}
             <div 
                 className="relative h-[80vh] w-full flex items-center justify-center bg-cover bg-center"
@@ -49,13 +43,22 @@ const HomePage = () => {
             <div className="flex-1 bg-gradient-to-br from-[#1E3A5F] via-[#1E3A5F] to-[#2D5282] py-20 px-6 flex flex-col items-center justify-center text-white text-center">
                 <div className="max-w-2xl w-full">
                     {/* Section Title */}
-                    <h2 className="text-4xl font-black mb-10 tracking-tight">Contact Us</h2>
+                    <h2 className="text-4xl font-black mb-10 tracking-tight text-orange-400">Contact Us</h2>
                     
                     {/* Contact Details List */}
                     <div className="space-y-6 text-lg md:text-xl font-medium opacity-90">
-                        <p>📞 Phone: +91 98765 43210</p>
-                        <p>📧 Email: incubator@startupnest.com</p>
-                        <p>📍 Address: 456 Innovation Road, Tech City, IN</p>
+                        <div className="flex items-center justify-center gap-3">
+                            <span className="text-2xl">📞</span>
+                            <span>Phone: +91 98765 43210</span>
+                        </div>
+                        <div className="flex items-center justify-center gap-3">
+                            <span className="text-2xl">📧</span>
+                            <span>Email: incubator@startupnest.com</span>
+                        </div>
+                        <div className="flex items-center justify-center gap-3">
+                            <span className="text-2xl">📍</span>
+                            <span>Address: 456 Innovation Road, Tech City, IN</span>
+                        </div>
                     </div>
                 </div>
             </div>

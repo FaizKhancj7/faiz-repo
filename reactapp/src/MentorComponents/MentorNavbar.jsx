@@ -1,76 +1,101 @@
-// This file is the Navbar specifically for the Mentor role.
-// It shows links that only mentors should see (like profile management) and handles logout.
+/**
+ * MentorNavbar Component
+ * This file is the navigation bar for the Mentor role.
+ * It includes a hover-based dropdown for profile management and handles the logout process.
+ * Strictly follows the UI requirements for a premium, clean experience.
+ */
 
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { RiLogoutBoxLine, RiRocketLine, RiUser3Line } from 'react-icons/ri';
+import { RiLogoutBoxLine, RiRocketLine, RiUser3Line, RiArrowDownSLine } from 'react-icons/ri';
 import { logoutSuccess } from '../userSlice';
 import api from '../apiConfig';
 
 const MentorNavbar = () => {
-    // Hooks for navigation, redux dispatch, and reading state
     const navigate = useNavigate();
     const dispatch = useDispatch();
     
-    // We get the mentor's name from our Redux storage
+    // Get the mentor's name from Redux
     const { userName } = useSelector((state) => state.user);
 
-    // This function handles the logout process
+    // Logout logic with confirmation
     const handleLogout = async () => {
-        // Confirm with the user before logging them out
         const confirmLogout = window.confirm("Are you sure you want to logout?");
         
         if (confirmLogout) {
             try {
-                // Call the backend to clear the login cookie
                 await api.post('/user/logout');
             } catch (error) {
-                // If the API fails, we still clear the frontend
                 console.log("Logout API failed, clearing local state.");
             } finally {
-                // Clear the user data from Redux
                 dispatch(logoutSuccess());
-                
-                // Go back to the login page
                 navigate('/login');
             }
         }
     };
 
     return (
-        <nav className="bg-[#1E3A5F] text-white px-6 py-4 flex justify-between items-center shadow-md sticky top-0 z-50">
-            {/* Logo Section */}
-            <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
-                <RiRocketLine className="text-[#F97316] text-2xl" />
-                <span className="text-xl font-black tracking-tight italic">STARTUPNEST</span>
+        <nav className="bg-[#1E3A5F] text-white px-8 py-4 flex justify-between items-center shadow-lg sticky top-0 z-50">
+            {/* 1. LOGO SECTION */}
+            <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
+                <RiRocketLine className="text-[#F97316] text-3xl group-hover:rotate-12 transition-transform duration-300" />
+                <span className="text-2xl font-black tracking-tighter italic">STARTUPNEST</span>
             </div>
 
-            {/* Navigation Links for Mentors */}
-            <div className="hidden md:flex items-center gap-8 font-semibold">
-                <Link to="/" className="hover:text-[#F97316] transition-colors">Home</Link>
+            {/* 2. NAVIGATION LINKS */}
+            <div className="hidden lg:flex items-center gap-10 font-bold text-sm tracking-wide">
+                <Link to="/" className="hover:text-[#F97316] transition-colors uppercase">Home</Link>
                 
-                {/* A simple menu for Startup Profiles */}
-                <Link to="/view-profiles" className="hover:text-[#F97316] transition-colors">Startup Profiles</Link>
+                {/* STARTUP PROFILES DROPDOWN (Hover-based using Tailwind) */}
+                <div className="relative group cursor-pointer py-2">
+                    <div className="flex items-center gap-1 hover:text-[#F97316] transition-colors uppercase">
+                        <span>Startup Profiles</span>
+                        <RiArrowDownSLine className="text-lg group-hover:rotate-180 transition-transform duration-300" />
+                    </div>
+
+                    {/* Dropdown Menu */}
+                    <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-2xl shadow-2xl overflow-hidden invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-300 transform origin-top scale-95 group-hover:scale-100 border border-gray-100">
+                        <div className="py-2">
+                            <Link 
+                                to="/mentor/create-profile" 
+                                className="block px-6 py-4 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors border-b border-gray-50 last:border-0"
+                            >
+                                <span className="flex flex-col">
+                                    <span className="font-bold">Add Profile</span>
+                                    <span className="text-[10px] text-gray-400 uppercase">Create new opportunity</span>
+                                </span>
+                            </Link>
+                            <Link 
+                                to="/view-profiles" 
+                                className="block px-6 py-4 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                            >
+                                <span className="flex flex-col">
+                                    <span className="font-bold">View Profiles</span>
+                                    <span className="text-[10px] text-gray-400 uppercase">Manage your listings</span>
+                                </span>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
                 
-                {/* Link to see entrepreneur submissions */}
-                <Link to="/startup-submissions" className="hover:text-[#F97316] transition-colors">Startup Submissions</Link>
+                <Link to="/startup-submissions" className="hover:text-[#F97316] transition-colors uppercase">Startup Submissions</Link>
             </div>
 
-            {/* User Info and Logout Section */}
+            {/* 3. USER ACTIONS */}
             <div className="flex items-center gap-6">
-                {/* User Badge for Mentor */}
-                <div className="flex items-center gap-2 bg-[#2D5282] px-3 py-1.5 rounded-full text-xs font-bold uppercase border border-white/10">
-                    <RiUser3Line />
-                    <span>{userName} / Mentor</span>
+                {/* Mentor Badge */}
+                <div className="hidden sm:flex items-center gap-2 bg-[#2D5282] px-4 py-2 rounded-xl text-xs font-black uppercase border border-white/5 tracking-wider">
+                    <RiUser3Line className="text-orange-400" />
+                    <span>{userName} <span className="text-white/40 mx-1">|</span> Mentor</span>
                 </div>
 
                 {/* Logout Button */}
                 <button 
                     onClick={handleLogout}
-                    className="bg-[#F97316] hover:bg-[#EA6C0A] text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-bold transition-all shadow-sm active:scale-95"
+                    className="bg-[#F97316] hover:bg-[#EA6C0A] text-white px-6 py-2.5 rounded-xl flex items-center gap-2 text-xs font-black uppercase transition-all shadow-lg shadow-orange-900/20 active:scale-95"
                 >
-                    <RiLogoutBoxLine />
+                    <RiLogoutBoxLine className="text-base" />
                     <span>Logout</span>
                 </button>
             </div>

@@ -34,7 +34,7 @@ const startupProfileSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'Validation failed: Funding limit must be specified'],
     // Ensures a mentor offers at least 1 Rupee and stays within the 1 Crore limit
-    min: [1, 'Validation failed: Funding limit must be a positive number'],
+    min: [0, 'Validation failed: Funding limit cannot be negative'],
     max: [10000000, 'Validation failed: Maximum funding limit is ₹10,000,000']
   },
 
@@ -43,7 +43,7 @@ const startupProfileSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'Validation failed: Please enter expected equity percentage'],
     // Ensures a valid percentage between 1% and 100%
-    min: [1, 'Validation failed: Minimum equity expectation is 1%'],
+    min: [0, 'Validation failed: Equity expectation cannot be negative'],
     max: [100, 'Validation failed: Maximum equity expectation is 100%']
   },
 

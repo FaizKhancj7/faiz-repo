@@ -7,9 +7,15 @@ Since React components are independent, we need a way to share data (like the us
 - **The Store (`store.js`)**: The physical "Brain" or "Vault" where all data is kept.
 - **The Slice (`userSlice.js`)**: A specific section of the vault dedicated only to **User Information**.
 - **Initial State**: The starting values when the app wakes up.
-  - `isAuthenticated: null`
+  - `isAuthenticated: null` (The "Checking" state)
   - `userName: null`
   - `role: null`
+
+### How we update the Slice (Actions):
+
+- **`loginSuccess`**: This is like a "Deposit" form. When the API says the user is valid, we send their name and role here to save them in memory.
+- **`logoutSuccess`**: This is the "Clear All" button. It resets the state to `false` and `null` so the app knows the user is gone.
+- **The Reducer**: The logic that actually changes the data inside the vault based on these actions.
 
 ## 2. The "Traffic Light" Logic (Handling Auth States)
 
@@ -51,10 +57,21 @@ We use two custom components to control who sees which page:
 
 ## 6. API Communication (`apiConfig.js`)
 
-We use a central **Axios Instance** so we don't have to type the backend URL every time.
+Instead of just exporting a string (URL), we use **`axios.create()`** to create a custom "API Tool."
 
+### Why `axios.create` vs. a Simple String?
 
-- `withCredentials: true`: This is the most important setting. It tells the browser to **always send the cookie** with every API request. Without this, the backend would never know who you are.
+- **Value vs. Tool**: A string is just text. `axios.create` is a pre-configured version of the Axios library.
+- **Auto-Config**: It automatically adds the `baseURL` and `withCredentials` to every request. You don't have to type them manually in every file.
+- **Centralization**: If you want to add "Interceptors" (like a global error handler or a loading spinner), you can do it once in this file.
+
+### What is `withCredentials: true`?
+
+This is a **predefined browser keyword** that handles "Keychain" access.
+
+- **The Browser's Rule**: By default, browsers are "shy." They won't send your login cookies to a different port (3000 to 8080) for security.
+- **The Unlock**: Setting this to `true` tells the browser: _"It's okay, attach the cookies for this backend to my request."_
+- **The Requirement**: This **must** be set to `true` on both the Frontend (Axios) and the Backend (CORS) for authentication to work.
 
 ## 7. Deep Dive: Why you stay Logged In (Rehydration)
 
@@ -66,7 +83,9 @@ Many developers get confused about why they are "automatically" logged in after 
 4.  **The Result**: The backend reads the Cookie, confirms who you are, and sends your name/role back. Redux is "refilled," and you are logged in again instantly!
 
 ### **The "Why" - Why it prevents logout:**
-The `useEffect` doesn't just store your name; it **prevents you from being kicked out**. 
+
+The `useEffect` doesn't just store your name; it **prevents you from being kicked out**.
+
 - **The Proof**: Your Cookie (stays in the pocket).
 - **The Messenger**: The `useEffect` (delivers the news).
 - **The Gatekeeper**: Redux & `ProtectedRoute` (let you in if the news is good).
@@ -74,7 +93,9 @@ The `useEffect` doesn't just store your name; it **prevents you from being kicke
 If we didn't have the `useEffect`, the **Gatekeeper** (Redux) would stay `null`, and you'd be redirected to Login even though you still have the **Proof** (Cookie).
 
 ### **What is `req.user`?**
-In the backend, `req.user` is a custom "sticky note" created by our middleware (`authUtils.js`). 
+
+In the backend, `req.user` is a custom "sticky note" created by our middleware (`authUtils.js`).
+
 - The middleware decodes the Cookie.
 - It attaches the info to the request: `req.user = decodedInfo`.
 - Now, any controller that comes after the middleware can simply read `req.user.userName` without having to decode the cookie again!
@@ -88,14 +109,18 @@ If this project were built by a team of 5, here is how the files and responsibil
 ### **Backend Team (2 Members)**
 
 #### **👤 Member 1: The Systems Architect**
-*Responsible for the foundation, database, and security layers.*
+
+_Responsible for the foundation, database, and security layers._
+
 - `nodeapp/index.js` (Server setup & middleware)
 - `nodeapp/models/userModel.js` (Database schema)
 - `nodeapp/authUtils.js` (JWT & Cookie security logic)
 - `nodeapp/.env` (Environment configuration)
 
 #### **👤 Member 2: The API Logic Developer**
-*Responsible for the business logic and data flow.*
+
+_Responsible for the business logic and data flow._
+
 - `nodeapp/controllers/userController.js` (Signup, Login, Verify, Forgot Password logic)
 - `nodeapp/routers/userRouter.js` (Endpoint mapping)
 
@@ -104,20 +129,26 @@ If this project were built by a team of 5, here is how the files and responsibil
 ### **Frontend Team (3 Members)**
 
 #### **👤 Member 3: The State & Routing Manager**
-*Responsible for the "Brain" of the frontend and navigation.*
+
+_Responsible for the "Brain" of the frontend and navigation._
+
 - `reactapp/src/store.js` & `userSlice.js` (Redux state management)
 - `reactapp/src/App.js` (AuthRoute/ProtectedRoute & Rehydration)
 - `reactapp/src/apiConfig.js` (Axios configuration)
 
 #### **👤 Member 4: The UI/UX Specialist**
-*Responsible for the look, feel, and reusable design system.*
+
+_Responsible for the look, feel, and reusable design system._
+
 - `reactapp/src/Components/Reusable/` (Input & Button components)
 - `reactapp/src/Components/HomePage.jsx` (Hero & Layout design)
 - `reactapp/src/MentorComponents/MentorNavbar.jsx`
 - `reactapp/src/EntrepreneurComponents/EntrepreneurNavbar.jsx`
 
 #### **👤 Member 5: The Feature Developer**
-*Responsible for building the actual user-facing forms and validation.*
+
+_Responsible for building the actual user-facing forms and validation._
+
 - `reactapp/src/Components/Login.jsx`
 - `reactapp/src/Components/Signup.jsx`
 - `reactapp/src/Components/ForgotPassword.jsx`
