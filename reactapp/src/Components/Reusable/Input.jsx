@@ -17,6 +17,7 @@ const Input = ({ label, type, name, value, onChange, error, ...rest }) => {
                 onChange={onChange}
                 {...rest}
                 className={`border rounded-xl px-4 py-3 outline-none transition-all 
+                    [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
                     ${error ? 'border-red-500 bg-red-50' : 'border-gray-200 focus:ring-2 focus:ring-orange-500 bg-gray-50'}`}
             />
             

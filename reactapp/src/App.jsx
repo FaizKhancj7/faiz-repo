@@ -21,10 +21,13 @@ import ForgotPassword from './Components/ForgotPassword';
 import MentorNavbar from './MentorComponents/MentorNavbar';
 import StartupProfileForm from './MentorComponents/StartupProfileForm';
 import ViewStartupProfiles from './MentorComponents/ViewStartupProfiles';
+import StartupSubmissions from './MentorComponents/StartupSubmissions';
 
 // Entrepreneur Components
 import EntrepreneurNavbar from './EntrepreneurComponents/EntrepreneurNavbar';
 import ViewStartupOpportunities from './EntrepreneurComponents/ViewStartupOpportunities';
+import SubmitIdea from './EntrepreneurComponents/SubmitIdea';
+import MySubmissions from './EntrepreneurComponents/MySubmissions';
 
 /**
  * ProtectedRoute
@@ -38,7 +41,7 @@ const ProtectedRoute = ({ children, requiredRole }) => {
     }
 
     if (!isAuthenticated) {
-        return <Navigate to="/login" />;
+        return <Navigate to="/" />;
     }
 
     if (requiredRole && role !== requiredRole) {
@@ -138,13 +141,14 @@ function App() {
                 <Route element={<ProtectedRoute requiredRole="Mentor"><MainLayout /></ProtectedRoute>}>
                     <Route path="/mentor/create-profile" element={<StartupProfileForm />} />
                     <Route path="/view-profiles" element={<ViewStartupProfiles />} />
-                    <Route path="/startup-submissions" element={<div className="p-10 font-bold">Submissions Page (Coming Soon)</div>} />
+                    <Route path="/startup-submissions" element={<StartupSubmissions />} />
                 </Route>
 
                 {/* --- 4. ENTREPRENEUR SPECIFIC ROUTES --- */}
                 <Route element={<ProtectedRoute requiredRole="Entrepreneur"><MainLayout /></ProtectedRoute>}>
                     <Route path="/mentor-opportunities" element={<ViewStartupOpportunities />} />
-                    <Route path="/my-submissions" element={<div className="p-10 font-bold">My Submissions (Coming Soon)</div>} />
+                    <Route path="/submit-idea" element={<SubmitIdea />} />
+                    <Route path="/entrepreneur/my-submissions" element={<MySubmissions />} />
                 </Route>
 
                 {/* --- 5. FALLBACK --- */}

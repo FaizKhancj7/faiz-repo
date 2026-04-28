@@ -65,9 +65,34 @@
 
 ---
 
-## Tuesday: Startup Submissions & Shortlisting
+## Tuesday: Startup Submissions & Shortlisting (COMPLETED)
 
-*To be filled after previous day is complete.*
+#### **👤 Member 1 - Backend Systems Architect:**
+- `nodeapp/routers/startupSubmissionRoutes.js` (Mounted `GET /my-submissions` and entrepreneur `DELETE` routes)
+- `reactapp/src/App.jsx` (Configured `ProtectedRoute` to redirect to landing page `/` for better UX)
+- `nodeapp/controllers/startupSubmissionController.js` (Ensured consistent 10-record pagination across all submission endpoints)
+
+#### **👤 Member 2 - Backend API Logic Developer:**
+- `nodeapp/controllers/startupSubmissionController.js` (Enhanced `getEntrepreneurSubmissions` with regex-based category search)
+- `nodeapp/controllers/startupSubmissionController.js` (Implemented `deleteEntrepreneurSubmission` with strict ownership validation)
+- `nodeapp/controllers/startupSubmissionController.js` (Added server-side funding limit validation vs mentor profile settings)
+
+#### **👤 Member 3 - Frontend State and Routing Manager:**
+- `reactapp/src/services/startupSubmissionService.js` (Updated `getMySubmissions` for pagination/search and added `deleteMySubmission`)
+- `reactapp/src/App.jsx` (Integrated `MySubmissions` component and managed navigation state)
+- `reactapp/src/EntrepreneurComponents/ViewStartupOpportunities.jsx` (Synchronized submission state to handle button disabling)
+
+#### **👤 Member 4 - Frontend UI/UX Specialist:**
+- `reactapp/src/Components/Reusable/ConfirmDialog.jsx` (Added `showCancel` and `cancelText` props for single-button 'Success' modals)
+- `reactapp/src/Components/Reusable/Button.jsx` (Fixed alignment by restoring `w-full` and optimizing login/signup layouts)
+- `reactapp/src/Components/HomePage.jsx` (Redesigned as a non-scrollable, split-screen dashboard using `h-[calc(100vh-80px)]`)
+- `reactapp/src/MentorComponents/MentorNavbar.jsx` & `EntrepreneurNavbar.jsx` (Balanced button padding and badge alignment)
+
+#### **👤 Member 5 - Frontend Feature Developer:**
+- `reactapp/src/EntrepreneurComponents/SubmitIdea.jsx` (Implemented success modal, dynamic label limit display, and inline funding validation)
+- `reactapp/src/EntrepreneurComponents/MySubmissions.jsx` (Created the full dashboard with search, PDF viewer, and profile detail modal)
+- `reactapp/src/EntrepreneurComponents/ViewStartupOpportunities.jsx` (Implemented "Already Applied" logic to prevent duplicate submissions)
+- `reactapp/src/MentorComponents/StartupSubmissions.jsx` (Refined Mentor actions to strictly allow View, Shortlist, and Reject only)
 
 ---
 

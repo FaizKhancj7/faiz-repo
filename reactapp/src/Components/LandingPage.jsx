@@ -25,13 +25,13 @@ const LandingPage = () => {
                 <div className="flex items-center gap-4">
                     <button 
                         onClick={() => navigate('/login')}
-                        className="text-sm font-bold uppercase tracking-wide text-slate-600 hover:text-[#F97316] transition-colors px-4 py-2"
+                        className="text-xs font-black uppercase tracking-widest text-slate-600 hover:text-[#F97316] transition-all px-6 py-3 rounded-xl hover:bg-slate-50"
                     >
                         Sign In
                     </button>
                     <button 
                         onClick={() => navigate('/signup')}
-                        className="bg-[#1E3A5F] hover:bg-[#2D5282] text-white text-xs font-black uppercase px-6 py-3 rounded-xl transition-all shadow-lg active:scale-95"
+                        className="bg-[#1E3A5F] hover:bg-[#2D5282] text-white text-xs font-black uppercase px-6 py-3 rounded-xl transition-all shadow-lg active:scale-95 border border-transparent"
                     >
                         Sign Up Free
                     </button>

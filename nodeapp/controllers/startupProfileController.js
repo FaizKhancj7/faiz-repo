@@ -56,7 +56,7 @@ exports.getAllProfiles = async (req, res) => {
     try {
         // 1. PAGINATION SETUP (PRD 6.2)
         const page = parseInt(req.query.page) || 1;
-        const limit = 20;
+        const limit = 10;
         const skip = (page - 1) * limit;
 
         // 2. SEARCH LOGIC (PRD 6.3)

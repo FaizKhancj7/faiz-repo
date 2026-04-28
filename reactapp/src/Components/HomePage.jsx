@@ -9,55 +9,57 @@ import React from 'react';
 
 const HomePage = () => {
     return (
-        <div className="min-h-screen flex flex-col font-sans">
+        <div className="h-[calc(100vh-80px)] w-full overflow-hidden flex flex-col bg-[#1E3A5F]">
             
-            {/* Section 1: Hero Section */}
+            {/* Section 1: Hero Section (Occupies 60% of vertical space) */}
             <div 
-                className="relative h-[80vh] w-full flex items-center justify-center bg-cover bg-center"
+                className="relative h-[60%] w-full flex items-center justify-center bg-cover bg-center"
                 style={{ backgroundImage: "url('/startupnest.png')" }}
             >
-                {/* Overlay to darken the background slightly so text is readable */}
-                <div className="absolute inset-0 bg-black/30"></div>
+                {/* Darkened overlay for readability */}
+                <div className="absolute inset-0 bg-black/40"></div>
 
                 <div className="relative z-10 flex flex-col items-center px-6 text-center max-w-4xl">
-                    {/* The main title with a semi-transparent dark background */}
-                    <div className="bg-black/60 px-10 py-4 rounded-xl mb-8">
-                        <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter">
+                    <div className="mb-6">
+                        <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter drop-shadow-2xl">
                             StartupNest
                         </h1>
                     </div>
 
-                    {/* The welcome message inside a white semi-transparent card */}
-                    <div className="bg-white/90 backdrop-blur-sm p-8 md:p-12 rounded-2xl shadow-2xl border border-white/20">
-                        <p className="text-slate-800 text-lg md:text-xl font-medium leading-relaxed">
-                            Welcome to StartupNest, your gateway to innovation and collaboration. 
+                    <div className="bg-white/10 backdrop-blur-lg p-6 md:p-8 rounded-3xl shadow-2xl border border-white/20">
+                        <p className="text-white text-base md:text-xl font-medium leading-relaxed">
+                            Welcome to StartupNest, your gateway to innovation. 
                             Our platform connects aspiring entrepreneurs with experienced mentors 
-                            ready to support and fund the next big idea. Whether you're crafting 
-                            a pitch or evaluating submissions, StartupNest is where startup journeys begin.
+                            ready to support and fund the next big idea.
                         </p>
                     </div>
                 </div>
             </div>
 
-            {/* Section 2: Contact Us Section */}
-            <div className="flex-1 bg-gradient-to-br from-[#1E3A5F] via-[#1E3A5F] to-[#2D5282] py-20 px-6 flex flex-col items-center justify-center text-white text-center">
-                <div className="max-w-2xl w-full">
+            {/* Section 2: Contact Us Section (Occupies remaining 40% of vertical space) */}
+            <div className="h-[40%] bg-gradient-to-br from-[#1E3A5F] via-[#1E3A5F] to-[#2D5282] p-8 flex flex-col items-center justify-center text-white text-center border-t border-white/10">
+                <div className="max-w-5xl w-full">
                     {/* Section Title */}
-                    <h2 className="text-4xl font-black mb-10 tracking-tight text-orange-400">Contact Us</h2>
+                    <h2 className="text-2xl font-black mb-8 tracking-tighter text-orange-400 uppercase italic">Get In Touch</h2>
                     
-                    {/* Contact Details List */}
-                    <div className="space-y-6 text-lg md:text-xl font-medium opacity-90">
-                        <div className="flex items-center justify-center gap-3">
-                            <span className="text-2xl">📞</span>
-                            <span>Phone: +91 98765 43210</span>
+                    {/* Contact Details Grid - Responsive for desktop/mobile */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="flex flex-col items-center p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-all cursor-default">
+                            <span className="text-3xl mb-3">📞</span>
+                            <span className="text-sm font-bold opacity-80 uppercase tracking-widest mb-1">Phone</span>
+                            <span className="text-lg font-black">+91 98765 43210</span>
                         </div>
-                        <div className="flex items-center justify-center gap-3">
-                            <span className="text-2xl">📧</span>
-                            <span>Email: incubator@startupnest.com</span>
+                        
+                        <div className="flex flex-col items-center p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-all cursor-default">
+                            <span className="text-3xl mb-3">📧</span>
+                            <span className="text-sm font-bold opacity-80 uppercase tracking-widest mb-1">Email</span>
+                            <span className="text-lg font-black italic">incubator@startupnest.com</span>
                         </div>
-                        <div className="flex items-center justify-center gap-3">
-                            <span className="text-2xl">📍</span>
-                            <span>Address: 456 Innovation Road, Tech City, IN</span>
+                        
+                        <div className="flex flex-col items-center p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-all cursor-default">
+                            <span className="text-3xl mb-3">📍</span>
+                            <span className="text-sm font-bold opacity-80 uppercase tracking-widest mb-1">Location</span>
+                            <span className="text-base font-black leading-tight">456 Innovation Road, Tech City</span>
                         </div>
                     </div>
                 </div>

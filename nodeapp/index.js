@@ -10,6 +10,7 @@ require('dotenv').config();
 // We import the router that handles all user-related paths (like signup and login)
 const userRouter = require('./routers/userRouter');
 const startupRouter = require('./routers/startupProfileRoutes');
+const submissionRouter = require('./routers/startupSubmissionRoutes');
 
 const app = express();
 const PORT = 8080;
@@ -22,6 +23,9 @@ app.use(express.json());
 // This helper lets our server read cookies sent by the browser
 app.use(cookieParser());
 
+// This helper lets our server read files from the 'uploads' folder directly
+app.use('/uploads', express.static('uploads'));
+
 // This helper handles CORS so our frontend can talk to our backend safely
 app.use(cors({ origin: true, credentials: true })); 
 
@@ -32,9 +36,10 @@ mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/startupnest
     .catch(err => console.error("Database Connection Error:", err));
 
 // ROUTE SETUP
-// We tell the app to use the userRouter for any path that starts with /user
+// We tell the app to use the routers for specific paths
 app.use('/user', userRouter);
 app.use('/startup', startupRouter);
+app.use('/submission', submissionRouter);
 
 // GLOBAL ERROR HANDLER
 // This function catches any errors that happen in our app and sends a simple message back

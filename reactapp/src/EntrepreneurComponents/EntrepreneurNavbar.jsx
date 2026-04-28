@@ -5,33 +5,33 @@
  * Strictly follows the UI requirements for a premium MERN application.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { RiLogoutBoxLine, RiRocketLine, RiUser3Line, RiArrowDownSLine } from 'react-icons/ri';
 import { logoutSuccess } from '../userSlice';
 import api from '../apiConfig';
+import ConfirmDialog from '../Components/Reusable/ConfirmDialog';
 
 const EntrepreneurNavbar = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
+    const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
     
     // Get the entrepreneur's name from Redux
     const { userName } = useSelector((state) => state.user);
 
-    // Logout logic with confirmation
-    const handleLogout = async () => {
-        const confirmLogout = window.confirm("Are you sure you want to logout?");
-        
-        if (confirmLogout) {
-            try {
-                await api.post('/user/logout');
-            } catch (error) {
-                console.log("Logout API failed, clearing local state.");
-            } finally {
-                dispatch(logoutSuccess());
-                navigate('/login');
-            }
+    // Logout logic
+    const handleConfirmLogout = async () => {
+        setShowLogoutConfirm(false);
+        try {
+            await api.post('/user/logout');
+        } catch (error) {
+            console.log("Logout API failed, clearing local state.");
+        } finally {
+            dispatch(logoutSuccess());
+            // Redirect to landing page as per request
+            navigate('/');
         }
     };
 
@@ -67,7 +67,7 @@ const EntrepreneurNavbar = () => {
                                 </span>
                             </Link>
                             <Link 
-                                to="/my-submissions" 
+                                to="/entrepreneur/my-submissions" 
                                 className="block px-6 py-4 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
                             >
                                 <span className="flex flex-col">
@@ -81,22 +81,33 @@ const EntrepreneurNavbar = () => {
             </div>
 
             {/* 3. USER ACTIONS */}
-            <div className="flex items-center gap-6">
-                {/* Entrepreneur Badge */}
-                <div className="hidden sm:flex items-center gap-2 bg-[#2D5282] px-4 py-2 rounded-xl text-xs font-black uppercase border border-white/5 tracking-wider">
-                    <RiUser3Line className="text-orange-400" />
-                    <span>{userName} <span className="text-white/40 mx-1">|</span> Entrepreneur</span>
+            <div className="flex items-center gap-6 h-full">
+                {/* Entrepreneur Badge - Plain text as requested */}
+                <div className="hidden sm:flex items-center gap-2 text-xs font-black uppercase tracking-wider text-orange-400 py-2">
+                    <RiUser3Line className="text-sm" />
+                    <span className="text-white">{userName} <span className="text-white/40 mx-1">|</span> Entrepreneur</span>
                 </div>
 
                 {/* Logout Button */}
                 <button 
-                    onClick={handleLogout}
-                    className="bg-[#F97316] hover:bg-[#EA6C0A] text-white px-6 py-2.5 rounded-xl flex items-center gap-2 text-xs font-black uppercase transition-all shadow-lg shadow-orange-900/20 active:scale-95"
+                    onClick={() => setShowLogoutConfirm(true)}
+                    className="bg-[#F97316] hover:bg-[#EA6C0A] text-white px-4 py-2 rounded-xl flex items-center gap-2 text-xs font-black uppercase transition-all shadow-lg shadow-orange-900/20 active:scale-95 border border-transparent"
                 >
                     <RiLogoutBoxLine className="text-base" />
                     <span>Logout</span>
                 </button>
             </div>
+
+            {/* Logout Confirmation */}
+            <ConfirmDialog 
+                isOpen={showLogoutConfirm}
+                onCancel={() => setShowLogoutConfirm(false)}
+                onConfirm={handleConfirmLogout}
+                title="Logout Confirmation"
+                message="Are you sure you want to logout? You will need to login again to access your dashboard."
+                confirmText="Logout"
+                danger={true}
+            />
         </nav>
     );
 };

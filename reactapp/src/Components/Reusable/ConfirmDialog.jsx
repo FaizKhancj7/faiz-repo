@@ -15,7 +15,17 @@
 import React from 'react';
 import Button from './Button';
 
-const ConfirmDialog = ({ isOpen, title, message, onConfirm, onCancel, confirmText = "Confirm" }) => {
+const ConfirmDialog = ({ 
+    isOpen, 
+    title, 
+    message, 
+    onConfirm, 
+    onCancel, 
+    confirmText = "Confirm", 
+    cancelText = "Cancel",
+    danger = false,
+    showCancel = true
+}) => {
     // If the modal is not supposed to be open, return nothing
     if (!isOpen) return null;
 
@@ -25,11 +35,11 @@ const ConfirmDialog = ({ isOpen, title, message, onConfirm, onCancel, confirmTex
             <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
                 
                 {/* Header & Message */}
-                <div className="p-6">
+                <div className="p-6 text-left">
                     <h3 className="text-xl font-bold text-gray-900 mb-2">
                         {title}
                     </h3>
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 font-medium">
                         {message}
                     </p>
                 </div>
@@ -37,18 +47,20 @@ const ConfirmDialog = ({ isOpen, title, message, onConfirm, onCancel, confirmTex
                 {/* Action Buttons */}
                 <div className="flex items-center justify-end p-6 space-x-3 bg-gray-50/50">
                     {/* Cancel Button */}
-                    <button
-                        onClick={onCancel}
-                        className="px-4 py-2 text-sm font-semibold text-gray-700 transition-colors hover:text-gray-900"
-                    >
-                        Cancel
-                    </button>
+                    {showCancel && (
+                        <button
+                            onClick={onCancel}
+                            className="px-4 py-2 text-sm font-bold text-gray-500 transition-colors hover:text-gray-900"
+                        >
+                            {cancelText}
+                        </button>
+                    )}
 
                     {/* Confirm Button */}
                     <Button
                         text={confirmText}
                         onClick={onConfirm}
-                        className="bg-orange-500 hover:bg-orange-600 text-white px-6 shadow-md shadow-orange-200"
+                        className={`${danger ? 'bg-red-600 hover:bg-red-700' : 'bg-orange-500 hover:bg-orange-600'} text-white px-6 shadow-md`}
                     />
                 </div>
             </div>

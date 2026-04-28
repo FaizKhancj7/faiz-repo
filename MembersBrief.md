@@ -114,7 +114,142 @@ Member 5 built the actual pages where users do their work. They focused on makin
 - **Conditional Rendering**: Showing "Edit" text if updating, and "Create" text if adding new.
 - **Hover Menus**: Using Tailwind's `group-hover` to show dropdowns without needing extra Javascript.
 
-**Work Flow:**
-1. Built the Mentor's dashboard and the Entrepreneur's browsing list.
 2. Created the dynamic Form for adding and editing profiles.
 3. Added the hover dropdowns and confirmation popups to make the app feel premium.
+
+---
+
+## 🗓️ TUESDAY: Startup Submissions & Shortlisting
+
+---
+
+## 👤 Member 1: The Systems Architect (Backend Foundation)
+
+**Files Worked On:**
+- `nodeapp/routers/startupSubmissionRoutes.js` (Route management)
+- `reactapp/src/App.jsx` (Global navigation logic)
+- `nodeapp/controllers/startupSubmissionController.js` (Pagination standards)
+
+**What they did:**
+Member 1 focused on the "plumbing" of the new submission system. They made sure that the new pages we created have proper "addresses" (URLs) on the server and that the app knows exactly where to send users after they log out.
+
+**Functions & Logic:**
+- **Route Mapping**: In `startupSubmissionRoutes.js`, they registered the `GET /my-submissions` and `DELETE /delete/:id` paths. This tells the server: "If an Entrepreneur wants to see their pitches or delete one, use these specific logic functions."
+- **Redirect Logic**: In `App.jsx`, they updated the `ProtectedRoute`. Now, if a user is not logged in, they are sent back to the Landing Page (`/`) instead of a boring login screen, making the app feel more modern.
+- **Pagination Sync**: They updated the controllers to ensure that every list in the app shows exactly 10 items per page, keeping the user experience consistent everywhere.
+
+**Key Concepts Used:**
+- **Redirection**: Automatically sending a user to a different page based on whether they are logged in or not.
+- **URL Routing**: Creating the digital paths that connect the frontend buttons to the backend database.
+
+**Work Flow:**
+1. Defined the new digital paths for Entrepreneur submissions.
+2. Improved the security rules to redirect unauthorized users to the Landing Page.
+3. Synchronized the "10 items per page" rule across the entire backend.
+
+---
+
+## 👤 Member 2: The API Logic Developer (Advanced Backend)
+
+**Files Worked On:**
+- `nodeapp/controllers/startupSubmissionController.js` (Submission logic)
+
+**What they did:**
+Member 2 built the "brain" of the submission system. They wrote the complex rules that decide who can see what, how to search through pitches, and how to protect the mentors' funding limits.
+
+**Functions & Logic:**
+- **`getEntrepreneurSubmissions`**: This function fetches all ideas submitted by the logged-in user. It uses **Regex** to let users search for categories (like "Fintech") and **Pagination** to show 10 at a time.
+- **`deleteEntrepreneurSubmission`**: A security-heavy function that deletes a pitch. It first checks if the `userId` of the pitch matches the ID of the person trying to delete it. This prevents someone from deleting another person's work.
+- **`createSubmission` (Validation)**: They added a check that compares the money an entrepreneur asks for (`expectedFunding`) against the mentor's maximum limit. If the entrepreneur asks for too much, the server sends back an error message.
+
+**Key Concepts Used:**
+- **Case-Insensitive Regex**: A search tool that finds words regardless of whether they are CAPITALIZED or lowercase.
+- **Ownership Validation**: A security check that ensures a user can only modify or delete data that belongs to them.
+- **Backend Validation**: Double-checking the data on the server to make sure it's correct, even if someone tries to bypass the frontend rules.
+
+**Work Flow:**
+1. Built the searchable list for entrepreneurs to see their pitch history.
+2. Created the secure delete function to allow users to manage their submissions.
+3. Implemented the "Funding Limit" guard to protect mentor interests.
+
+---
+
+## 👤 Member 3: The State & Routing Manager (Frontend Integration)
+
+**Files Worked On:**
+- `reactapp/src/services/startupSubmissionService.js` (API communication)
+- `reactapp/src/App.jsx` (Page registration)
+- `reactapp/src/EntrepreneurComponents/ViewStartupOpportunities.jsx` (State syncing)
+
+**What they did:**
+Member 3 acted as the "bridge." They made sure that when a user clicks a button, the frontend knows how to talk to the backend, and that the app "remembers" important details across different pages.
+
+**Functions & Logic:**
+- **`getMySubmissions`**: An updated service function that sends the search keyword and page number to the server. It takes `params` (like page=2) and attaches them to the request.
+- **`deleteMySubmission`**: A new function that tells the server "Please remove this specific submission ID."
+- **Route Registration**: They officially registered the `/entrepreneur/my-submissions` path in the main app file so the browser knows which component to show when that URL is visited.
+
+**Key Concepts Used:**
+- **Query Parameters**: Extra pieces of info added to a URL (like `?category=Tech`) to tell the server exactly what we are looking for.
+- **Service Layer**: A dedicated file that holds all the "phone calls" (API requests) to the server, keeping the UI code clean.
+
+**Work Flow:**
+1. Updated the service layer to support the new search and delete features.
+2. Wired up the "My Submissions" page into the app's main routing system.
+3. Ensured the Browse page correctly identifies which items have already been submitted.
+
+---
+
+## 👤 Member 4: The UI/UX Specialist (Reusable Components & Layouts)
+
+**Files Worked On:**
+- `reactapp/src/Components/Reusable/ConfirmDialog.jsx` (Modal enhancements)
+- `reactapp/src/Components/Reusable/Button.jsx` (Alignment fixes)
+- `reactapp/src/Components/HomePage.jsx` (Full redesign)
+- `reactapp/src/MentorComponents/MentorNavbar.jsx` (Visual balancing)
+
+**What they did:**
+Member 4 was the "interior designer." They fixed alignment issues that made the app look messy and redesigned the Home Page to make a stunning first impression.
+
+**Functions & Logic:**
+- **Modal Flexibility**: They updated `ConfirmDialog.jsx` with a `showCancel` property. This allows us to use the same popup for "Success" messages (where you only need an "OK" button) and "Confirm" messages (where you need "Yes" and "No").
+- **Layout Redesign**: In `HomePage.jsx`, they used `h-[calc(100vh-80px)]` and `overflow-hidden`. This is a math trick that makes the page take up exactly the remaining screen space, preventing the user from needing to scroll.
+- **Visual Alignment**: They adjusted the "Badges" (the username display) and the "Logout" buttons in the top bar so they are perfectly centered with each other.
+
+**Key Concepts Used:**
+- **Viewport Units (vh)**: A way to measure sizes based on the user's screen height (100vh = full screen).
+- **Flexbox Alignment**: Using CSS tools like `items-center` to make sure text and icons sit perfectly on the same horizontal line.
+- **Optional Props**: Adding settings to a component (like `cancelText`) that have a default value but can be changed if needed.
+
+**Work Flow:**
+1. Upgraded the reusable Dialog component to support success messages.
+2. Fixed the full-width button alignment in the Login and Signup forms.
+3. Redesigned the Home Page to be a beautiful, non-scrollable dashboard.
+
+---
+
+## 👤 Member 5: The Feature Developer (Interactive UI)
+
+**Files Worked On:**
+- `reactapp/src/EntrepreneurComponents/SubmitIdea.jsx` (Submission form)
+- `reactapp/src/EntrepreneurComponents/MySubmissions.jsx` (Submissions dashboard)
+- `reactapp/src/EntrepreneurComponents/ViewStartupOpportunities.jsx` (Browse logic)
+- `reactapp/src/MentorComponents/StartupSubmissions.jsx` (Mentor dashboard)
+
+**What they did:**
+Member 5 built the "working parts" of the new features. They created the forms where entrepreneurs enter their data and the dashboard where mentors review it.
+
+**Functions & Logic:**
+- **Real-time Validation**: In `SubmitIdea.jsx`, they wrote logic that checks the "Funding" field as the user types. If the number is too high, it shows an error message and **disables** the Submit button so the user can't make a mistake.
+- **"Already Applied" Logic**: In the browse list, they added a check that compares the list of startups with the user's previous submissions. If they've already applied to one, the button turns gray and says "Already Applied."
+- **Action Refinement**: In `StartupSubmissions.jsx`, they changed the mentor's options. Now, a mentor can only View, Shortlist, or Reject. They also made sure the "Reject" option stays available even after a mentor shortlists someone.
+
+**Key Concepts Used:**
+- **State Syncing**: Sharing information between two different pages (like knowing which items were submitted while on the browse page).
+- **Inline Validation**: Showing an error message right next to the input field the moment a user makes a mistake.
+- **PDF Viewing**: Using `window.open` to let users view their uploaded documents in a new browser tab.
+
+**Work Flow:**
+1. Built the smart submission form with funding guards.
+2. Created the "My Submissions" dashboard for entrepreneurs to track their pitches.
+3. Refined the Mentor's dashboard to focus on the Shortlist/Reject workflow.
