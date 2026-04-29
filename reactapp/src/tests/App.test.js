@@ -10,8 +10,7 @@ import axios from 'axios';
 import Signup from '../Components/Signup';
 import ErrorPage from '../Components/ErrorPage';
 import HomePage from '../Components/HomePage';
-import MentorNavbar from '../MentorComponents/MentorNavbar';
-import EntrepreneurNavbar from '../EntrepreneurComponents/EntrepreneurNavbar';
+import Navbar from '../Components/Reusable/Navbar';
 import SubmitIdea from '../EntrepreneurComponents/SubmitIdea';
 import ViewStartupOpportunities from '../EntrepreneurComponents/ViewStartupOpportunities';
 import StartupProfileForm from '../MentorComponents/StartupProfileForm';
@@ -173,11 +172,22 @@ describe('MentorNavbar Component', () => {
   });
 
   const renderMentorNavbarComponent = (props = {}) => {
+    const MENTOR_LINKS = [
+        { label: 'Home', path: '/' },
+        { 
+            label: 'Startup Profiles', 
+            subLinks: [
+                { label: 'Add Profile', path: '/mentor/create-profile' },
+                { label: 'View Profiles', path: '/view-profiles' }
+            ] 
+        },
+        { label: 'Startup Submissions', path: '/startup-submissions' }
+    ];
     return render(
       <Provider store={store}>
         <QueryClientProvider client={queryClient}>
           <Router>
-            <MentorNavbar {...props} />
+            <Navbar role="Mentor" links={MENTOR_LINKS} {...props} />
           </Router>
         </QueryClientProvider>
       </Provider>
@@ -209,11 +219,21 @@ describe('EntrepreneurNavbar Component', () => {
   });
 
   const renderEntrepreneurNavbarComponent = (props = {}) => {
+    const ENTREPRENEUR_LINKS = [
+        { label: 'Home', path: '/' },
+        { 
+            label: 'Startup Ideas', 
+            subLinks: [
+                { label: 'Browse Mentors', path: '/mentor-opportunities' },
+                { label: 'My Submissions', path: '/entrepreneur/my-submissions' }
+            ] 
+        }
+    ];
     return render(
       <Provider store={store}>
         <QueryClientProvider client={queryClient}>
           <Router>
-            <EntrepreneurNavbar {...props} />
+            <Navbar role="Entrepreneur" links={ENTREPRENEUR_LINKS} {...props} />
           </Router>
         </QueryClientProvider>
       </Provider>
@@ -226,10 +246,10 @@ describe('EntrepreneurNavbar Component', () => {
     expect(home.length).toBeGreaterThan(0);
   });
 
-  test('frontend_entrepreneur_navbar_component_renders_with_mentor_opportunities', () => {
+  test('frontend_entrepreneur_navbar_component_renders_with_startup_ideas', () => {
     renderEntrepreneurNavbarComponent();
-    const mentor = screen.getAllByText('Mentor Opportunities');
-    expect(mentor.length).toBeGreaterThan(0);
+    const ideas = screen.getAllByText('Startup Ideas');
+    expect(ideas.length).toBeGreaterThan(0);
   });
 
   test('frontend_entrepreneur_navbar_component_renders_with_logout', () => {

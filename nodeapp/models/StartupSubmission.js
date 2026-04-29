@@ -65,8 +65,16 @@ const startupSubmissionSchema = new mongoose.Schema({
 
   // --- 5. PITCH DECK FILE ---
   pitchDeckFile: {
-    type: String, // This stores the Base64-encoded PDF string
+    type: String,
     required: [true, 'Validation failed: Pitch deck (PDF) is mandatory']
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false
+  },
+  deletedAt: {
+    type: Date,
+    default: null
   }
 });
 

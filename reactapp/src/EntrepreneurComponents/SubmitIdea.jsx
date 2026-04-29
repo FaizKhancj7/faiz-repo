@@ -234,6 +234,7 @@ const SubmitIdea = () => {
                         value={formData.launchYear}
                         onChange={handleChange}
                         error={errors.launchYear}
+                        min={new Date().toISOString().split("T")[0]}
                     />
 
                     {/* Expected Funding Input */}

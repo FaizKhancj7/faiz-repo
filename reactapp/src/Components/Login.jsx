@@ -8,7 +8,7 @@ import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 import { RiRocketLine } from 'react-icons/ri';
 import api from '../apiConfig';
-import { loginSuccess } from '../userSlice';
+import { loginSuccess } from '../slices/userSlice';
 import Button from './Reusable/Button';
 import Input from './Reusable/Input';
 

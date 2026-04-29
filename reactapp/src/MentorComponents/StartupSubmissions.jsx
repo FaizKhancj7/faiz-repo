@@ -19,10 +19,10 @@ import {
 // Import our reusable components
 import Table from '../Components/Reusable/Table';
 import Pagination from '../Components/Reusable/Pagination';
-import Loader from '../Components/Reusable/Loader';
 import EmptyState from '../Components/Reusable/EmptyState';
 import ConfirmDialog from '../Components/Reusable/ConfirmDialog';
 import Modal from '../Components/Reusable/Modal';
+import Loader from '../Components/Reusable/Loader';
 
 import startupSubmissionService from '../services/startupSubmissionService';
 

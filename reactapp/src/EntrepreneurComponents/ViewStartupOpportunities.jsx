@@ -18,8 +18,8 @@ import { fetchStart, fetchSuccess, fetchFailure } from '../slices/startupSlice';
 // Reusable Components
 import Table from '../Components/Reusable/Table';
 import Pagination from '../Components/Reusable/Pagination';
-import Loader from '../Components/Reusable/Loader';
 import EmptyState from '../Components/Reusable/EmptyState';
+import Loader from '../Components/Reusable/Loader';
 
 const ViewStartupOpportunities = () => {
     const dispatch = useDispatch();

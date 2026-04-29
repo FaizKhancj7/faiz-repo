@@ -7,7 +7,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { loginSuccess, logoutSuccess } from './userSlice';
+import { loginSuccess, logoutSuccess } from './slices/userSlice';
 import api from './apiConfig';
 
 // Import our shared components
@@ -18,16 +18,42 @@ import Signup from './Components/Signup';
 import ForgotPassword from './Components/ForgotPassword';
 
 // Mentor Components
-import MentorNavbar from './MentorComponents/MentorNavbar';
 import StartupProfileForm from './MentorComponents/StartupProfileForm';
 import ViewStartupProfiles from './MentorComponents/ViewStartupProfiles';
 import StartupSubmissions from './MentorComponents/StartupSubmissions';
 
 // Entrepreneur Components
-import EntrepreneurNavbar from './EntrepreneurComponents/EntrepreneurNavbar';
 import ViewStartupOpportunities from './EntrepreneurComponents/ViewStartupOpportunities';
 import SubmitIdea from './EntrepreneurComponents/SubmitIdea';
 import MySubmissions from './EntrepreneurComponents/MySubmissions';
+
+// Reusable Components
+import Navbar from './Components/Reusable/Navbar';
+import Footer from './Components/Reusable/Footer';
+
+// Define Navigation Links for each role
+const MENTOR_LINKS = [
+    { label: 'Home', path: '/' },
+    { 
+        label: 'Startup Profiles', 
+        subLinks: [
+            { label: 'Add Profile', path: '/mentor/create-profile', desc: 'Create new opportunity' },
+            { label: 'View Profiles', path: '/view-profiles', desc: 'Manage your listings' }
+        ] 
+    },
+    { label: 'Startup Submissions', path: '/startup-submissions' }
+];
+
+const ENTREPRENEUR_LINKS = [
+    { label: 'Home', path: '/' },
+    { 
+        label: 'Startup Ideas', 
+        subLinks: [
+            { label: 'Browse Mentors', path: '/mentor-opportunities', desc: 'Find funding & support' },
+            { label: 'My Submissions', path: '/entrepreneur/my-submissions', desc: 'Track your pitches' }
+        ] 
+    }
+];
 
 /**
  * ProtectedRoute
@@ -55,18 +81,21 @@ const ProtectedRoute = ({ children, requiredRole }) => {
 /**
  * MainLayout
  * This layout dynamically renders the correct Navbar based on the user's role.
- * This prevents route collision on shared pages like /home.
  */
 const MainLayout = () => {
     const { role } = useSelector((state) => state.user);
 
     return (
-        <>
-            {role === 'Mentor' ? <MentorNavbar /> : <EntrepreneurNavbar />}
-            <div className="bg-gray-50 min-h-[calc(100vh-80px)]">
+        <div className="flex flex-col min-h-screen">
+            <Navbar 
+                role={role} 
+                links={role === 'Mentor' ? MENTOR_LINKS : ENTREPRENEUR_LINKS} 
+            />
+            <main className="flex-grow bg-gray-50">
                 <Outlet />
-            </div>
-        </>
+            </main>
+            <Footer />
+        </div>
     );
 };
 

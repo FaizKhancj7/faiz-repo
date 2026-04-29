@@ -143,7 +143,7 @@ const StartupProfileForm = () => {
     if (loading) return <Loader fullPage={true} />;
 
     return (
-        <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="p-8 max-w-7xl mx-auto min-h-screen">
             <div className="max-w-3xl mx-auto">
                 
                 {/* Back Button (Only visible when editing) */}

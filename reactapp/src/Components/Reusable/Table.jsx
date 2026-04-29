@@ -1,55 +1,40 @@
-/**
- * Table Component
- * This is a reusable component that displays data in a structured grid format.
- * It is built using Tailwind CSS to ensure it looks modern and is responsive.
- * 
- * Props:
- * - columns: An array of strings representing the table headers.
- * - rows: An array of objects where each object represents a row of data.
- * - renderRow: A function that tells the table how to render each row's columns.
- */
-
 import React from 'react';
 
+/**
+ * Reusable Table Component
+ * This follows the corporate design system with a clean, structured look.
+ * It's fully responsive and handles empty states gracefully.
+ */
 const Table = ({ columns, rows, renderRow }) => {
     return (
-        <div className="w-full overflow-hidden border border-gray-200 rounded-xl shadow-sm bg-white">
-            {/* The outer div handles the border and rounded corners */}
-            <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                    {/* Table Header Section */}
-                    <thead className="bg-gray-50/50 border-b border-gray-200">
-                        <tr>
-                            {columns.map((column, index) => (
-                                <th 
-                                    key={index} 
-                                    className="px-6 py-4 text-xs font-bold tracking-wider text-gray-500 uppercase"
-                                >
-                                    {column}
-                                </th>
-                            ))}
-                        </tr>
-                    </thead>
+        <div className="w-full overflow-hidden border border-gray-100 rounded-3xl shadow-xl shadow-gray-200/50 bg-white overflow-x-auto">
+            <table className="w-full text-left border-collapse min-w-[800px]">
+                <thead>
+                    <tr className="bg-gray-50/80 border-b border-gray-100">
+                        {columns.map((column, index) => (
+                            <th 
+                                key={index} 
+                                className="px-6 py-5 text-xs font-black tracking-widest text-gray-400 uppercase"
+                            >
+                                {column}
+                            </th>
+                        ))}
+                    </tr>
+                </thead>
 
-                    {/* Table Body Section */}
-                    <tbody className="divide-y divide-gray-100">
-                        {rows && rows.length > 0 ? (
-                            rows.map((row, rowIndex) => (
-                                <tr 
-                                    key={rowIndex} 
-                                    className="transition-colors hover:bg-gray-50/50"
-                                >
-                                    {renderRow(row, rowIndex)}
-                                </tr>
-                            ))
-                        ) : (
-                            /* If there are no rows, we leave it to the parent to handle EmptyState 
-                               or we can show a placeholder here if needed. */
-                            null
-                        )}
-                    </tbody>
-                </table>
-            </div>
+                <tbody className="divide-y divide-gray-50">
+                    {rows && rows.length > 0 ? (
+                        rows.map((row, rowIndex) => (
+                            <tr 
+                                key={rowIndex} 
+                                className="transition-all duration-200 hover:bg-gray-50/50"
+                            >
+                                {renderRow(row, rowIndex)}
+                            </tr>
+                        ))
+                    ) : null}
+                </tbody>
+            </table>
         </div>
     );
 };

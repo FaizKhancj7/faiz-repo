@@ -44,10 +44,15 @@ app.use('/submission', submissionRouter);
 // GLOBAL ERROR HANDLER
 // This function catches any errors that happen in our app and sends a simple message back
 app.use((err, req, res, next) => {
-    console.error("Error Found:", err.message);
-    res.status(500).json({ 
+    // If the error has a status code, use it. Otherwise use 500 (Server Error)
+    const statusCode = err.statusCode || 500;
+    const message = err.message || "Something went wrong on the server!";
+
+    console.error("Error Found:", message);
+    
+    res.status(statusCode).json({ 
         success: false, 
-        message: "Something went wrong on the server!",
+        message: message,
         data: {}
     });
 });

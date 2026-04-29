@@ -70,7 +70,15 @@ const startupProfileSchema = new mongoose.Schema({
   // --- 8. CREATED DATE ---
   createdAt: {
     type: Date,
-    default: Date.now // Automatically adds the date if not provided
+    default: Date.now
+  },
+  isDeleted: {
+    type: Boolean,
+    default: false
+  },
+  deletedAt: {
+    type: Date,
+    default: null
   }
 });
 
