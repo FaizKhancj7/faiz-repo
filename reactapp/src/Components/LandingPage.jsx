@@ -75,8 +75,8 @@ const LandingPage = () => {
                     </div>
 
                     <div className="relative animate-lift delay-300">
-                        <div className="transition-all duration-500 hover:scale-[1.02] hover:shadow-2xl" style={{ borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(197,198,205,0.5)', boxShadow: '0 16px 48px rgba(14,29,42,0.1)' }}>
-                            <img src="/hero-meeting.png" alt="Startup team" className="w-full object-cover" style={{ height: '340px' }} />
+                        <div className="transition-all duration-500 hover:scale-[1.02]" style={{ borderRadius: '24px', overflow: 'hidden', border: '1px solid rgba(255,122,33,0.2)', boxShadow: '0 20px 50px rgba(255,122,33,0.25)' }}>
+                            <img src="/4a245c3a98c6c7d1d44b7259595ab8ce.jpg" alt="Startup team" className="w-full object-cover" style={{ height: '420px' }} />
                         </div>
                         <div className="absolute flex items-center gap-4 transition-all duration-300 hover:scale-105" style={{ bottom: '-32px', left: '24px', background: '#fff', borderRadius: '16px', border: '1px solid #e5e7eb', padding: '16px 24px', boxShadow: '0 8px 32px rgba(14,29,42,0.1)' }}>
                             <div className="flex items-center justify-center" style={{ width: '44px', height: '44px', background: 'linear-gradient(135deg, #ff7a21, #ff9a52)', borderRadius: '9999px' }}>

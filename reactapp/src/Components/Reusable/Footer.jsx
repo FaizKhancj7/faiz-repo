@@ -1,42 +1,44 @@
-/**
- * Footer Component
- * This is a reusable footer displayed at the bottom of every page.
- * It reuses the "Contact Us" design from the original HomePage.
- */
-
 import React from 'react';
+import { RiMailLine, RiPhoneLine, RiMapPinLine } from 'react-icons/ri';
 
 const Footer = () => {
     return (
-        <footer className="bg-gradient-to-br from-[#1E3A5F] via-[#1E3A5F] to-[#2D5282] p-8 flex flex-col items-center justify-center text-white text-center border-t border-white/10 mt-auto w-full">
-            <div className="max-w-5xl w-full">
-                {/* Section Title */}
-                <h2 className="text-2xl font-black mb-8 tracking-tighter text-orange-400 uppercase italic">Get In Touch</h2>
+        <footer className="bg-[#0e1d2a] py-6 px-8 border-t border-white/5 font-inter">
+            <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
                 
-                {/* Contact Details Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="flex flex-col items-center p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-all cursor-default">
-                        <span className="text-3xl mb-3">📞</span>
-                        <span className="text-sm font-bold opacity-80 uppercase tracking-widest mb-1">Phone</span>
-                        <span className="text-lg font-black">+91 98765 43210</span>
+                {/* Branding & Rights */}
+                <div className="flex items-center gap-4">
+                    <span style={{ fontFamily: "'Plus Jakarta Sans'", fontWeight: 800, fontSize: '16px', color: '#fff', letterSpacing: '-0.02em' }}>
+                        Startup<span style={{ color: '#ff7a21' }}>Nest</span>
+                    </span>
+                    <span className="h-4 w-[1px] bg-white/10 hidden md:block"></span>
+                    <p className="text-[9px] font-bold text-white/20 uppercase tracking-[0.2em]">
+                        © 2026 Ecosystem. All Rights Reserved.
+                    </p>
+                </div>
+
+                {/* Subtle Contact Info (Mini Version) */}
+                <div className="flex items-center gap-8">
+                    <div className="flex items-center gap-2 group cursor-default">
+                        <RiPhoneLine className="text-white/20 group-hover:text-[#ff7a21] transition-colors text-sm" />
+                        <span className="text-[10px] font-bold text-white/40 tracking-tight">+91 98765 43210</span>
                     </div>
-                    
-                    <div className="flex flex-col items-center p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-all cursor-default">
-                        <span className="text-3xl mb-3">📧</span>
-                        <span className="text-sm font-bold opacity-80 uppercase tracking-widest mb-1">Email</span>
-                        <span className="text-lg font-black italic">incubator@startupnest.com</span>
+
+                    <div className="flex items-center gap-2 group cursor-default">
+                        <RiMailLine className="text-white/20 group-hover:text-[#ff7a21] transition-colors text-sm" />
+                        <span className="text-[10px] font-bold text-white/40 tracking-tight italic">incubator@startupnest.com</span>
                     </div>
-                    
-                    <div className="flex flex-col items-center p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-all cursor-default">
-                        <span className="text-3xl mb-3">📍</span>
-                        <span className="text-sm font-bold opacity-80 uppercase tracking-widest mb-1">Location</span>
-                        <span className="text-base font-black leading-tight">456 Innovation Road, Tech City</span>
+
+                    <div className="flex items-center gap-2 group cursor-default">
+                        <RiMapPinLine className="text-white/20 group-hover:text-[#ff7a21] transition-colors text-sm" />
+                        <span className="text-[10px] font-bold text-white/40 tracking-tight">Tech City Hub</span>
                     </div>
                 </div>
 
-                {/* Bottom Rights Section */}
-                <div className="mt-12 pt-8 border-t border-white/5 text-[10px] font-bold tracking-[0.2em] uppercase text-white/30">
-                    © 2026 StartupNest Ecosystem. All Rights Reserved.
+                {/* Extra Links (Ultra Subtle) */}
+                <div className="flex gap-4 text-[9px] font-bold text-white/20 uppercase tracking-widest">
+                    <a href="#" className="hover:text-white transition-colors">Privacy</a>
+                    <a href="#" className="hover:text-white transition-colors">Terms</a>
                 </div>
             </div>
         </footer>

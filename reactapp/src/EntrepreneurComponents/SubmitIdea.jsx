@@ -1,17 +1,21 @@
 /**
- * SubmitIdea.jsx
+ * SubmitIdea Component — Ascent Modernism
  * This page allows Entrepreneurs to submit a startup idea for a specific Mentor opportunity.
- * It features multi-field validation, file upload (PDF), and a confirmation dialog.
+ * Features: Background image, Normal Form Card, and Fixed Viewport.
  */
 
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { RiRocket2Line, RiUploadCloud2Line, RiErrorWarningLine } from 'react-icons/ri';
+import { 
+    RiRocketLine, 
+    RiUploadCloud2Line, 
+    RiErrorWarningLine,
+    RiArrowLeftLine,
+    RiFilePdfLine,
+    RiCheckLine
+} from 'react-icons/ri';
 
-// Import our reusable components
-import Input from '../Components/Reusable/Input';
-import Button from '../Components/Reusable/Button';
 import ConfirmDialog from '../Components/Reusable/ConfirmDialog';
 import startupSubmissionService from '../services/startupSubmissionService';
 
@@ -19,13 +23,8 @@ const SubmitIdea = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
-    // We extract the profile data passed from the browse page
-    // If no state is passed (e.g. direct URL access), we redirect back
     const { profileId, category, fundingLimit } = location.state || {};
 
-    // --- 1. STATE MANAGEMENT ---
-
-    // Form data state
     const [formData, setFormData] = useState({
         marketPotential: '',
         launchYear: '',
@@ -33,96 +32,45 @@ const SubmitIdea = () => {
         address: ''
     });
 
-    // File state
     const [selectedFile, setSelectedFile] = useState(null);
-
-    // Validation error state
     const [errors, setErrors] = useState({});
-    
-    // Loading state for submission
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // Confirmation dialog state
     const [showConfirm, setShowConfirm] = useState(false);
-    
-    // Success modal state
     const [showSuccess, setShowSuccess] = useState(false);
-
-    // --- 2. VALIDATION LOGIC (PRD 7.1) ---
-    // ... rest of validation logic ...
 
     const validateForm = () => {
         let newErrors = {};
-
-        // Market Potential: Must be between 1 and 100
-        if (!formData.marketPotential) {
-            newErrors.marketPotential = "Market potential score is required.";
-        } else if (formData.marketPotential < 1 || formData.marketPotential > 100) {
-            newErrors.marketPotential = "Score must be between 1 and 100.";
-        }
-
-        // Launch Year: Must be a valid date and must be in the future (greater than today)
+        if (!formData.marketPotential || formData.marketPotential < 1 || formData.marketPotential > 100) 
+            newErrors.marketPotential = "Score must be 1-100.";
+        
         if (!formData.launchYear) {
-            newErrors.launchYear = "Anticipated launch date is required.";
+            newErrors.launchYear = "Launch date is required.";
         } else {
             const selectedDate = new Date(formData.launchYear);
             const today = new Date();
-            // Set time to 00:00:00 for a fair comparison
             today.setHours(0, 0, 0, 0);
-            
-            if (selectedDate <= today) {
-                newErrors.launchYear = "Anticipated date must be in the future.";
-            }
+            if (selectedDate <= today) newErrors.launchYear = "Date must be in the future.";
         }
 
-        // Expected Funding: Must be positive and not exceed mentor's funding limit
-        if (!formData.expectedFunding) {
-            newErrors.expectedFunding = "Funding amount is required.";
-        } else if (Number(formData.expectedFunding) <= 0) {
-            newErrors.expectedFunding = "Funding must be a positive number.";
+        if (!formData.expectedFunding || Number(formData.expectedFunding) <= 0) {
+            newErrors.expectedFunding = "Required amount.";
         } else if (fundingLimit && Number(formData.expectedFunding) > fundingLimit) {
-            newErrors.expectedFunding = `Expected funding cannot exceed the mentor's limit of ₹${fundingLimit.toLocaleString()}`;
-        } else if (Number(formData.expectedFunding) > 10000000) {
-            newErrors.expectedFunding = "Maximum funding allowed is ₹10,000,000.";
+            newErrors.expectedFunding = `Exceeds limit of ₹${fundingLimit.toLocaleString()}`;
         }
 
-        // Address: Min 10, Max 300 characters
-        if (!formData.address) {
-            newErrors.address = "Location/Address is required.";
-        } else if (formData.address.length < 10) {
-            newErrors.address = "Address must be at least 10 characters long.";
-        } else if (formData.address.length > 300) {
-            newErrors.address = "Address cannot exceed 300 characters.";
-        }
-
-        // File Upload: Must be a PDF and exist
-        if (!selectedFile) {
-            newErrors.pitchDeckFile = "Please upload your pitch deck (PDF).";
-        } else if (selectedFile.type !== 'application/pdf') {
-            newErrors.pitchDeckFile = "Only PDF files are allowed.";
-        } else if (selectedFile.size > 10 * 1024 * 1024) {
-            newErrors.pitchDeckFile = "File size exceeds 10MB limit.";
-        }
+        if (!formData.address || formData.address.length < 10) newErrors.address = "Min 10 characters.";
+        if (!selectedFile) newErrors.pitchDeckFile = "PDF Pitch Deck is required.";
 
         setErrors(newErrors);
-        // Returns true if no errors were found
         return Object.keys(newErrors).length === 0;
     };
 
-    // --- 3. EVENT HANDLERS ---
-
-    // Handle text input changes
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
-        
-        // Clear error for this field as the user types
-        if (errors[name]) {
-            setErrors(prev => ({ ...prev, [name]: '' }));
-        }
+        if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
     };
 
-    // Handle file selection
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -131,25 +79,16 @@ const SubmitIdea = () => {
         }
     };
 
-    // Handle form submission
     const handleSubmit = (e) => {
         e.preventDefault();
-        
-        // We validate first
-        if (validateForm()) {
-            // If valid, we show the confirmation prompt
-            setShowConfirm(true);
-        } else {
-            toast.warning("Please correct the errors before submitting.");
-        }
+        if (validateForm()) setShowConfirm(true);
+        else toast.warning("Please correct the errors before submitting.");
     };
 
-    // Actual API call after confirmation
     const handleConfirmSubmit = async () => {
         setShowConfirm(false);
         setIsSubmitting(true);
 
-        // We use FormData to handle the file upload
         const submissionPayload = new FormData();
         submissionPayload.append('startupProfileId', profileId);
         submissionPayload.append('marketPotential', formData.marketPotential);
@@ -160,171 +99,175 @@ const SubmitIdea = () => {
 
         try {
             const response = await startupSubmissionService.createSubmission(submissionPayload);
-            if (response.success) {
-                // Show success modal instead of toast
-                setShowSuccess(true);
-            }
+            if (response.success) setShowSuccess(true);
         } catch (error) {
-            toast.error(error.message || "Submission failed. Please try again.");
+            toast.error(error.message || "Submission failed.");
         } finally {
             setIsSubmitting(false);
         }
     };
 
-    // Handler for success modal OK button
-    const handleSuccessOk = () => {
-        setShowSuccess(false);
-        navigate('/entrepreneur/my-submissions');
-    };
-
-    // If no profile was passed, show a warning
-    // ... rest of component ...
     if (!profileId) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[80vh] p-10">
-                <RiErrorWarningLine className="text-6xl text-orange-400 mb-4" />
-                <h2 className="text-2xl font-bold text-gray-800">No Opportunity Selected</h2>
-                <p className="text-gray-500 mt-2 mb-6 text-center max-w-md">
-                    Please select a startup opportunity from the browse page to submit your idea.
-                </p>
-                <button 
-                    onClick={() => navigate('/mentor-opportunities')}
-                    className="bg-orange-500 text-white px-6 py-3 rounded-xl font-bold shadow-lg hover:bg-orange-600 transition-all"
-                >
-                    Back to Opportunities
-                </button>
+            <div className="h-full w-full flex items-center justify-center p-10 bg-[#0e1d2a]">
+                <div className="text-center animate-lift">
+                    <RiErrorWarningLine className="text-6xl text-[#ff7a21] mx-auto mb-6" />
+                    <h2 className="text-3xl font-black text-white mb-4">No Opportunity Selected</h2>
+                    <p className="text-white/40 mb-10 max-w-sm">Please choose a mentor opportunity first.</p>
+                    <button 
+                        onClick={() => navigate('/mentor-opportunities')}
+                        className="px-8 py-4 bg-[#ff7a21] text-white rounded-2xl font-black uppercase tracking-widest shadow-xl shadow-orange-900/20"
+                    >
+                        Browse Mentors
+                    </button>
+                </div>
             </div>
         );
     }
 
     return (
-        <div className="p-8 max-w-3xl mx-auto min-h-screen">
-            {/* Header Section */}
-            <div className="flex items-center gap-4 mb-8">
-                <div className="p-4 bg-orange-100 rounded-2xl">
-                    <RiRocket2Line className="text-4xl text-orange-600" />
+        <div className="h-full relative flex flex-col" style={{ fontFamily: "'Inter', sans-serif" }}>
+            
+            {/* Background Image */}
+            <div className="absolute inset-0 z-0" 
+                style={{ 
+                    backgroundImage: "url('/a9e3860adaff375666a186570e41a751.jpg')", 
+                    backgroundSize: 'cover', 
+                    backgroundPosition: 'center',
+                }}>
+                <div className="absolute inset-0 bg-[#0e1d2a]/85 backdrop-blur-[3px]"></div>
+            </div>
+
+            <div className="relative z-10 w-full max-w-xl mx-auto px-6 py-8 flex flex-col h-full overflow-hidden">
+                
+                {/* Header Section */}
+                <div className="flex flex-col items-center text-center mb-8 animate-lift flex-shrink-0">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-[#ff7a21]/10 border border-[#ff7a21]/20 mb-3">
+                        <RiRocketLine className="text-[#ff7a21]" />
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#ff7a21]">Venture Pitch Submission</span>
+                    </div>
+                    <h1 style={{ fontFamily: "'Plus Jakarta Sans'", fontSize: '36px', fontWeight: 800, color: '#fff', letterSpacing: '-0.04em', lineHeight: 1 }}>
+                        Pitch Your Idea
+                    </h1>
                 </div>
-                <div>
-                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">Submit Your Idea</h1>
-                    <p className="text-gray-500 font-medium">Applying for: <span className="text-orange-600 font-bold uppercase">{category}</span></p>
+
+                {/* Perfectly Fixed Form Area (No Scroll) */}
+                <div className="flex-grow overflow-hidden animate-lift delay-100 pb-6">
+                    <div className="bg-white rounded-[40px] shadow-2xl p-8 border-l-[6px] border-[#ff7a21] h-full flex flex-col relative overflow-hidden">
+                        
+                        <form onSubmit={handleSubmit} className="space-y-5 flex flex-col h-full">
+                            
+                            <div className="grid grid-cols-1 gap-5">
+                                {/* Market Potential */}
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Market Potential (1-100)</label>
+                                    <input
+                                        type="number"
+                                        name="marketPotential"
+                                        value={formData.marketPotential}
+                                        onChange={handleChange}
+                                        placeholder="85"
+                                        className="w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:border-[#ff7a21]/40 outline-none transition-all font-black text-sm text-gray-800 shadow-sm"
+                                    />
+                                    {errors.marketPotential && <p className="text-[10px] text-red-500 font-bold ml-1 uppercase">{errors.marketPotential}</p>}
+                                </div>
+                            </div>
+
+                            {/* Date and Funding Grid */}
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Launch Date</label>
+                                    <input
+                                        type="date"
+                                        name="launchYear"
+                                        value={formData.launchYear}
+                                        onChange={handleChange}
+                                        className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:border-[#ff7a21]/40 outline-none transition-all font-black text-xs text-gray-800 shadow-sm"
+                                    />
+                                </div>
+                                <div className="space-y-1">
+                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Funding (₹)</label>
+                                    <input
+                                        type="number"
+                                        name="expectedFunding"
+                                        value={formData.expectedFunding}
+                                        onChange={handleChange}
+                                        placeholder="Amount..."
+                                        className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:border-[#ff7a21]/40 outline-none transition-all font-black text-xs text-gray-800 shadow-sm"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Flexible Address Field */}
+                            <div className="flex-grow flex flex-col space-y-1 min-h-0">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Project Location</label>
+                                <textarea
+                                    name="address"
+                                    value={formData.address}
+                                    onChange={handleChange}
+                                    placeholder="Where are you based?"
+                                    className="flex-grow w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:border-[#ff7a21]/40 outline-none transition-all font-medium text-sm text-gray-700 resize-none shadow-sm"
+                                />
+                                {errors.address && <p className="text-[10px] text-red-500 font-bold ml-1 uppercase">{errors.address}</p>}
+                            </div>
+
+                            {/* Compact File Upload */}
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Pitch Deck (PDF)</label>
+                                <div className={`relative border-2 border-dashed rounded-xl p-4 flex items-center justify-center gap-3 transition-all ${
+                                    selectedFile ? 'border-green-400 bg-green-50' : 'border-slate-100 bg-slate-50 hover:border-[#ff7a21]/30 hover:bg-[#ff7a21]/5'
+                                }`}>
+                                    <input type="file" accept="application/pdf" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                                    {selectedFile ? <RiCheckLine className="text-xl text-green-500" /> : <RiUploadCloud2Line className="text-xl text-slate-300" />}
+                                    <p className="text-[10px] font-black text-gray-700 uppercase tracking-tighter truncate max-w-[200px]">
+                                        {selectedFile ? selectedFile.name : "Attach Business Plan"}
+                                    </p>
+                                </div>
+                                {errors.pitchDeckFile && <p className="text-[10px] text-red-500 font-bold ml-1 uppercase">{errors.pitchDeckFile}</p>}
+                            </div>
+
+                            {/* Action Footer */}
+                            <div className="pt-4 flex flex-col gap-2 flex-shrink-0">
+                                <button
+                                    type="submit"
+                                    disabled={isSubmitting}
+                                    className="w-full py-4 bg-[#ff7a21] hover:bg-[#ea6c0a] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-900/20 transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
+                                >
+                                    {isSubmitting ? "Processing..." : (
+                                        <>
+                                            <RiCheckLine size={16} />
+                                            Submit Pitch
+                                        </>
+                                    )}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => navigate('/mentor-opportunities')}
+                                    className="w-full py-2 text-[9px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-all"
+                                >
+                                    Cancel & Return
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
 
-            {/* Main Form */}
-            <form onSubmit={handleSubmit} className="bg-white p-8 rounded-3xl shadow-xl border border-gray-50 space-y-6">
-                
-                {/* Market Potential Input */}
-                <Input 
-                    label="Market Potential Score (1-100)"
-                    type="number"
-                    name="marketPotential"
-                    value={formData.marketPotential}
-                    onChange={handleChange}
-                    error={errors.marketPotential}
-                    min="0"
-                    placeholder="Enter estimated score (e.g., 85)"
-                />
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Launch Year Date Picker */}
-                    <Input 
-                        label="Anticipated Launch Date"
-                        type="date"
-                        name="launchYear"
-                        value={formData.launchYear}
-                        onChange={handleChange}
-                        error={errors.launchYear}
-                        min={new Date().toISOString().split("T")[0]}
-                    />
-
-                    {/* Expected Funding Input */}
-                    <Input 
-                        label={`Expected Funding (Limit: ₹${fundingLimit?.toLocaleString()})`}
-                        type="number"
-                        name="expectedFunding"
-                        value={formData.expectedFunding}
-                        onChange={handleChange}
-                        error={errors.expectedFunding}
-                        min="0"
-                        placeholder="e.g., 500000"
-                    />
-                </div>
-
-                {/* Address/Location Input */}
-                <div>
-                    <label className="block text-sm font-bold text-gray-700 mb-2 ml-1">Office/Project Address</label>
-                    <textarea 
-                        name="address"
-                        value={formData.address}
-                        onChange={handleChange}
-                        rows="3"
-                        className={`w-full px-5 py-4 bg-gray-50 border rounded-2xl outline-none transition-all resize-none font-medium text-gray-800 ${
-                            errors.address ? 'border-red-500 focus:ring-2 focus:ring-red-100' : 'border-gray-100 focus:border-orange-500 focus:ring-2 focus:ring-orange-100'
-                        }`}
-                        placeholder="Provide your physical address or location details..."
-                    />
-                    {errors.address && <p className="text-red-500 text-xs mt-2 ml-1 font-bold animate-pulse">{errors.address}</p>}
-                </div>
-
-                {/* File Upload Section */}
-                <div className="space-y-2">
-                    <label className="block text-sm font-bold text-gray-700 ml-1">Pitch Deck (PDF only, Max 10MB)</label>
-                    <div className={`relative group border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center transition-all ${
-                        selectedFile ? 'border-green-300 bg-green-50' : 'border-gray-200 bg-gray-50 hover:border-orange-300 hover:bg-orange-50'
-                    }`}>
-                        <input 
-                            type="file"
-                            accept="application/pdf"
-                            onChange={handleFileChange}
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                        />
-                        <RiUploadCloud2Line className={`text-4xl mb-2 ${selectedFile ? 'text-green-500' : 'text-gray-400 group-hover:text-orange-500'}`} />
-                        <p className="text-sm font-bold text-gray-700">
-                            {selectedFile ? selectedFile.name : "Click to upload or drag & drop"}
-                        </p>
-                        <p className="text-xs text-gray-400 mt-1">Only PDF format is supported</p>
-                    </div>
-                    {errors.pitchDeckFile && <p className="text-red-500 text-xs mt-2 ml-1 font-bold">{errors.pitchDeckFile}</p>}
-                </div>
-
-                {/* Action Buttons */}
-                <div className="pt-6 flex gap-4">
-                    <Button 
-                        type="submit" 
-                        loading={isSubmitting}
-                        disabled={!!errors.expectedFunding}
-                        className="flex-1 py-4 text-lg"
-                    >
-                        Submit Idea
-                    </Button>
-                    <button 
-                        type="button"
-                        onClick={() => navigate('/mentor-opportunities')}
-                        className="px-8 py-4 bg-gray-100 text-gray-600 rounded-2xl font-bold hover:bg-gray-200 transition-all"
-                    >
-                        Cancel
-                    </button>
-                </div>
-            </form>
-
-            {/* Confirmation Dialog */}
-            <ConfirmDialog 
+            <ConfirmDialog
                 isOpen={showConfirm}
-                onCancel={() => setShowConfirm(false)}
-                onConfirm={handleConfirmSubmit}
                 title="Confirm Submission"
-                message="Are you sure you want to submit this startup idea? You cannot change your pitch deck once it is submitted to the mentor."
-                confirmText="Yes, Submit Now"
-                cancelText="Check Again"
+                message="Your pitch will be sent to the mentor for review. Continue?"
+                onConfirm={handleConfirmSubmit}
+                onCancel={() => setShowConfirm(false)}
             />
-            {/* Success Confirmation Dialog */}
-            <ConfirmDialog 
+
+            <ConfirmDialog
                 isOpen={showSuccess}
-                onConfirm={handleSuccessOk}
-                title="Submission Successful!"
-                message="Your startup idea has been successfully submitted to the mentor. You can track its status in your dashboard."
-                confirmText="OK, View My Submissions"
+                title="Pitch Sent!"
+                message="Your startup idea has been successfully submitted."
+                onConfirm={() => navigate('/entrepreneur/my-submissions')}
                 showCancel={false}
+                confirmText="View Dashboard"
             />
         </div>
     );

@@ -1,24 +1,28 @@
 /**
- * ViewStartupProfiles Component
- * This page allows Mentors to see a list of startup opportunities they have created.
- * It includes server-side pagination, search, loading states, and edit/delete actions.
- * Strictly follows PRD Section 5.3.1.
+ * ViewStartupProfiles Component — Ascent Modernism
+ * This page allows Mentors to manage their listed startup opportunities.
+ * Features: Background image, Normal Table with Orange Headers, and Fixed Viewport Scroll.
  */
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import { RiSearchLine, RiAddLine, RiDeleteBinLine, RiEditLine } from 'react-icons/ri';
+import { 
+    RiSearchLine, 
+    RiAddLine, 
+    RiDeleteBinLine, 
+    RiEditLine,
+    RiRocketLine,
+    RiBankLine
+} from 'react-icons/ri';
 import { useNavigate } from 'react-router-dom';
 
 import startupService from '../services/startupService';
 import { fetchStart, fetchSuccess, fetchFailure } from '../slices/startupSlice';
 
 // Reusable Components
-import Table from '../Components/Reusable/Table';
 import Pagination from '../Components/Reusable/Pagination';
 import EmptyState from '../Components/Reusable/EmptyState';
-import Button from '../Components/Reusable/Button';
 import ConfirmDialog from '../Components/Reusable/ConfirmDialog';
 import Loader from '../Components/Reusable/Loader';
 
@@ -26,15 +30,12 @@ const ViewStartupProfiles = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     
-    // Get state from Redux
     const { profiles, loading, pagination } = useSelector((state) => state.startup);
     
-    // Local state for search and delete confirmation
     const [searchTerm, setSearchTerm] = useState('');
     const [debouncedSearch, setDebouncedSearch] = useState('');
     const [deleteId, setDeleteId] = useState(null);
 
-    // --- 1. DEBOUNCE SEARCH (PRD 6.1) ---
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearch(searchTerm);
@@ -42,7 +43,6 @@ const ViewStartupProfiles = () => {
         return () => clearTimeout(timer);
     }, [searchTerm]);
 
-    // --- 2. DATA FETCHING ---
     const loadProfiles = useCallback(async (page = 1, keyword = '') => {
         dispatch(fetchStart());
         try {
@@ -65,13 +65,11 @@ const ViewStartupProfiles = () => {
         loadProfiles(1, debouncedSearch);
     }, [debouncedSearch, loadProfiles]);
 
-    // --- 3. EVENT HANDLERS ---
     const handlePageChange = (newPage) => {
         loadProfiles(newPage, debouncedSearch);
     };
 
     const handleEdit = (profile) => {
-        // Navigate to the form and pass the profile data via state
         navigate('/mentor/create-profile', { state: { profileData: profile } });
     };
 
@@ -86,7 +84,6 @@ const ViewStartupProfiles = () => {
             const response = await startupService.deleteProfile(id);
             if (response.success) {
                 toast.success("Profile deleted successfully");
-                // Refresh the current page
                 loadProfiles(pagination.currentPage, debouncedSearch);
             }
         } catch (error) {
@@ -94,106 +91,130 @@ const ViewStartupProfiles = () => {
         }
     };
 
-    // --- 4. TABLE CONFIGURATION ---
-    const columns = [
-        "Category",
-        "Target Industry",
-        "Funding Limit",
-        "Equity Expectation",
-        "Preferred Stage",
-        "Actions"
-    ];
-
-    const renderRow = (profile) => (
-        <>
-            <td className="px-6 py-4">
-                <span className="px-3 py-1 bg-blue-50 text-blue-700 rounded-full text-xs font-bold uppercase tracking-wider">
-                    {profile.category}
-                </span>
-            </td>
-            <td className="px-6 py-4 text-sm text-gray-600 font-medium">{profile.targetIndustry}</td>
-            <td className="px-6 py-4 text-sm font-bold text-gray-900">₹{profile.fundingLimit?.toLocaleString()}</td>
-            <td className="px-6 py-4 text-sm font-semibold text-gray-700">{profile.avgEquityExpectation}%</td>
-            <td className="px-6 py-4">
-                <span className="text-sm text-gray-600 capitalize">{profile.preferredStage}</span>
-            </td>
-            <td className="px-6 py-4">
-                <div className="flex items-center gap-4">
-                    {/* Edit Button */}
-                    <button 
-                        className="text-blue-500 hover:text-blue-700 transition-colors flex items-center gap-1 font-bold text-sm"
-                        onClick={() => handleEdit(profile)}
-                    >
-                        <RiEditLine className="text-lg" />
-                        <span>Edit</span>
-                    </button>
-
-                    {/* Delete Button */}
-                    <button 
-                        className="text-red-500 hover:text-red-700 transition-colors flex items-center gap-1 font-bold text-sm"
-                        onClick={() => handleDeleteClick(profile._id)}
-                    >
-                        <RiDeleteBinLine className="text-lg" />
-                        <span>Delete</span>
-                    </button>
-                </div>
-            </td>
-        </>
-    );
-
     return (
-        <div className="p-8 max-w-7xl mx-auto min-h-screen bg-gray-50/30">
-            {/* Header Section */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-                <div>
-                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">Your Startup Opportunities</h1>
-                    <p className="text-gray-500 font-medium mt-1">Manage and track the profiles you've listed.</p>
-                </div>
-
-                <Button 
-                    text="List New Opportunity" 
-                    icon={<RiAddLine />}
-                    onClick={() => navigate('/mentor/create-profile')}
-                    className="bg-orange-500 hover:bg-orange-600 text-white font-bold px-6 py-3 rounded-2xl shadow-lg shadow-orange-200 flex items-center gap-2"
-                />
+        <div className="h-full relative flex flex-col" style={{ fontFamily: "'Inter', sans-serif" }}>
+            
+            {/* Background Image */}
+            <div className="absolute inset-0 z-0" 
+                style={{ 
+                    backgroundImage: "url('/ef25b0c1e24e39075b96f250f91f9060.jpg')", 
+                    backgroundSize: 'cover', 
+                    backgroundPosition: 'center',
+                }}>
+                <div className="absolute inset-0 bg-[#0e1d2a]/85 backdrop-blur-[2px]"></div>
             </div>
 
-            {/* Search Bar */}
-            <div className="relative mb-6">
-                <RiSearchLine className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xl" />
-                <input
-                    type="text"
-                    placeholder="Search by category, industry or description..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-12 pr-4 py-4 bg-white border border-gray-100 rounded-2xl shadow-sm focus:ring-2 focus:ring-orange-500 outline-none transition-all placeholder:text-gray-400 font-medium"
-                />
+            <div className="relative z-10 w-full max-w-7xl mx-auto px-6 py-8 flex flex-col h-full overflow-hidden">
+                
+                {/* Header Section (Static) */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6 animate-lift flex-shrink-0">
+                    <div>
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-[#ff7a21]/10 border border-[#ff7a21]/20 mb-3">
+                            <RiBankLine className="text-[#ff7a21] text-xs" />
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#ff7a21]">Venture Portfolio</span>
+                        </div>
+                        <h1 style={{ fontFamily: "'Plus Jakarta Sans'", fontSize: '36px', fontWeight: 800, color: '#fff', letterSpacing: '-0.04em', lineHeight: 1 }}>
+                            Startup Opportunities
+                        </h1>
+                        <p className="text-white/40 text-sm mt-2 font-medium">Manage and track the profiles you've listed in the ecosystem.</p>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                        {/* Premium Search Bar */}
+                        <div className="relative w-full md:w-80">
+                            <RiSearchLine className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 text-xl" />
+                            <input
+                                type="text"
+                                placeholder="Filter listings..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full pl-12 pr-4 py-3 bg-white/5 border border-white/10 rounded-2xl text-white placeholder:text-white/20 outline-none focus:bg-white/10 focus:border-[#ff7a21]/30 transition-all font-bold text-sm shadow-2xl"
+                            />
+                        </div>
+                        <button 
+                            onClick={() => navigate('/mentor/create-profile')}
+                            className="flex items-center gap-2 px-6 py-3.5 bg-[#ff7a21] hover:bg-[#ea6c0a] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-xl shadow-orange-900/20 transition-all active:scale-95"
+                        >
+                            <RiAddLine size={16} />
+                            <span>Add Profile</span>
+                        </button>
+                    </div>
+                </div>
+
+                {/* Content Area (Scrollable Table) */}
+                {loading ? (
+                    <Loader />
+                ) : profiles && profiles.length > 0 ? (
+                    <div className="flex flex-col h-full overflow-hidden animate-lift delay-100">
+                        {/* Table Container */}
+                        <div className="flex-grow overflow-auto border border-white/10 rounded-3xl shadow-2xl bg-white">
+                            <table className="w-full text-left border-collapse min-w-[1000px]">
+                                <thead className="sticky top-0 z-20">
+                                    <tr className="bg-[#f7f9ff] border-b border-gray-100 shadow-sm">
+                                        <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase">Category</th>
+                                        <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase">Industry</th>
+                                        <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-center">Funding Limit</th>
+                                        <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-center">Equity</th>
+                                        <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-center">Stage</th>
+                                        <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-50">
+                                    {profiles.map((profile) => (
+                                        <tr key={profile._id} className="transition-all duration-200 hover:bg-slate-50/80">
+                                            <td className="px-6 py-5">
+                                                <span className="px-2.5 py-1 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-black uppercase tracking-wider border border-blue-100">
+                                                    {profile.category}
+                                                </span>
+                                            </td>
+                                            <td className="px-6 py-5 text-sm text-gray-600 font-bold uppercase tracking-tight">{profile.targetIndustry}</td>
+                                            <td className="px-6 py-5 text-sm font-black text-gray-900 text-center">₹{profile.fundingLimit?.toLocaleString()}</td>
+                                            <td className="px-6 py-5 text-sm font-black text-gray-600 text-center">{profile.avgEquityExpectation}%</td>
+                                            <td className="px-6 py-5 text-center">
+                                                <span className="text-xs text-gray-600 font-bold capitalize">{profile.preferredStage}</span>
+                                            </td>
+                                            <td className="px-6 py-5 text-right">
+                                                <div className="flex items-center justify-end gap-3">
+                                                    <button 
+                                                        onClick={() => handleEdit(profile)}
+                                                        className="flex items-center gap-1.5 px-3 py-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all text-[10px] font-bold uppercase tracking-wider border border-transparent hover:border-blue-100"
+                                                    >
+                                                        <RiEditLine size={14} />
+                                                        <span>Edit</span>
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => handleDeleteClick(profile._id)}
+                                                        className="flex items-center gap-1.5 px-3 py-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all text-[10px] font-bold uppercase tracking-wider border border-transparent hover:border-red-100"
+                                                    >
+                                                        <RiDeleteBinLine size={14} />
+                                                        <span>Delete</span>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        {/* Pagination */}
+                        <div className="py-4 flex-shrink-0">
+                            <Pagination 
+                                currentPage={pagination.currentPage}
+                                totalPages={pagination.totalPages}
+                                onPageChange={handlePageChange}
+                            />
+                        </div>
+                    </div>
+                ) : (
+                    <EmptyState 
+                        message={searchTerm ? "No profiles match your search." : "You haven't listed any startup opportunities yet."} 
+                        icon="🚀"
+                    />
+                )}
             </div>
 
-            {/* Content Area */}
-            {loading ? (
-                <Loader />
-            ) : profiles && profiles.length > 0 ? (
-                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <Table 
-                        columns={columns} 
-                        rows={profiles} 
-                        renderRow={renderRow} 
-                    />
-                    <Pagination 
-                        currentPage={pagination.currentPage}
-                        totalPages={pagination.totalPages}
-                        onPageChange={handlePageChange}
-                    />
-                </div>
-            ) : (
-                <EmptyState 
-                    message={searchTerm ? "No profiles match your search." : "You haven't listed any startup opportunities yet."} 
-                    icon="🚀"
-                />
-            )}
-
-            {/* Delete Confirmation Dialog */}
+            {/* Delete Confirmation */}
             <ConfirmDialog 
                 isOpen={!!deleteId}
                 title="Delete Profile?"

@@ -1,52 +1,44 @@
-// This file is the Login Page of the application.
-// It allows users to enter their email and password to access their account.
-// It validates the fields, talks to the backend, and handles success or failure.
+// Login Page — Ascent Modernism Design System
+// Fixed viewport (no scroll). Same visual language as Signup/LandingPage.
+// Functionality is 100% unchanged.
 
 import React, { useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
-import { RiRocketLine } from 'react-icons/ri';
+import { RiRocketLine, RiArrowRightLine } from 'react-icons/ri';
 import api from '../apiConfig';
 import { loginSuccess } from '../slices/userSlice';
 import Button from './Reusable/Button';
 import Input from './Reusable/Input';
 
 const Login = () => {
-    // Hooks for navigation, redux dispatch, and component state
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    // State to store form data
     const [formData, setFormData] = useState({
         email: '',
         password: ''
     });
 
-    // State to store field-level error messages
     const [errors, setErrors] = useState({
         email: '',
         password: ''
     });
 
-    // This function updates the state when the user types in the input fields
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
-
-        // Clear the error message as the user types
         if (errors[name]) {
             setErrors({ ...errors, [name]: '' });
         }
     };
 
-    // This function validates the form using Regex before we call the API
     const validateForm = () => {
         let valid = true;
         let newErrors = { email: '', password: '' };
-
-        // Email regex check
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        
         if (!formData.email) {
             newErrors.email = 'Email is required.';
             valid = false;
@@ -55,7 +47,6 @@ const Login = () => {
             valid = false;
         }
 
-        // Password check (must not be empty)
         if (!formData.password) {
             newErrors.password = 'Password is required.';
             valid = false;
@@ -65,95 +56,183 @@ const Login = () => {
         return valid;
     };
 
-    // This function handles the login process when the form is submitted
     const handleLogin = useCallback(async (e) => {
         e.preventDefault();
-
-        // First, we validate the form locally
         if (!validateForm()) {
             toast.error("Please correct the errors in the form.");
             return;
         }
 
         try {
-            // We call the login API on our backend
             const response = await api.post('/user/login', formData);
-
             if (response.data.success) {
-                // If login is successful, we show a success message
                 toast.success(response.data.message);
-
-                // We update our central Redux state with user details
                 dispatch(loginSuccess({
                     role: response.data.data.role,
                     userName: response.data.data.userName
                 }));
-
-                // BUG FIX 1: Redirect user to /home correctly (dashboards will be handled there if needed)
-                // But for now, we follow the user's redirect request
                 navigate('/home');
             }
         } catch (error) {
-            // If the login fails, we show the error message from the server
             const message = error.response?.data?.message || "Something went wrong during login.";
             toast.error(message);
         }
     }, [formData, navigate, dispatch]);
 
-
     return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
-            <div className="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-md overflow-hidden">
-                {/* Header Section */}
-                <div className="bg-[#1E3A5F] p-8 text-center text-white">
-                    <RiRocketLine className="text-[#F97316] text-5xl mx-auto mb-4" />
-                    <h1 className="text-2xl font-bold tracking-tight">StartupNest</h1>
-                    <p className="text-slate-300 text-sm mt-2">Empowering ideas, one startup at a time.</p>
+        <div className="h-screen overflow-hidden flex" style={{ fontFamily: "'Inter', sans-serif" }}>
+
+            {/* LEFT — Illustration Panel */}
+            <div className="hidden lg:flex w-[480px] flex-shrink-0 flex-col justify-between relative overflow-hidden"
+                style={{ background: 'linear-gradient(160deg, #0e1d2a 0%, #162a3f 100%)' }}>
+
+                {/* Background Image (same as Signup) */}
+                <div className="absolute inset-0 opacity-20"
+                    style={{ backgroundImage: "url('/8640544.jpg')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
                 </div>
 
-                <div className="p-8">
-                    <h2 className="text-xl font-bold text-slate-800 mb-6">Login to your account</h2>
-
-                    {/* The Login Form */}
-                    <form onSubmit={handleLogin} className="space-y-6">
-                        <Input
-                            label="Email Address"
-                            name="email"
-                            type="email"
-                            placeholder="john@example.com"
-                            value={formData.email}
-                            onChange={handleChange}
-                            error={errors.email}
-                        />
-
-                        <div className="space-y-1">
-                            <Input
-                                label="Password"
-                                name="password"
-                                type="password"
-                                placeholder="••••••••"
-                                value={formData.password}
-                                onChange={handleChange}
-                                error={errors.password}
-                            />
-                            <div className="text-right">
-                                <Link to="/forgot-password" intrinsic="true" className="text-sm font-bold text-[#F97316] hover:underline">
-                                    Forgot Password?
-                                </Link>
+                {/* Content overlay */}
+                <div className="relative z-10 flex flex-col justify-between h-full">
+                    {/* Logo */}
+                    <div className="p-10">
+                        <div className="flex items-center gap-2.5 cursor-pointer group" onClick={() => navigate('/')}>
+                            <div className="p-2 rounded-xl transition-all duration-300 group-hover:rotate-12"
+                                style={{ background: 'linear-gradient(135deg, #ff7a21, #ff9a52)' }}>
+                                <RiRocketLine className="text-white text-lg" />
                             </div>
+                            <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: '18px', color: '#fff' }}>
+                                Startup<span style={{ color: '#ff7a21' }}>Nest</span>
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Tagline */}
+                    <div className="p-10">
+                        <h2 className="animate-lift" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '36px', fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.03em', color: '#fff' }}>
+                            Welcome back to the{' '}<span style={{ color: '#ff7a21', fontStyle: 'italic' }}>nest.</span>
+                        </h2>
+                        <p className="animate-lift delay-100 mt-4" style={{ fontSize: '14px', lineHeight: 1.7, color: '#bdc7de' }}>
+                            Continue your journey where big ideas take flight.
+                        </p>
+                    </div>
+
+                    {/* Copyright */}
+                    <div className="p-10">
+                        <p style={{ fontSize: '10px', color: '#75777d', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 500 }}>
+                            © 2026 StartupNest Ecosystem
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {/* RIGHT — Login Form */}
+            <div className="flex-grow flex items-center justify-center p-6 relative overflow-hidden"
+                style={{ background: 'linear-gradient(135deg, #f7f9ff 0%, #e8effd 60%, #f7f9ff 100%)' }}>
+
+                {/* Background illustration (same as user's request for signup) */}
+                <div className="absolute inset-0 pointer-events-none" 
+                    style={{ 
+                        backgroundImage: "url('/4c84fce09eb8ec512786dcca4a3fc136.jpg')", 
+                        backgroundSize: 'cover', 
+                        backgroundPosition: 'center', 
+                        backgroundRepeat: 'no-repeat', 
+                        opacity: 0.6 
+                    }}>
+                </div>
+
+                {/* Ambient blurs */}
+                <div className="absolute top-10 -left-20 w-80 h-80 rounded-full opacity-15 blur-[100px] pointer-events-none" style={{ background: '#ff7a21' }}></div>
+                <div className="absolute bottom-10 right-0 w-80 h-80 rounded-full opacity-10 blur-[100px] pointer-events-none" style={{ background: '#3b82f6' }}></div>
+
+                <div className="w-full max-w-md relative z-10 animate-lift delay-100">
+
+                    {/* Mobile Logo */}
+                    <div className="lg:hidden flex items-center gap-2.5 mb-8 cursor-pointer" onClick={() => navigate('/')}>
+                        <div className="p-2 rounded-xl" style={{ background: 'linear-gradient(135deg, #ff7a21, #ff9a52)' }}>
+                            <RiRocketLine className="text-white text-lg" />
+                        </div>
+                        <span style={{ fontFamily: "'Plus Jakarta Sans'", fontWeight: 800, fontSize: '18px', color: '#0e1d2a' }}>
+                            Startup<span style={{ color: '#ff7a21' }}>Nest</span>
+                        </span>
+                    </div>
+
+                    {/* The main card for the login form */}
+                    <div style={{ 
+                        background: '#fff', 
+                        padding: '40px', 
+                        borderRadius: '24px', 
+                        border: '1px solid #e5e7eb', 
+                        boxShadow: '0 8px 32px rgba(14,29,42,0.05)' 
+                    }}>
+                        
+                        {/* Header */}
+                        <div className="mb-8 text-center">
+                            <h2 style={{ fontFamily: "'Plus Jakarta Sans'", fontSize: '28px', fontWeight: 800, letterSpacing: '-0.03em', color: '#0e1d2a' }}>Welcome Back</h2>
+                            <p className="mt-2" style={{ fontSize: '14px', color: '#45474c' }}>Enter your details to access your account</p>
                         </div>
 
-                        <Button text="Login" type="submit" />
-                    </form>
+                        {/* The Login Form */}
+                        <form onSubmit={handleLogin} className="space-y-6">
+                            <Input
+                                label="Email Address"
+                                name="email"
+                                type="email"
+                                placeholder="john@example.com"
+                                value={formData.email}
+                                onChange={handleChange}
+                                error={errors.email}
+                            />
 
-                    {/* Link to the Signup page */}
-                    <div className="mt-8 text-center pt-6 border-t border-slate-100">
-                        <p className="text-slate-600 text-sm">
-                            New here?{' '}
-                            <Link to="/signup" className="font-bold text-[#1E3A5F] hover:underline">
-                                Create an Account
-                            </Link>
-                        </p>
+                            <div className="space-y-1">
+                                <Input
+                                    label="Password"
+                                    name="password"
+                                    type="password"
+                                    placeholder="••••••••"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    error={errors.password}
+                                />
+                                <div className="text-right">
+                                    <Link to="/forgot-password" intrinsic="true" className="text-sm font-bold text-[#ff7a21] hover:underline">
+                                        Forgot Password?
+                                    </Link>
+                                </div>
+                            </div>
+
+                            <button type="submit" className="w-full flex items-center justify-center gap-2 text-white text-sm font-bold uppercase transition-all duration-300 active:scale-95"
+                                style={{ 
+                                    fontFamily: "'Plus Jakarta Sans'", 
+                                    letterSpacing: '0.1em', 
+                                    background: 'linear-gradient(135deg, #ff7a21, #ff9a52)', 
+                                    padding: '14px', 
+                                    borderRadius: '9999px', 
+                                    boxShadow: '0 6px 24px rgba(255,122,33,0.3)', 
+                                    marginTop: '8px' 
+                                }}
+                                onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)'; e.currentTarget.style.boxShadow = '0 10px 32px rgba(255,122,33,0.45)'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0) scale(1)'; e.currentTarget.style.boxShadow = '0 6px 24px rgba(255,122,33,0.3)'; }}>
+                                <span>Login</span>
+                                <RiArrowRightLine className="text-lg" />
+                            </button>
+                        </form>
+
+                        {/* Link to the Signup page */}
+                        <div className="mt-8 text-center pt-6 border-t border-slate-100">
+                            <p style={{ fontSize: '14px', color: '#45474c' }}>
+                                New here?{' '}
+                                <Link to="/signup" className="font-bold transition-colors duration-300 hover:underline" style={{ color: '#ff7a21' }}>
+                                    Create an Account
+                                </Link>
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Back to Home Link */}
+                    <div className="mt-6 text-center">
+                        <Link to="/" className="text-xs font-bold text-slate-400 hover:text-[#0e1d2a] uppercase tracking-widest transition-colors">
+                            ← Back to Landing Page
+                        </Link>
                     </div>
                 </div>
             </div>

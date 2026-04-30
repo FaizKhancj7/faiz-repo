@@ -86,12 +86,12 @@ const MainLayout = () => {
     const { role } = useSelector((state) => state.user);
 
     return (
-        <div className="flex flex-col min-h-screen">
+        <div className="h-screen flex flex-col overflow-hidden bg-[#0e1d2a]">
             <Navbar 
                 role={role} 
                 links={role === 'Mentor' ? MENTOR_LINKS : ENTREPRENEUR_LINKS} 
             />
-            <main className="flex-grow bg-gray-50">
+            <main className="flex-grow pt-16 overflow-hidden relative">
                 <Outlet />
             </main>
             <Footer />

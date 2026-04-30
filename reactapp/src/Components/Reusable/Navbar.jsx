@@ -14,7 +14,7 @@ const Navbar = ({ role, links }) => {
     // Get the user's name from Redux
     const { userName } = useSelector((state) => state.user);
 
-    // Logout logic (same for everyone)
+    // Logout logic
     const handleConfirmLogout = async () => {
         setShowLogoutConfirm(false);
         try {
@@ -28,68 +28,75 @@ const Navbar = ({ role, links }) => {
     };
 
     return (
-        <nav className="bg-[#1E3A5F] text-white px-8 py-4 flex justify-between items-center shadow-lg sticky top-0 z-50">
-            {/* 1. LOGO SECTION */}
-            <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
-                <RiRocketLine className="text-[#F97316] text-3xl group-hover:rotate-12 transition-transform duration-300" />
-                <span className="text-2xl font-black tracking-tighter italic text-white uppercase">STARTUPNEST</span>
+        <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 py-4 backdrop-blur-md transition-all duration-300 border-b border-white/5"
+            style={{ background: 'rgba(14, 29, 42, 0.85)', fontFamily: "'Inter', sans-serif" }}>
+            
+            {/* 1. LOGO SECTION (Left) */}
+            <div className="flex items-center gap-2.5 cursor-pointer group" onClick={() => navigate('/')}>
+                <div className="p-2 rounded-xl transition-all duration-300 group-hover:rotate-12" style={{ background: 'linear-gradient(135deg, #ff7a21, #ff9a52)' }}>
+                    <RiRocketLine className="text-white text-lg" />
+                </div>
+                <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: '18px', color: '#fff', letterSpacing: '-0.02em' }}>
+                    Startup<span style={{ color: '#ff7a21' }}>Nest</span>
+                </span>
             </div>
 
-            {/* 2. DYNAMIC NAVIGATION LINKS */}
-            <div className="hidden lg:flex items-center gap-10 font-bold text-sm tracking-wide">
-                {links.map((link, index) => (
-                    <React.Fragment key={index}>
-                        {link.subLinks ? (
-                            /* DROPDOWN MENU */
-                            <div className="relative group cursor-pointer py-2">
-                                <div className="flex items-center gap-1 hover:text-[#F97316] transition-colors uppercase">
-                                    <span>{link.label}</span>
-                                    <RiArrowDownSLine className="text-lg group-hover:rotate-180 transition-transform duration-300" />
-                                </div>
-
-                                <div className="absolute top-full left-0 mt-1 w-64 bg-white rounded-2xl shadow-2xl overflow-hidden invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-300 transform origin-top scale-95 group-hover:scale-100 border border-gray-100">
-                                    <div className="py-2">
-                                        {link.subLinks.map((sub, subIndex) => (
-                                            <Link 
-                                                key={subIndex}
-                                                to={sub.path} 
-                                                className="block px-6 py-4 text-gray-700 hover:bg-orange-50 hover:text-orange-600 transition-colors border-b border-gray-50 last:border-0"
-                                            >
-                                                <span className="flex flex-col">
-                                                    <span className="font-bold">{sub.label}</span>
-                                                    {sub.desc && <span className="text-[10px] text-gray-400 uppercase">{sub.desc}</span>}
-                                                </span>
-                                            </Link>
-                                        ))}
+            {/* 2. NAVIGATION & USER ACTIONS (Right Side Only) */}
+            <div className="flex items-center gap-8">
+                {/* Dynamic Links */}
+                <div className="hidden lg:flex items-center gap-8 font-bold text-xs tracking-wider uppercase">
+                    {links.map((link, index) => (
+                        <React.Fragment key={index}>
+                            {link.subLinks ? (
+                                <div className="relative group cursor-pointer py-2">
+                                    <div className="flex items-center gap-1.5 text-white/70 hover:text-[#ff7a21] transition-all duration-300">
+                                        <span>{link.label}</span>
+                                        <RiArrowDownSLine className="text-lg group-hover:rotate-180 transition-transform duration-300" />
+                                    </div>
+                                    <div className="absolute top-full right-0 mt-2 w-64 bg-[#0e1d2a] rounded-2xl shadow-2xl overflow-hidden invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-300 transform origin-top scale-95 group-hover:scale-100 border border-white/5">
+                                        <div className="py-2">
+                                            {link.subLinks.map((sub, subIndex) => (
+                                                <Link 
+                                                    key={subIndex}
+                                                    to={sub.path} 
+                                                    className="block px-6 py-4 text-white/60 hover:bg-white/5 hover:text-[#ff7a21] transition-all border-b border-white/5 last:border-0"
+                                                >
+                                                    <span className="flex flex-col">
+                                                        <span className="font-bold text-sm">{sub.label}</span>
+                                                        {sub.desc && <span className="text-[10px] text-white/30 font-medium tracking-normal mt-0.5">{sub.desc}</span>}
+                                                    </span>
+                                                </Link>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ) : (
-                            /* SIMPLE LINK */
-                            <Link to={link.path} className="hover:text-[#F97316] transition-colors uppercase">
-                                {link.label}
-                            </Link>
-                        )}
-                    </React.Fragment>
-                ))}
-            </div>
-
-            {/* 3. USER ACTIONS */}
-            <div className="flex items-center gap-6 h-full">
-                {/* User Badge */}
-                <div className="hidden sm:flex items-center gap-2 text-xs font-black uppercase tracking-wider text-orange-400 py-2">
-                    <RiUser3Line className="text-sm" />
-                    <span className="text-white">{userName} <span className="text-white/40 mx-1">|</span> {role}</span>
+                            ) : (
+                                <Link to={link.path} className="text-white/70 hover:text-[#ff7a21] transition-all duration-300">
+                                    {link.label}
+                                </Link>
+                            )}
+                        </React.Fragment>
+                    ))}
                 </div>
 
-                {/* Logout Button */}
-                <button 
-                    onClick={() => setShowLogoutConfirm(true)}
-                    className="bg-[#F97316] hover:bg-[#EA6C0A] text-white px-4 py-2 rounded-xl flex items-center gap-2 text-xs font-black uppercase transition-all shadow-lg shadow-orange-900/20 active:scale-95 border border-transparent"
-                >
-                    <RiLogoutBoxLine className="text-base" />
-                    <span>Logout</span>
-                </button>
+                {/* Divider */}
+                <div className="hidden lg:block h-5 w-[1px] bg-white/10 mx-2"></div>
+
+                {/* User Info & Logout */}
+                <div className="flex items-center gap-6">
+                    <div className="hidden sm:flex flex-col items-end gap-0.5 leading-none px-2">
+                        <span className="text-[12px] font-bold text-white tracking-tight">{userName}</span>
+                        <span className="text-[9px] font-black text-[#ff7a21] uppercase tracking-[0.1em]">{role}</span>
+                    </div>
+
+                    <button 
+                        onClick={() => setShowLogoutConfirm(true)}
+                        className="group flex items-center justify-center p-2 rounded-xl transition-all duration-300 hover:bg-white/5 border border-white/10"
+                        title="Logout"
+                    >
+                        <RiLogoutBoxLine className="text-white/40 text-lg group-hover:text-[#ff7a21] transition-colors" />
+                    </button>
+                </div>
             </div>
 
             {/* Logout Confirmation */}
@@ -98,7 +105,7 @@ const Navbar = ({ role, links }) => {
                 onCancel={() => setShowLogoutConfirm(false)}
                 onConfirm={handleConfirmLogout}
                 title="Logout Confirmation"
-                message="Are you sure you want to logout? You will need to login again to access your dashboard."
+                message="Ready to head out? You will need to login again to access your dashboard."
                 confirmText="Logout"
                 danger={true}
             />
