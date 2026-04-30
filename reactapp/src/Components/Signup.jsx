@@ -184,16 +184,16 @@ const Signup = () => {
                     </div>
 
                     {/* The main card for the signup form */}
-                    <div style={{ background: '#fff', padding: '28px', borderRadius: '24px', border: '1px solid #e5e7eb', boxShadow: '0 8px 32px rgba(14,29,42,0.05)' }}>
+                    <div className="bg-white rounded-[24px] md:rounded-[32px] p-5 md:p-10 border border-slate-100 shadow-2xl shadow-orange-900/5">
                         {/* Header */}
                         <div className="mb-6 text-center">
-                            <h2 style={{ fontFamily: "'Plus Jakarta Sans'", fontSize: '28px', fontWeight: 800, letterSpacing: '-0.03em', color: '#0e1d2a' }}>Create Account</h2>
-                            <p className="mt-1" style={{ fontSize: '14px', color: '#45474c' }}>Join StartupNest and start your journey</p>
+                            <h2 style={{ fontFamily: "'Plus Jakarta Sans'", letterSpacing: '-0.03em', color: '#0e1d2a' }} className="text-2xl md:text-[28px] font-extrabold">Create Account</h2>
+                            <p className="mt-1 text-xs md:text-sm text-slate-500">Join StartupNest and start your journey</p>
                         </div>
 
                         {/* The Signup Form */}
-                        <form onSubmit={handleSignup} className="space-y-5">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <form onSubmit={handleSignup} className="space-y-4 md:space-y-5">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
                                 <Input 
                                     label="Username"
                                     name="userName"
@@ -223,20 +223,26 @@ const Signup = () => {
                             />
 
                             {/* Role Selection Dropdown */}
-                            <div className="flex flex-col gap-1">
-                                <label className="text-sm font-semibold text-slate-700">Select Role *</label>
+                            <div className="flex flex-col gap-1.5">
+                                <label className="text-[11px] md:text-sm font-bold text-slate-700 uppercase tracking-wider">Select Role *</label>
                                 <select 
                                     name="role"
                                     value={formData.role}
                                     onChange={handleChange}
-                                    className="w-full border-2 border-slate-200 bg-white rounded-lg px-4 py-2 outline-none focus:border-[#1E3A5F] transition-all"
+                                    className="w-full border-2 border-slate-100 bg-slate-50/50 rounded-xl px-4 py-3 md:py-3.5 text-sm font-medium outline-none focus:border-[#ff7a21] focus:bg-white transition-all appearance-none cursor-pointer"
+                                    style={{ 
+                                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2345474c'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+                                        backgroundRepeat: 'no-repeat',
+                                        backgroundPosition: 'right 1rem center',
+                                        backgroundSize: '1em'
+                                    }}
                                 >
                                     <option value="Entrepreneur">Entrepreneur</option>
                                     <option value="Mentor">Mentor</option>
                                 </select>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
                                 <Input 
                                     label="Password"
                                     name="password"
@@ -257,9 +263,9 @@ const Signup = () => {
                                 />
                             </div>
 
-                            <div className="p-4 rounded-lg border border-slate-200" style={{ background: '#f7f9ff' }}>
-                                <p className="text-xs font-bold text-slate-500 uppercase mb-3">Security Question</p>
-                                <p className="text-sm text-slate-700 mb-3">What was the name of your first school?</p>
+                            <div className="p-4 rounded-2xl border border-slate-100" style={{ background: '#f8fafc' }}>
+                                <p className="text-[10px] font-black text-slate-400 uppercase mb-2 tracking-widest">Security Question</p>
+                                <p className="text-xs md:text-[13px] font-semibold text-slate-600 mb-3 leading-relaxed">What was the name of your first school?</p>
                                 <Input 
                                     label="Your Answer"
                                     name="secretQuestionAnswer"
@@ -270,12 +276,14 @@ const Signup = () => {
                                 />
                             </div>
 
-                            <Button text="Register Account" type="submit" />
+                            <div className="pt-2">
+                                <Button text="Register Account" type="submit" className="w-full py-4 text-[13px]" />
+                            </div>
                         </form>
 
                         {/* Link to go back to the Login page */}
-                        <div className="mt-6 pt-4 border-t border-slate-100 text-center">
-                            <p style={{ fontSize: '14px', color: '#45474c' }}>
+                        <div className="mt-6 pt-5 border-t border-slate-50 text-center">
+                            <p className="text-xs md:text-sm text-slate-500">
                                 Already have an account?{' '}
                                 <Link to="/login" className="font-bold transition-colors duration-300 hover:underline" style={{ color: '#ff7a21' }}>
                                     Login Here

@@ -157,22 +157,16 @@ const Login = () => {
                     </div>
 
                     {/* The main card for the login form */}
-                    <div style={{ 
-                        background: '#fff', 
-                        padding: '40px', 
-                        borderRadius: '24px', 
-                        border: '1px solid #e5e7eb', 
-                        boxShadow: '0 8px 32px rgba(14,29,42,0.05)' 
-                    }}>
+                    <div className="bg-white rounded-[24px] md:rounded-[32px] p-6 md:p-10 border border-slate-100 shadow-2xl shadow-orange-900/5">
                         
                         {/* Header */}
-                        <div className="mb-8 text-center">
-                            <h2 style={{ fontFamily: "'Plus Jakarta Sans'", fontSize: '28px', fontWeight: 800, letterSpacing: '-0.03em', color: '#0e1d2a' }}>Welcome Back</h2>
-                            <p className="mt-2" style={{ fontSize: '14px', color: '#45474c' }}>Enter your details to access your account</p>
+                        <div className="mb-6 md:mb-8 text-center">
+                            <h2 style={{ fontFamily: "'Plus Jakarta Sans'", letterSpacing: '-0.03em', color: '#0e1d2a' }} className="text-2xl md:text-[28px] font-extrabold">Welcome Back</h2>
+                            <p className="mt-2 text-xs md:text-sm text-slate-500">Enter your details to access your account</p>
                         </div>
 
                         {/* The Login Form */}
-                        <form onSubmit={handleLogin} className="space-y-6">
+                        <form onSubmit={handleLogin} className="space-y-4 md:space-y-6">
                             <Input
                                 label="Email Address"
                                 name="email"
@@ -194,13 +188,13 @@ const Login = () => {
                                     error={errors.password}
                                 />
                                 <div className="text-right">
-                                    <Link to="/forgot-password" intrinsic="true" className="text-sm font-bold text-[#ff7a21] hover:underline">
+                                    <Link to="/forgot-password" intrinsic="true" className="text-[11px] md:text-sm font-bold text-[#ff7a21] hover:underline">
                                         Forgot Password?
                                     </Link>
                                 </div>
                             </div>
 
-                            <button type="submit" className="w-full flex items-center justify-center gap-2 text-white text-sm font-bold uppercase transition-all duration-300 active:scale-95"
+                            <button type="submit" className="w-full flex items-center justify-center gap-2 text-white text-[12px] md:text-sm font-bold uppercase transition-all duration-300 active:scale-95"
                                 style={{ 
                                     fontFamily: "'Plus Jakarta Sans'", 
                                     letterSpacing: '0.1em', 
@@ -218,8 +212,8 @@ const Login = () => {
                         </form>
 
                         {/* Link to the Signup page */}
-                        <div className="mt-8 text-center pt-6 border-t border-slate-100">
-                            <p style={{ fontSize: '14px', color: '#45474c' }}>
+                        <div className="mt-6 md:mt-8 text-center pt-5 md:pt-6 border-t border-slate-50">
+                            <p className="text-xs md:text-sm text-slate-500">
                                 New here?{' '}
                                 <Link to="/signup" className="font-bold transition-colors duration-300 hover:underline" style={{ color: '#ff7a21' }}>
                                     Create an Account
@@ -230,7 +224,7 @@ const Login = () => {
 
                     {/* Back to Home Link */}
                     <div className="mt-6 text-center">
-                        <Link to="/" className="text-xs font-bold text-slate-400 hover:text-[#0e1d2a] uppercase tracking-widest transition-colors">
+                        <Link to="/" className="text-[10px] md:text-xs font-black text-slate-400 hover:text-[#0e1d2a] uppercase tracking-widest transition-colors">
                             ← Back to Landing Page
                         </Link>
                     </div>

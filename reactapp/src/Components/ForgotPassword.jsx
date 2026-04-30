@@ -103,24 +103,24 @@ const ForgotPassword = () => {
 
             {/* MAIN CARD */}
             <div className="relative z-10 w-full max-w-[480px] animate-lift">
-                <div className="bg-white rounded-[40px] shadow-2xl overflow-hidden border-l-[6px] border-[#ff7a21]">
+                <div className="bg-white rounded-[24px] md:rounded-[40px] shadow-2xl overflow-hidden border-l-[4px] md:border-l-[6px] border-[#ff7a21]">
                     
                     {/* Header */}
-                    <div className="px-10 pt-10 pb-6 text-center">
+                    <div className="px-6 md:px-10 pt-8 md:pt-10 pb-4 md:pb-6 text-center">
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-[#ff7a21]/10 border border-[#ff7a21]/20 mb-4">
                             <RiLockPasswordLine className="text-[#ff7a21] text-xs" />
                             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#ff7a21]">Security Protocol</span>
                         </div>
-                        <h1 style={{ fontFamily: "'Plus Jakarta Sans'", fontSize: '32px', fontWeight: 800, color: '#0e1d2a', letterSpacing: '-0.04em', lineHeight: 1.1 }}>
+                        <h1 style={{ fontFamily: "'Plus Jakarta Sans'", fontWeight: 800, color: '#0e1d2a', letterSpacing: '-0.04em', lineHeight: 1.1 }} className="text-2xl md:text-[32px]">
                             Reset Access
                         </h1>
-                        <p className="mt-3 text-slate-500 text-sm font-medium">
+                        <p className="mt-2 md:mt-3 text-slate-500 text-xs md:text-sm font-medium">
                             Verify your identity to secure your account.
                         </p>
                     </div>
 
                     {/* Form Body */}
-                    <form onSubmit={handleReset} className="px-10 pb-8 space-y-6">
+                    <form onSubmit={handleReset} className="px-6 md:px-10 pb-8 space-y-4 md:space-y-6">
                         
                         <Input 
                             label="EMAIL ADDRESS"
@@ -133,12 +133,12 @@ const ForgotPassword = () => {
                         />
 
                         {/* Security Question Section */}
-                        <div className="p-5 bg-slate-50 rounded-3xl border border-slate-100 space-y-4">
+                        <div className="p-4 md:p-5 bg-slate-50 rounded-2xl md:rounded-3xl border border-slate-100 space-y-3 md:space-y-4">
                             <div className="flex items-center gap-2">
                                 <RiShieldCheckLine className="text-[#ff7a21]" size={14} />
                                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Verification Step</p>
                             </div>
-                            <p className="text-sm font-bold text-gray-700 leading-snug">
+                            <p className="text-xs md:text-sm font-bold text-gray-700 leading-snug">
                                 What was the name of your first school?
                             </p>
                             <Input 
@@ -152,7 +152,7 @@ const ForgotPassword = () => {
                         </div>
 
                         {/* New Password Fields */}
-                        <div className="grid grid-cols-1 gap-5 pt-2">
+                        <div className="grid grid-cols-1 gap-4 md:gap-5 pt-2">
                             <Input 
                                 label="NEW PASSWORD"
                                 name="newPassword"
@@ -176,7 +176,7 @@ const ForgotPassword = () => {
                         {/* Actions */}
                         <div className="pt-4 flex flex-col gap-4">
                             <Button text="Launch Password Reset" type="submit" />
-                            <Link to="/login" className="flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-all">
+                            <Link to="/login" className="flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-all py-2">
                                 <RiArrowLeftLine />
                                 Return to Login
                             </Link>

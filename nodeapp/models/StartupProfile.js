@@ -15,9 +15,8 @@ const startupProfileSchema = new mongoose.Schema({
     // Enum ensures the category matches one of the options below
     enum: {
       values: ['FinTech', 'GreenTech', 'EdTech', 'AI/ML', 'HealthTech', 'Retail', 'Other'],
-      message: 'Validation failed: Please select a valid category from the list'
-    },
-    index: 'text' // Makes searching by category much faster
+    message: 'Validation failed: Please select a valid category from the list'
+    }
   },
 
   // --- 3. DESCRIPTION VALIDATION ---
@@ -81,8 +80,5 @@ const startupProfileSchema = new mongoose.Schema({
     default: null
   }
 });
-
-// Added an index for performance optimization per PRD 6.2
-startupProfileSchema.index({ mentorId: 1 });
 
 module.exports = mongoose.model('StartupProfile', startupProfileSchema);    

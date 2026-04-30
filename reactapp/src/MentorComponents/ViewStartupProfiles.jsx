@@ -141,60 +141,111 @@ const ViewStartupProfiles = () => {
                     </div>
                 </div>
 
-                {/* Content Area (Scrollable Table) */}
+                {/* Content Area */}
                 {loading ? (
                     <Loader />
                 ) : profiles && profiles.length > 0 ? (
                     <div className="flex flex-col h-full overflow-hidden animate-lift delay-100">
-                        {/* Table Container */}
-                        <div className="flex-grow overflow-auto border border-white/10 rounded-3xl shadow-2xl bg-white">
-                            <table className="w-full text-left border-collapse min-w-[1000px]">
-                                <thead className="sticky top-0 z-20">
-                                    <tr className="bg-[#f7f9ff] border-b border-gray-100 shadow-sm">
-                                        <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase">Category</th>
-                                        <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase">Industry</th>
-                                        <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-center">Funding Limit</th>
-                                        <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-center">Equity</th>
-                                        <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-center">Stage</th>
-                                        <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-50">
-                                    {profiles.map((profile) => (
-                                        <tr key={profile._id} className="transition-all duration-200 hover:bg-slate-50/80">
-                                            <td className="px-6 py-5">
-                                                <span className="px-2.5 py-1 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-black uppercase tracking-wider border border-blue-100">
-                                                    {profile.category}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-5 text-sm text-gray-600 font-bold uppercase tracking-tight">{profile.targetIndustry}</td>
-                                            <td className="px-6 py-5 text-sm font-black text-gray-900 text-center">₹{profile.fundingLimit?.toLocaleString()}</td>
-                                            <td className="px-6 py-5 text-sm font-black text-gray-600 text-center">{profile.avgEquityExpectation}%</td>
-                                            <td className="px-6 py-5 text-center">
-                                                <span className="text-xs text-gray-600 font-bold capitalize">{profile.preferredStage}</span>
-                                            </td>
-                                            <td className="px-6 py-5 text-right">
-                                                <div className="flex items-center justify-end gap-3">
-                                                    <button 
-                                                        onClick={() => handleEdit(profile)}
-                                                        className="flex items-center gap-1.5 px-3 py-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all text-[10px] font-bold uppercase tracking-wider border border-transparent hover:border-blue-100"
-                                                    >
-                                                        <RiEditLine size={14} />
-                                                        <span>Edit</span>
-                                                    </button>
-                                                    <button 
-                                                        onClick={() => handleDeleteClick(profile._id)}
-                                                        className="flex items-center gap-1.5 px-3 py-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all text-[10px] font-bold uppercase tracking-wider border border-transparent hover:border-red-100"
-                                                    >
-                                                        <RiDeleteBinLine size={14} />
-                                                        <span>Delete</span>
-                                                    </button>
-                                                </div>
-                                            </td>
+                        
+                        {/* DESKTOP TABLE VIEW (Visible on LG screens and up) */}
+                        <div className="hidden lg:flex flex-col flex-grow overflow-hidden border border-white/10 rounded-3xl shadow-2xl bg-white">
+                            <div className="flex-grow overflow-auto">
+                                <table className="w-full text-left border-collapse table-fixed">
+                                    <thead className="sticky top-0 z-20">
+                                        <tr className="bg-[#f7f9ff] border-b border-gray-100 shadow-sm">
+                                            <th className="w-[20%] px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase">Category</th>
+                                            <th className="w-[25%] px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase">Industry</th>
+                                            <th className="w-[15%] px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-center">Funding</th>
+                                            <th className="w-[10%] px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-center">Equity</th>
+                                            <th className="w-[10%] px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-center">Stage</th>
+                                            <th className="w-[20%] px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-right">Actions</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-50">
+                                        {profiles.map((profile) => (
+                                            <tr key={profile._id} className="transition-all duration-200 hover:bg-slate-50/80">
+                                                <td className="px-6 py-5 overflow-hidden">
+                                                    <span className="inline-block px-2.5 py-1 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-black uppercase tracking-wider border border-blue-100 truncate max-w-full">
+                                                        {profile.category}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-5 text-sm text-gray-600 font-bold uppercase tracking-tight truncate">{profile.targetIndustry}</td>
+                                                <td className="px-6 py-5 text-sm font-black text-gray-900 text-center truncate">₹{profile.fundingLimit?.toLocaleString()}</td>
+                                                <td className="px-6 py-5 text-sm font-black text-gray-600 text-center">{profile.avgEquityExpectation}%</td>
+                                                <td className="px-6 py-5 text-center">
+                                                    <span className="text-xs text-gray-600 font-bold capitalize">{profile.preferredStage}</span>
+                                                </td>
+                                                <td className="px-6 py-5 text-right">
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <button 
+                                                            onClick={() => handleEdit(profile)}
+                                                            className="flex items-center gap-1 px-2.5 py-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all text-[10px] font-bold uppercase tracking-wider border border-transparent hover:border-blue-100"
+                                                        >
+                                                            <RiEditLine size={14} />
+                                                            <span>Edit</span>
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleDeleteClick(profile._id)}
+                                                            className="flex items-center gap-1 px-2.5 py-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all text-[10px] font-bold uppercase tracking-wider border border-transparent hover:border-red-100"
+                                                        >
+                                                            <RiDeleteBinLine size={14} />
+                                                            <span>Del</span>
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {/* TABLET & MOBILE CARD VIEW (Visible below LG breakpoint) */}
+                        <div className="lg:hidden flex-grow overflow-y-auto space-y-4 pr-1 custom-scrollbar">
+                            {profiles.map((profile) => (
+                                <div key={profile._id} className="bg-white rounded-3xl p-5 shadow-xl border-l-[4px] border-[#ff7a21] space-y-4">
+                                    <div className="flex items-start justify-between">
+                                        <div className="space-y-1 overflow-hidden">
+                                            <span className="inline-block px-2 py-0.5 bg-blue-50 text-blue-600 rounded text-[9px] font-black uppercase tracking-wider border border-blue-100 truncate max-w-full">
+                                                {profile.category}
+                                            </span>
+                                            <h3 className="text-sm font-black text-[#0e1d2a] uppercase mt-1 truncate">{profile.targetIndustry}</h3>
+                                        </div>
+                                        <div className="text-right flex-shrink-0">
+                                            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Limit</p>
+                                            <p className="text-sm font-black text-[#ff7a21]">₹{profile.fundingLimit?.toLocaleString()}</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-2 gap-4 py-3 border-y border-slate-50">
+                                        <div>
+                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Equity</p>
+                                            <p className="text-xs font-bold text-gray-700">{profile.avgEquityExpectation}%</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Stage</p>
+                                            <p className="text-xs font-bold text-gray-700 capitalize">{profile.preferredStage}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center gap-2 pt-1">
+                                        <button 
+                                            onClick={() => handleEdit(profile)}
+                                            className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-slate-50 text-blue-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-slate-100 transition-all active:scale-95"
+                                        >
+                                            <RiEditLine size={14} />
+                                            Edit
+                                        </button>
+                                        <button 
+                                            onClick={() => handleDeleteClick(profile._id)}
+                                            className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-red-50 text-red-600 rounded-xl text-[10px] font-black uppercase tracking-widest border border-red-100 transition-all active:scale-95"
+                                        >
+                                            <RiDeleteBinLine size={14} />
+                                            Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                         
                         {/* Pagination */}

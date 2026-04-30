@@ -157,75 +157,122 @@ const MySubmissions = () => {
                     </div>
                 </div>
 
-                {/* Content Area (Scrollable Table) */}
+                {/* Content Area */}
                 {loading ? (
                     <Loader />
                 ) : submissions && submissions.length > 0 ? (
                     <div className="flex flex-col h-full overflow-hidden animate-lift delay-100">
-                        {/* Table Container with Internal Scroll */}
-                        <div className="flex-grow overflow-auto border border-white/10 rounded-3xl shadow-2xl bg-white scrollbar-hide">
-                            <table className="w-full text-left border-collapse min-w-[1000px]">
-                                <thead className="sticky top-0 z-20">
-                                    <tr className="bg-[#f7f9ff] border-b border-gray-100 shadow-sm">
-                                        <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase">Mentor</th>
-                                        <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase">Category</th>
-                                        <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-center">Date</th>
-                                        <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-center">Status</th>
-                                        <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-50">
-                                    {submissions.map((submission) => (
-                                        <tr key={submission._id} className="transition-all duration-200 hover:bg-slate-50/80">
-                                            <td className="px-6 py-4">
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm font-bold text-gray-900">{submission.startupProfileId?.mentorId?.userName || 'N/A'}</span>
-                                                    <span className="text-xs text-gray-400 font-medium italic">{submission.startupProfileId?.mentorId?.email}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <span className="text-sm text-gray-700 font-bold uppercase tracking-tight">
-                                                    {submission.startupProfileId?.category || 'N/A'}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 text-sm text-gray-500 font-medium text-center">
-                                                {new Date(submission.submissionDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
-                                            </td>
-                                            <td className="px-6 py-4 text-center">
-                                                {getStatusBadge(submission.status)}
-                                            </td>
-                                            <td className="px-6 py-4 text-right">
-                                                <div className="flex items-center justify-end gap-3">
-                                                    <button 
-                                                        onClick={() => handleViewProfile(submission.startupProfileId)}
-                                                        className="flex items-center gap-1.5 px-3 py-1 text-blue-600 hover:bg-blue-50 rounded-lg transition-all text-[10px] font-bold uppercase tracking-wider border border-transparent hover:border-blue-100"
-                                                    >
-                                                        <RiEyeLine size={14} />
-                                                        <span>Profile</span>
-                                                    </button>
-                                                    <button 
-                                                        onClick={() => viewPitchDeck(submission.pitchDeckFile)}
-                                                        className="flex items-center gap-1.5 px-3 py-1 text-orange-600 hover:bg-orange-50 rounded-lg transition-all text-[10px] font-bold uppercase tracking-wider border border-transparent hover:border-orange-100"
-                                                    >
-                                                        <RiFilePdfLine size={14} />
-                                                        <span>Pitch</span>
-                                                    </button>
-                                                    <button 
-                                                        onClick={() => handleOpenDelete(submission._id)}
-                                                        className="flex items-center gap-1.5 px-3 py-1 text-gray-400 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all text-[10px] font-bold uppercase tracking-wider border border-transparent hover:border-red-100"
-                                                    >
-                                                        <RiDeleteBin6Line size={14} />
-                                                        <span>Remove</span>
-                                                    </button>
-                                                </div>
-                                            </td>
+                        
+                        {/* DESKTOP TABLE VIEW (Visible on LG screens and up) */}
+                        <div className="hidden lg:flex flex-col flex-grow overflow-hidden border border-white/10 rounded-3xl shadow-2xl bg-white">
+                            <div className="flex-grow overflow-auto">
+                                <table className="w-full text-left border-collapse table-fixed">
+                                    <thead className="sticky top-0 z-20">
+                                        <tr className="bg-[#f7f9ff] border-b border-gray-100 shadow-sm">
+                                            <th className="w-1/4 px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase">Mentor</th>
+                                            <th className="w-1/5 px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase">Category</th>
+                                            <th className="w-1/6 px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-center">Date</th>
+                                            <th className="w-1/6 px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-center">Status</th>
+                                            <th className="w-1/4 px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-right">Actions</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-50">
+                                        {submissions.map((submission) => (
+                                            <tr key={submission._id} className="transition-all duration-200 hover:bg-slate-50/80">
+                                                <td className="px-6 py-5 overflow-hidden">
+                                                    <div className="flex flex-col truncate">
+                                                        <span className="text-sm font-bold text-gray-900 leading-tight truncate">{submission.startupProfileId?.mentorId?.userName || 'N/A'}</span>
+                                                        <span className="text-[10px] text-gray-400 font-medium italic mt-0.5 truncate">{submission.startupProfileId?.mentorId?.email}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-5">
+                                                    <span className="text-sm text-gray-700 font-bold uppercase tracking-tight truncate block">
+                                                        {submission.startupProfileId?.category || 'N/A'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-5 text-sm text-gray-500 font-medium text-center">
+                                                    {new Date(submission.submissionDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
+                                                </td>
+                                                <td className="px-6 py-5 text-center">
+                                                    {getStatusBadge(submission.status)}
+                                                </td>
+                                                <td className="px-6 py-5 text-right">
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <button 
+                                                            onClick={() => handleViewProfile(submission.startupProfileId)}
+                                                            className="px-2 py-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all text-[9px] font-black uppercase tracking-wider border border-transparent hover:border-blue-100"
+                                                            title="View Profile"
+                                                        >
+                                                            <RiEyeLine size={14} />
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => viewPitchDeck(submission.pitchDeckFile)}
+                                                            className="px-2 py-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-all text-[9px] font-black uppercase tracking-wider border border-transparent hover:border-orange-100"
+                                                            title="View Pitch"
+                                                        >
+                                                            <RiFilePdfLine size={14} />
+                                                        </button>
+                                                        <button 
+                                                            onClick={() => handleOpenDelete(submission._id)}
+                                                            className="px-2 py-1.5 text-gray-300 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all text-[9px] font-black uppercase tracking-wider border border-transparent hover:border-red-100"
+                                                            title="Remove"
+                                                        >
+                                                            <RiDeleteBin6Line size={14} />
+                                                        </button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {/* TABLET & MOBILE CARD VIEW (Visible below LG breakpoint) */}
+                        <div className="lg:hidden flex-grow overflow-y-auto space-y-4 pr-1 custom-scrollbar">
+                            {submissions.map((submission) => (
+                                <div key={submission._id} className="bg-white rounded-3xl p-5 shadow-xl border-l-[4px] border-[#ff7a21] space-y-4">
+                                    <div className="flex items-start justify-between">
+                                        <div className="space-y-1 overflow-hidden">
+                                            <div className="flex flex-col mb-1 truncate">
+                                                <span className="text-xs font-black text-[#0e1d2a] leading-tight truncate">{submission.startupProfileId?.mentorId?.userName || 'N/A'}</span>
+                                                <span className="text-[9px] text-gray-400 font-medium italic truncate">{submission.startupProfileId?.mentorId?.email}</span>
+                                            </div>
+                                            <span className="text-[10px] text-gray-700 font-black uppercase tracking-tight">{submission.startupProfileId?.category || 'N/A'}</span>
+                                        </div>
+                                        <div className="text-right flex-shrink-0">
+                                            {getStatusBadge(submission.status)}
+                                            <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-2">
+                                                {new Date(submission.submissionDate).toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="flex items-center gap-2 pt-1">
+                                        <button 
+                                            onClick={() => handleViewProfile(submission.startupProfileId)}
+                                            className="flex-1 flex items-center justify-center gap-2 py-3 bg-slate-50 text-blue-600 rounded-xl text-[9px] font-black uppercase tracking-widest border border-slate-100 transition-all active:scale-95"
+                                        >
+                                            <RiEyeLine size={14} /> Profile
+                                        </button>
+                                        <button 
+                                            onClick={() => viewPitchDeck(submission.pitchDeckFile)}
+                                            className="flex-1 flex items-center justify-center gap-2 py-3 bg-orange-50 text-[#ff7a21] rounded-xl text-[9px] font-black uppercase tracking-widest border border-orange-100 transition-all active:scale-95"
+                                        >
+                                            <RiFilePdfLine size={14} /> Pitch
+                                        </button>
+                                        <button 
+                                            onClick={() => handleOpenDelete(submission._id)}
+                                            className="p-3 bg-red-50 text-red-600 rounded-xl border border-red-100 transition-all active:scale-95"
+                                        >
+                                            <RiDeleteBin6Line size={14} />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                         
-                        {/* Pagination (Fixed at bottom) */}
+                        {/* Pagination */}
                         <div className="py-4 flex-shrink-0">
                             <Pagination 
                                 currentPage={pagination.currentPage}

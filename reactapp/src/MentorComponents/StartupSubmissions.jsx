@@ -176,84 +176,131 @@ const StartupSubmissions = () => {
                     </div>
                 </div>
 
-                {/* Content Area (Internal Scroll) */}
+                {/* Content Area */}
                 {loading ? (
                     <Loader />
                 ) : submissions && submissions.length > 0 ? (
-                    <div className="flex-grow overflow-hidden animate-lift delay-100 pb-10">
-                    <div className="flex flex-col h-full bg-white rounded-3xl shadow-2xl border border-white/10 overflow-hidden">
+                    <div className="flex-grow flex flex-col overflow-hidden animate-lift delay-100">
                         
-                        {/* Table Header Wrapper (Sticky) */}
-                        <div className="overflow-hidden flex-shrink-0">
-                            <table className="w-full text-left border-collapse min-w-[1200px]">
-                                <thead>
-                                    <tr className="bg-[#f7f9ff] border-b border-gray-100 shadow-sm">
-                                        <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase">Entrepreneur</th>
-                                        <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase">Startup Category</th>
-                                        <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-center">Submitted On</th>
-                                        <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-center">Status</th>
-                                        <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                            </table>
+                        {/* DESKTOP TABLE VIEW (Visible on LG screens and up) */}
+                        <div className="hidden lg:flex flex-col flex-grow overflow-hidden bg-white rounded-3xl shadow-2xl border border-white/10">
+                            <div className="flex-grow overflow-auto">
+                                <table className="w-full text-left border-collapse table-fixed">
+                                    <thead className="sticky top-0 z-20">
+                                        <tr className="bg-[#f7f9ff] border-b border-gray-100 shadow-sm">
+                                            <th className="w-[25%] px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase">Entrepreneur</th>
+                                            <th className="w-[25%] px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase">Category</th>
+                                            <th className="w-[15%] px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-center">Submitted</th>
+                                            <th className="w-[15%] px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-center">Status</th>
+                                            <th className="w-[20%] px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-right">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-50">
+                                        {submissions.map((submission) => (
+                                            <tr key={submission._id} className="transition-all duration-200 hover:bg-slate-50/80">
+                                                <td className="px-6 py-5 overflow-hidden">
+                                                    <div className="flex flex-col truncate">
+                                                        <span className="text-sm font-black text-gray-900 truncate">{submission.userName}</span>
+                                                        <span className="text-[9px] text-gray-400 font-medium uppercase tracking-tight italic truncate">ID: {submission._id.slice(-6)}</span>
+                                                    </div>
+                                                </td>
+                                                <td className="px-6 py-5">
+                                                    <span className="text-sm text-gray-600 font-bold uppercase tracking-tighter truncate block">
+                                                        {submission.startupProfileId?.category || 'N/A'}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-5 text-sm text-gray-500 font-medium text-center">
+                                                    {new Date(submission.submissionDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
+                                                </td>
+                                                <td className="px-6 py-5 text-center">
+                                                    {getStatusBadge(submission.status)}
+                                                </td>
+                                                <td className="px-6 py-5 text-right">
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <button 
+                                                            onClick={() => handleViewDetails(submission)}
+                                                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all border border-transparent hover:border-blue-100"
+                                                            title="View Details"
+                                                        >
+                                                            <RiEyeLine size={16} />
+                                                        </button>
+                                                        {submission.status !== 2 && (
+                                                            <button 
+                                                                onClick={() => openConfirm('shortlist', submission._id)}
+                                                                className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-all border border-transparent hover:border-green-100"
+                                                                title="Shortlist"
+                                                            >
+                                                                <RiCheckLine size={16} />
+                                                            </button>
+                                                        )}
+                                                        {submission.status !== 3 && (
+                                                            <button 
+                                                                onClick={() => openConfirm('reject', submission._id)}
+                                                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all border border-transparent hover:border-red-100"
+                                                                title="Reject"
+                                                            >
+                                                                <RiCloseLine size={16} />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
 
-                        {/* Scrollable Body */}
-                        <div className="flex-grow overflow-auto pr-1">
-                            <table className="w-full text-left border-collapse min-w-[1200px]">
-                                <tbody className="divide-y divide-gray-50">
-                                    {submissions.map((submission) => (
-                                        <tr key={submission._id} className="transition-all duration-200 hover:bg-slate-50/80">
-                                            <td className="px-6 py-5">
-                                                <div className="flex flex-col">
-                                                    <span className="text-sm font-black text-gray-900">{submission.userName}</span>
-                                                    <span className="text-[10px] text-gray-400 font-medium uppercase tracking-tight italic">Submission ID: {submission._id.slice(-6)}</span>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-5">
-                                                <span className="text-sm text-gray-600 font-bold uppercase tracking-tighter">
-                                                    {submission.startupProfileId?.category || 'N/A'}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-5 text-sm text-gray-500 font-medium text-center">
-                                                {new Date(submission.submissionDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
-                                            </td>
-                                            <td className="px-6 py-5 text-center">
-                                                {getStatusBadge(submission.status)}
-                                            </td>
-                                            <td className="px-6 py-5 text-right">
-                                                <div className="flex items-center justify-end gap-3">
-                                                    <button 
-                                                        onClick={() => handleViewDetails(submission)}
-                                                        className="flex items-center gap-1.5 px-3 py-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all text-[10px] font-bold uppercase tracking-wider border border-transparent hover:border-blue-100"
-                                                    >
-                                                        <RiEyeLine size={14} />
-                                                        <span>View</span>
-                                                    </button>
-                                                    {submission.status !== 2 && (
-                                                        <button 
-                                                            onClick={() => openConfirm('shortlist', submission._id)}
-                                                            className="flex items-center gap-1.5 px-3 py-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-all text-[10px] font-bold uppercase tracking-wider border border-transparent hover:border-green-100"
-                                                        >
-                                                            <RiCheckLine size={14} />
-                                                            <span>Shortlist</span>
-                                                        </button>
-                                                    )}
-                                                    {submission.status !== 3 && (
-                                                        <button 
-                                                            onClick={() => openConfirm('reject', submission._id)}
-                                                            className="flex items-center gap-1.5 px-3 py-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-all text-[10px] font-bold uppercase tracking-wider border border-transparent hover:border-red-100"
-                                                        >
-                                                            <RiCloseLine size={14} />
-                                                            <span>Reject</span>
-                                                        </button>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                        {/* TABLET & MOBILE CARD VIEW (Visible below LG breakpoint) */}
+                        <div className="lg:hidden flex-grow overflow-y-auto space-y-4 pr-1 custom-scrollbar">
+                            {submissions.map((submission) => (
+                                <div key={submission._id} className="bg-white rounded-3xl p-5 shadow-xl border-l-[4px] border-[#ff7a21] space-y-4">
+                                    <div className="flex items-start justify-between">
+                                        <div className="space-y-1 overflow-hidden">
+                                            <div className="flex flex-col mb-1 truncate">
+                                                <span className="text-xs font-black text-[#0e1d2a] leading-tight truncate">{submission.userName}</span>
+                                                <span className="text-[9px] text-gray-400 font-medium italic truncate">ID: {submission._id.slice(-6)}</span>
+                                            </div>
+                                            <span className="text-[10px] text-gray-700 font-black uppercase tracking-tight truncate block">
+                                                {submission.startupProfileId?.category || 'N/A'}
+                                            </span>
+                                        </div>
+                                        <div className="text-right flex-shrink-0">
+                                            {getStatusBadge(submission.status)}
+                                            <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-2">
+                                                {new Date(submission.submissionDate).toLocaleDateString()}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="flex items-center gap-2 pt-1">
+                                        <button 
+                                            onClick={() => handleViewDetails(submission)}
+                                            className="flex-1 flex items-center justify-center gap-2 py-3 bg-blue-50 text-blue-600 rounded-xl text-[9px] font-black uppercase tracking-widest border border-blue-100 transition-all active:scale-95"
+                                        >
+                                            <RiEyeLine size={14} /> Review
+                                        </button>
+                                        <div className="flex gap-2">
+                                            {submission.status !== 2 && (
+                                                <button 
+                                                    onClick={() => openConfirm('shortlist', submission._id)}
+                                                    className="p-3 bg-green-50 text-green-600 rounded-xl border border-green-100 transition-all active:scale-95"
+                                                >
+                                                    <RiCheckLine size={14} />
+                                                </button>
+                                            )}
+                                            {submission.status !== 3 && (
+                                                <button 
+                                                    onClick={() => openConfirm('reject', submission._id)}
+                                                    className="p-3 bg-red-50 text-red-600 rounded-xl border border-red-100 transition-all active:scale-95"
+                                                >
+                                                    <RiCloseLine size={14} />
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                         
                         {/* Pagination */}
@@ -265,7 +312,6 @@ const StartupSubmissions = () => {
                             />
                         </div>
                     </div>
-                </div>
                 ) : (
                     <EmptyState 
                         message="No submissions found matching your criteria."

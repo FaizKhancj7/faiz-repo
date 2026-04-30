@@ -126,7 +126,7 @@ const SubmitIdea = () => {
     }
 
     return (
-        <div className="h-full relative flex flex-col" style={{ fontFamily: "'Inter', sans-serif" }}>
+        <div className="h-full relative flex flex-col overflow-hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
             
             {/* Background Image */}
             <div className="absolute inset-0 z-0" 
@@ -138,27 +138,27 @@ const SubmitIdea = () => {
                 <div className="absolute inset-0 bg-[#0e1d2a]/85 backdrop-blur-[3px]"></div>
             </div>
 
-            <div className="relative z-10 w-full max-w-xl mx-auto px-6 py-8 flex flex-col h-full overflow-hidden">
+            <div className="relative z-10 w-full max-w-xl mx-auto px-4 md:px-6 py-4 md:py-8 flex flex-col h-full overflow-hidden">
                 
-                {/* Header Section */}
-                <div className="flex flex-col items-center text-center mb-8 animate-lift flex-shrink-0">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-[#ff7a21]/10 border border-[#ff7a21]/20 mb-3">
-                        <RiRocketLine className="text-[#ff7a21]" />
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#ff7a21]">Venture Pitch Submission</span>
+                {/* Header Section (Compact) */}
+                <div className="flex flex-col items-center text-center mb-4 md:mb-8 animate-lift flex-shrink-0">
+                    <div className="hidden md:inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-[#ff7a21]/10 border border-[#ff7a21]/20 mb-3">
+                        <RiRocketLine className="text-[#ff7a21] text-xs" />
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-[#ff7a21]">Venture Pitch Submission</span>
                     </div>
-                    <h1 style={{ fontFamily: "'Plus Jakarta Sans'", fontSize: '36px', fontWeight: 800, color: '#fff', letterSpacing: '-0.04em', lineHeight: 1 }}>
+                    <h1 style={{ fontFamily: "'Plus Jakarta Sans'", fontWeight: 800, color: '#fff', letterSpacing: '-0.04em', lineHeight: 1 }} className="text-xl md:text-[36px]">
                         Pitch Your Idea
                     </h1>
                 </div>
 
-                {/* Strictly Fixed One-Page Form (No Scroll) */}
-                <div className="flex-grow overflow-hidden animate-lift delay-100 pb-4">
-                    <div className="bg-white rounded-[32px] shadow-2xl p-6 border-l-[6px] border-[#ff7a21] h-full flex flex-col relative overflow-hidden">
+                {/* Form Card (Fixed Height, No Scroll) */}
+                <div className="flex-grow overflow-hidden animate-lift delay-100 pb-2">
+                    <div className="bg-white rounded-[24px] md:rounded-[32px] shadow-2xl p-4 md:p-8 border-l-[4px] md:border-l-[6px] border-[#ff7a21] h-full flex flex-col relative overflow-hidden">
                         
                         <form onSubmit={handleSubmit} className="space-y-3 flex flex-col h-full">
                             
-                            {/* Single Column Vertical Stack */}
-                            <div className="flex flex-col space-y-3">
+                            {/* Inputs Stack */}
+                            <div className="flex flex-col space-y-2 md:space-y-4 flex-shrink-0">
                                 {/* Market Potential */}
                                 <div className="space-y-0.5">
                                     <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Market Potential (1-100)</label>
@@ -167,75 +167,75 @@ const SubmitIdea = () => {
                                         name="marketPotential"
                                         value={formData.marketPotential}
                                         onChange={handleChange}
-                                        placeholder="85"
-                                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:border-[#ff7a21]/40 outline-none transition-all font-black text-xs text-gray-800 shadow-sm"
+                                        placeholder="e.g. 85"
+                                        className="w-full px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl focus:border-[#ff7a21]/40 outline-none transition-all font-bold text-[11px] md:text-[13px] text-gray-800 shadow-sm"
                                     />
                                 </div>
 
                                 {/* Date and Funding (Compact Row) */}
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
                                     <div className="space-y-0.5">
-                                        <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Launch Date</label>
+                                        <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Expected Launch</label>
                                         <input
                                             type="date"
                                             name="launchYear"
                                             value={formData.launchYear}
                                             onChange={handleChange}
-                                            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:border-[#ff7a21]/40 outline-none transition-all font-black text-[10px] text-gray-800 shadow-sm"
+                                            className="w-full px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl focus:border-[#ff7a21]/40 outline-none transition-all font-bold text-[11px] md:text-[13px] text-gray-800 shadow-sm"
                                         />
                                     </div>
                                     <div className="space-y-0.5">
-                                        <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Funding (₹)</label>
+                                        <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Funding Req. (₹)</label>
                                         <input
                                             type="number"
                                             name="expectedFunding"
                                             value={formData.expectedFunding}
                                             onChange={handleChange}
-                                            placeholder="Req. Amount"
-                                            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:border-[#ff7a21]/40 outline-none transition-all font-black text-xs text-gray-800 shadow-sm"
+                                            placeholder="Amount"
+                                            className="w-full px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl focus:border-[#ff7a21]/40 outline-none transition-all font-bold text-[11px] md:text-[13px] text-gray-800 shadow-sm"
                                         />
                                     </div>
                                 </div>
                             </div>
 
                             {/* Flexible Address Field */}
-                            <div className="flex-grow flex flex-col space-y-1 min-h-0">
-                                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Project Location</label>
+                            <div className="flex-grow flex flex-col space-y-1 min-h-0 overflow-hidden">
+                                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Project Location & Base</label>
                                 <textarea
                                     name="address"
                                     value={formData.address}
                                     onChange={handleChange}
-                                    placeholder="Where are you based?"
-                                    className="flex-grow w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:border-[#ff7a21]/40 outline-none transition-all font-medium text-xs text-gray-700 resize-none shadow-sm"
+                                    placeholder="Describe your location..."
+                                    className="flex-grow w-full px-4 py-2 bg-slate-50 border border-slate-100 rounded-xl focus:border-[#ff7a21]/40 outline-none transition-all font-medium text-[11px] md:text-[13px] text-gray-700 resize-none shadow-sm"
                                 />
                                 {errors.address && <p className="text-[8px] text-red-500 font-bold ml-1 uppercase">{errors.address}</p>}
                             </div>
 
                             {/* Ultra Compact File Upload */}
-                            <div className="space-y-1">
+                            <div className="space-y-1 flex-shrink-0">
                                 <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Pitch Deck (PDF)</label>
-                                <div className={`relative border border-dashed rounded-xl p-3 flex items-center justify-center gap-3 transition-all ${
+                                <div className={`relative border border-dashed rounded-xl p-2.5 flex items-center justify-center gap-3 transition-all ${
                                     selectedFile ? 'border-green-400 bg-green-50' : 'border-slate-100 bg-slate-50 hover:border-[#ff7a21]/30 hover:bg-[#ff7a21]/5'
                                 }`}>
                                     <input type="file" accept="application/pdf" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
                                     {selectedFile ? <RiCheckLine className="text-sm text-green-500" /> : <RiUploadCloud2Line className="text-sm text-slate-300" />}
-                                    <p className="text-[8px] font-black text-gray-700 uppercase tracking-tighter truncate max-w-[150px]">
-                                        {selectedFile ? selectedFile.name : "Attach Plan"}
+                                    <p className="text-[9px] font-black text-gray-700 uppercase tracking-tighter truncate max-w-[150px]">
+                                        {selectedFile ? selectedFile.name : "Attach Deck"}
                                     </p>
                                 </div>
                                 {errors.pitchDeckFile && <p className="text-[8px] text-red-500 font-bold ml-1 uppercase">{errors.pitchDeckFile}</p>}
                             </div>
 
-                            {/* Ultra Compact Footer */}
-                            <div className="pt-2 flex flex-col gap-1.5 flex-shrink-0">
+                            {/* Compact Actions */}
+                            <div className="pt-2 flex flex-col gap-2 flex-shrink-0">
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="w-full py-3.5 bg-[#ff7a21] hover:bg-[#ea6c0a] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-900/20 transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
+                                    className="w-full py-3.5 bg-[#ff7a21] hover:bg-[#ea6c0a] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-900/20 transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
                                 >
-                                    {isSubmitting ? "Wait..." : (
+                                    {isSubmitting ? "Processing..." : (
                                         <>
-                                            <RiCheckLine size={14} />
+                                            <RiRocketLine size={14} />
                                             Submit Pitch
                                         </>
                                     )}
@@ -243,7 +243,7 @@ const SubmitIdea = () => {
                                 <button
                                     type="button"
                                     onClick={() => navigate('/mentor-opportunities')}
-                                    className="w-full py-1 text-[8px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-all"
+                                    className="w-full py-1 text-[9px] font-black uppercase tracking-widest text-gray-400 hover:text-[#0e1d2a] transition-all"
                                 >
                                     Cancel
                                 </button>

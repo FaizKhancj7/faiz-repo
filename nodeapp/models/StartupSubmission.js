@@ -78,13 +78,4 @@ const startupSubmissionSchema = new mongoose.Schema({
   }
 });
 
-// --- PERFORMANCE & LOGIC INDEXES (PRD 6.3) ---
-
-// Prevent duplicate submissions: One entrepreneur can submit only ONE idea 
-// to the SAME mentor profile.
-startupSubmissionSchema.index({ userId: 1, startupProfileId: 1 }, { unique: true });
-
-// Help the mentor see newest submissions first
-startupSubmissionSchema.index({ status: 1, submissionDate: -1 });
-
 module.exports = mongoose.model('StartupSubmission', startupSubmissionSchema);

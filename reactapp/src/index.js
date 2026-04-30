@@ -19,16 +19,15 @@ root.render(
       <App />
       {/* The ToastContainer is where the pop-up messages will appear */}
       <ToastContainer 
-        position="top-right"
-        autoClose={3000}
+        position="bottom-right"
+        autoClose={4000}
         hideProgressBar={false}
-        newestOnTop={false}
+        newestOnTop={true}
         closeOnClick
         rtl={false}
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="colored"
       />
     </Provider>
   </React.StrictMode>
