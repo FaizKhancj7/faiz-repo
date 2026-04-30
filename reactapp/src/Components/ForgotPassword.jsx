@@ -1,20 +1,14 @@
-// This file is the Forgot Password Page of the application.
-// It allows users to reset their password if they can provide their email 
-// and the exact answer to their secret security question.
-
 import React, { useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { RiLockPasswordLine } from 'react-icons/ri';
+import { RiLockPasswordLine, RiRocketLine, RiArrowLeftLine, RiShieldCheckLine } from 'react-icons/ri';
 import api from '../apiConfig';
 import Button from './Reusable/Button';
 import Input from './Reusable/Input';
 
 const ForgotPassword = () => {
-    // Hook to navigate back to login after success
     const navigate = useNavigate();
 
-    // State to store form inputs
     const [formData, setFormData] = useState({
         email: '',
         secretQuestionAnswer: '',
@@ -22,46 +16,35 @@ const ForgotPassword = () => {
         confirmNewPassword: ''
     });
 
-    // State to store field-level error messages
     const [errors, setErrors] = useState({});
 
-    // This function updates the state as the user types
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
-        
-        // Clear errors for the field being typed in
-        if (errors[name]) {
-            setErrors({ ...errors, [name]: '' });
-        }
+        if (errors[name]) setErrors({ ...errors, [name]: '' });
     };
 
-    // This function validates the inputs using Regex and matching rules
     const validateForm = () => {
         let newErrors = {};
         let isValid = true;
 
-        // Email regex check
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData.email)) {
             newErrors.email = 'Please enter a valid email address.';
             isValid = false;
         }
 
-        // Secret question answer check (cannot be empty)
         if (!formData.secretQuestionAnswer) {
-            newErrors.secretQuestionAnswer = 'Please provide the answer to your secret question.';
+            newErrors.secretQuestionAnswer = 'Security answer is required.';
             isValid = false;
         }
 
-        // Password strength check (min 8 chars, 1 upper, 1 digit, 1 special)
         const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         if (!passwordRegex.test(formData.newPassword)) {
-            newErrors.newPassword = 'Password needs: min 8 chars, 1 uppercase, 1 number, and 1 special character.';
+            newErrors.newPassword = 'Password must be strong (8+ chars, Upper, Digit, Special).';
             isValid = false;
         }
 
-        // Confirm password match check
         if (formData.newPassword !== formData.confirmNewPassword) {
             newErrors.confirmNewPassword = 'Passwords do not match.';
             isValid = false;
@@ -71,101 +54,140 @@ const ForgotPassword = () => {
         return isValid;
     };
 
-    // This function handles the form submission
     const handleReset = useCallback(async (e) => {
         e.preventDefault();
-
-        // Validate the form before calling the API
         if (!validateForm()) {
-            toast.error("Please fix the errors in the form.");
+            toast.error("Please correct the highlighted errors.");
             return;
         }
 
         try {
-            // We call the forgotPassword endpoint on our backend
             const response = await api.post('/user/forgotPassword', formData);
-
             if (response.data.success) {
-                // If successful, show a message and send them to the login page
                 toast.success(response.data.message);
                 navigate('/login');
             }
         } catch (error) {
-            // If the reset fails (wrong email or wrong secret answer), show the error
-            const message = error.response?.data?.message || "Failed to reset password. Please try again.";
+            const message = error.response?.data?.message || "Failed to reset password.";
             toast.error(message);
         }
     }, [formData, navigate]);
 
     return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 py-12">
-            {/* The main card for the password reset form */}
-            <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-slate-100">
-                <div className="text-center mb-8">
-                    <div className="bg-[#F97316]/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <RiLockPasswordLine className="text-[#F97316] text-3xl" />
-                    </div>
-                    <h2 className="text-3xl font-black text-[#1E3A5F] mb-2">Reset Password</h2>
-                    <p className="text-slate-500">Provide your details to set a new password</p>
+        <div className="min-h-screen relative flex items-center justify-center p-6 overflow-hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
+            
+            {/* BACKGROUND — Full Page Image with Deep Overlay */}
+            <div className="absolute inset-0 z-0" 
+                style={{ 
+                    backgroundImage: "url('/a9e3860adaff375666a186570e41a751.jpg')", 
+                    backgroundSize: 'cover', 
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat'
+                }}>
+                <div className="absolute inset-0 bg-[#0e1d2a]/90 backdrop-blur-[2px]"></div>
+                
+                {/* Dynamic Ambient Blurs */}
+                <div className="absolute top-20 -left-20 w-[600px] h-[600px] rounded-full opacity-10 blur-[120px]" style={{ background: '#ff7a21' }}></div>
+                <div className="absolute bottom-20 -right-20 w-[600px] h-[600px] rounded-full opacity-10 blur-[120px]" style={{ background: '#3b82f6' }}></div>
+            </div>
+
+            {/* LOGO — Top Left (Desktop) */}
+            <div className="absolute top-10 left-10 z-20 hidden lg:flex items-center gap-2.5 cursor-pointer" onClick={() => navigate('/')}>
+                <div className="p-2 rounded-xl" style={{ background: 'linear-gradient(135deg, #ff7a21, #ff9a52)' }}>
+                    <RiRocketLine className="text-white text-lg" />
                 </div>
+                <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: '18px', color: '#fff' }}>
+                    Startup<span style={{ color: '#ff7a21' }}>Nest</span>
+                </span>
+            </div>
 
-                {/* The Reset Form */}
-                <form onSubmit={handleReset} className="space-y-5">
-                    <Input 
-                        label="Email Address"
-                        name="email"
-                        type="email"
-                        placeholder="john@example.com"
-                        value={formData.email}
-                        onChange={handleChange}
-                        error={errors.email}
-                    />
+            {/* MAIN CARD */}
+            <div className="relative z-10 w-full max-w-[480px] animate-lift">
+                <div className="bg-white rounded-[40px] shadow-2xl overflow-hidden border-l-[6px] border-[#ff7a21]">
+                    
+                    {/* Header */}
+                    <div className="px-10 pt-10 pb-6 text-center">
+                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-[#ff7a21]/10 border border-[#ff7a21]/20 mb-4">
+                            <RiLockPasswordLine className="text-[#ff7a21] text-xs" />
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#ff7a21]">Security Protocol</span>
+                        </div>
+                        <h1 style={{ fontFamily: "'Plus Jakarta Sans'", fontSize: '32px', fontWeight: 800, color: '#0e1d2a', letterSpacing: '-0.04em', lineHeight: 1.1 }}>
+                            Reset Access
+                        </h1>
+                        <p className="mt-3 text-slate-500 text-sm font-medium">
+                            Verify your identity to secure your account.
+                        </p>
+                    </div>
 
-                    <div className="p-4 bg-slate-50 rounded-lg border border-slate-200">
-                        <p className="text-xs font-bold text-slate-500 uppercase mb-3">Security Question</p>
-                        <p className="text-sm text-slate-700 mb-3">What was the name of your first school?</p>
+                    {/* Form Body */}
+                    <form onSubmit={handleReset} className="px-10 pb-8 space-y-6">
+                        
                         <Input 
-                            label="Your Answer"
-                            name="secretQuestionAnswer"
-                            placeholder="Exact answer you gave at signup"
-                            value={formData.secretQuestionAnswer}
+                            label="EMAIL ADDRESS"
+                            name="email"
+                            type="email"
+                            placeholder="your@email.com"
+                            value={formData.email}
                             onChange={handleChange}
-                            error={errors.secretQuestionAnswer}
+                            error={errors.email}
                         />
-                    </div>
 
-                    <Input 
-                        label="New Password"
-                        name="newPassword"
-                        type="password"
-                        placeholder="••••••••"
-                        value={formData.newPassword}
-                        onChange={handleChange}
-                        error={errors.newPassword}
-                    />
+                        {/* Security Question Section */}
+                        <div className="p-5 bg-slate-50 rounded-3xl border border-slate-100 space-y-4">
+                            <div className="flex items-center gap-2">
+                                <RiShieldCheckLine className="text-[#ff7a21]" size={14} />
+                                <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Verification Step</p>
+                            </div>
+                            <p className="text-sm font-bold text-gray-700 leading-snug">
+                                What was the name of your first school?
+                            </p>
+                            <Input 
+                                label="SECURITY ANSWER"
+                                name="secretQuestionAnswer"
+                                placeholder="Enter your answer"
+                                value={formData.secretQuestionAnswer}
+                                onChange={handleChange}
+                                error={errors.secretQuestionAnswer}
+                            />
+                        </div>
 
-                    <Input 
-                        label="Confirm New Password"
-                        name="confirmNewPassword"
-                        type="password"
-                        placeholder="••••••••"
-                        value={formData.confirmNewPassword}
-                        onChange={handleChange}
-                        error={errors.confirmNewPassword}
-                    />
+                        {/* New Password Fields */}
+                        <div className="grid grid-cols-1 gap-5 pt-2">
+                            <Input 
+                                label="NEW PASSWORD"
+                                name="newPassword"
+                                type="password"
+                                placeholder="••••••••"
+                                value={formData.newPassword}
+                                onChange={handleChange}
+                                error={errors.newPassword}
+                            />
+                            <Input 
+                                label="CONFIRM PASSWORD"
+                                name="confirmNewPassword"
+                                type="password"
+                                placeholder="••••••••"
+                                value={formData.confirmNewPassword}
+                                onChange={handleChange}
+                                error={errors.confirmNewPassword}
+                            />
+                        </div>
 
-                    <Button text="Update Password" type="submit" />
-                </form>
-
-                {/* Link to go back to the Login page */}
-                <div className="mt-8 text-center pt-6 border-t border-slate-100">
-                    <p className="text-slate-600">
-                        Remember your password?{' '}
-                        <Link to="/login" className="font-bold text-[#1E3A5F] hover:underline">
-                            Back to Login
-                        </Link>
-                    </p>
+                        {/* Actions */}
+                        <div className="pt-4 flex flex-col gap-4">
+                            <Button text="Launch Password Reset" type="submit" />
+                            <Link to="/login" className="flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-all">
+                                <RiArrowLeftLine />
+                                Return to Login
+                            </Link>
+                        </div>
+                    </form>
                 </div>
+
+                {/* Footer Copyright */}
+                <p className="mt-8 text-center text-[10px] font-black uppercase tracking-[0.2em] text-white/30">
+                    © 2026 StartupNest Security Unit
+                </p>
             </div>
         </div>
     );

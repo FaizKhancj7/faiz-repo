@@ -151,91 +151,91 @@ const SubmitIdea = () => {
                     </h1>
                 </div>
 
-                {/* Perfectly Fixed Form Area (No Scroll) */}
-                <div className="flex-grow overflow-hidden animate-lift delay-100 pb-6">
-                    <div className="bg-white rounded-[40px] shadow-2xl p-8 border-l-[6px] border-[#ff7a21] h-full flex flex-col relative overflow-hidden">
+                {/* Strictly Fixed One-Page Form (No Scroll) */}
+                <div className="flex-grow overflow-hidden animate-lift delay-100 pb-4">
+                    <div className="bg-white rounded-[32px] shadow-2xl p-6 border-l-[6px] border-[#ff7a21] h-full flex flex-col relative overflow-hidden">
                         
-                        <form onSubmit={handleSubmit} className="space-y-5 flex flex-col h-full">
+                        <form onSubmit={handleSubmit} className="space-y-3 flex flex-col h-full">
                             
-                            <div className="grid grid-cols-1 gap-5">
+                            {/* Single Column Vertical Stack */}
+                            <div className="flex flex-col space-y-3">
                                 {/* Market Potential */}
-                                <div className="space-y-1">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Market Potential (1-100)</label>
+                                <div className="space-y-0.5">
+                                    <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Market Potential (1-100)</label>
                                     <input
                                         type="number"
                                         name="marketPotential"
                                         value={formData.marketPotential}
                                         onChange={handleChange}
                                         placeholder="85"
-                                        className="w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:border-[#ff7a21]/40 outline-none transition-all font-black text-sm text-gray-800 shadow-sm"
+                                        className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:border-[#ff7a21]/40 outline-none transition-all font-black text-xs text-gray-800 shadow-sm"
                                     />
-                                    {errors.marketPotential && <p className="text-[10px] text-red-500 font-bold ml-1 uppercase">{errors.marketPotential}</p>}
                                 </div>
-                            </div>
 
-                            {/* Date and Funding Grid */}
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Launch Date</label>
-                                    <input
-                                        type="date"
-                                        name="launchYear"
-                                        value={formData.launchYear}
-                                        onChange={handleChange}
-                                        className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:border-[#ff7a21]/40 outline-none transition-all font-black text-xs text-gray-800 shadow-sm"
-                                    />
-                                </div>
-                                <div className="space-y-1">
-                                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Funding (₹)</label>
-                                    <input
-                                        type="number"
-                                        name="expectedFunding"
-                                        value={formData.expectedFunding}
-                                        onChange={handleChange}
-                                        placeholder="Amount..."
-                                        className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:border-[#ff7a21]/40 outline-none transition-all font-black text-xs text-gray-800 shadow-sm"
-                                    />
+                                {/* Date and Funding (Compact Row) */}
+                                <div className="grid grid-cols-2 gap-3">
+                                    <div className="space-y-0.5">
+                                        <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Launch Date</label>
+                                        <input
+                                            type="date"
+                                            name="launchYear"
+                                            value={formData.launchYear}
+                                            onChange={handleChange}
+                                            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:border-[#ff7a21]/40 outline-none transition-all font-black text-[10px] text-gray-800 shadow-sm"
+                                        />
+                                    </div>
+                                    <div className="space-y-0.5">
+                                        <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Funding (₹)</label>
+                                        <input
+                                            type="number"
+                                            name="expectedFunding"
+                                            value={formData.expectedFunding}
+                                            onChange={handleChange}
+                                            placeholder="Req. Amount"
+                                            className="w-full px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl focus:border-[#ff7a21]/40 outline-none transition-all font-black text-xs text-gray-800 shadow-sm"
+                                        />
+                                    </div>
                                 </div>
                             </div>
 
                             {/* Flexible Address Field */}
                             <div className="flex-grow flex flex-col space-y-1 min-h-0">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Project Location</label>
+                                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Project Location</label>
                                 <textarea
                                     name="address"
                                     value={formData.address}
                                     onChange={handleChange}
                                     placeholder="Where are you based?"
-                                    className="flex-grow w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:border-[#ff7a21]/40 outline-none transition-all font-medium text-sm text-gray-700 resize-none shadow-sm"
+                                    className="flex-grow w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl focus:border-[#ff7a21]/40 outline-none transition-all font-medium text-xs text-gray-700 resize-none shadow-sm"
                                 />
-                                {errors.address && <p className="text-[10px] text-red-500 font-bold ml-1 uppercase">{errors.address}</p>}
+                                {errors.address && <p className="text-[8px] text-red-500 font-bold ml-1 uppercase">{errors.address}</p>}
                             </div>
 
-                            {/* Compact File Upload */}
+                            {/* Ultra Compact File Upload */}
                             <div className="space-y-1">
-                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Pitch Deck (PDF)</label>
-                                <div className={`relative border-2 border-dashed rounded-xl p-4 flex items-center justify-center gap-3 transition-all ${
+                                <label className="text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">Pitch Deck (PDF)</label>
+                                <div className={`relative border border-dashed rounded-xl p-3 flex items-center justify-center gap-3 transition-all ${
                                     selectedFile ? 'border-green-400 bg-green-50' : 'border-slate-100 bg-slate-50 hover:border-[#ff7a21]/30 hover:bg-[#ff7a21]/5'
                                 }`}>
                                     <input type="file" accept="application/pdf" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
-                                    {selectedFile ? <RiCheckLine className="text-xl text-green-500" /> : <RiUploadCloud2Line className="text-xl text-slate-300" />}
-                                    <p className="text-[10px] font-black text-gray-700 uppercase tracking-tighter truncate max-w-[200px]">
-                                        {selectedFile ? selectedFile.name : "Attach Business Plan"}
+                                    {selectedFile ? <RiCheckLine className="text-sm text-green-500" /> : <RiUploadCloud2Line className="text-sm text-slate-300" />}
+                                    <p className="text-[8px] font-black text-gray-700 uppercase tracking-tighter truncate max-w-[150px]">
+                                        {selectedFile ? selectedFile.name : "Attach Plan"}
                                     </p>
                                 </div>
-                                {errors.pitchDeckFile && <p className="text-[10px] text-red-500 font-bold ml-1 uppercase">{errors.pitchDeckFile}</p>}
+                                {errors.pitchDeckFile && <p className="text-[8px] text-red-500 font-bold ml-1 uppercase">{errors.pitchDeckFile}</p>}
                             </div>
 
-                            {/* Action Footer */}
-                            <div className="pt-4 flex flex-col gap-2 flex-shrink-0">
+                            {/* Ultra Compact Footer */}
+                            <div className="pt-2 flex flex-col gap-1.5 flex-shrink-0">
                                 <button
                                     type="submit"
                                     disabled={isSubmitting}
-                                    className="w-full py-4 bg-[#ff7a21] hover:bg-[#ea6c0a] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-900/20 transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
+                                    className="w-full py-3.5 bg-[#ff7a21] hover:bg-[#ea6c0a] text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-orange-900/20 transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
                                 >
-                                    {isSubmitting ? "Processing..." : (
+                                    {isSubmitting ? "Wait..." : (
                                         <>
-                                            <RiCheckLine size={16} />
+                                            <RiCheckLine size={14} />
                                             Submit Pitch
                                         </>
                                     )}
@@ -243,9 +243,9 @@ const SubmitIdea = () => {
                                 <button
                                     type="button"
                                     onClick={() => navigate('/mentor-opportunities')}
-                                    className="w-full py-2 text-[9px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-all"
+                                    className="w-full py-1 text-[8px] font-black uppercase tracking-widest text-gray-400 hover:text-gray-900 transition-all"
                                 >
-                                    Cancel & Return
+                                    Cancel
                                 </button>
                             </div>
                         </form>
