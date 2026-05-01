@@ -48,13 +48,27 @@ const startupSubmissionSchema = new mongoose.Schema({
     default: Date.now // Records when the form was submitted
   },
   status: {
-    type: Number,
-    required: true,
-    default: 1, // 1 = Submitted, 2 = Shortlisted, 3 = Rejected
-    enum: {
-      values: [1, 2, 3],
-      message: 'Status code must be 1 (Submitted), 2 (Shortlisted), or 3 (Rejected)'
-    }
+    type: String,
+    enum: ['pending', 'approved', 'rejected'],
+    default: 'pending'
+  },
+  rejectionFeedback: {
+    type: String,
+    default: '',
+    trim: true
+  },
+  isWithdrawn: {
+    type: Boolean,
+    default: false
+  },
+  withdrawalReason: {
+    type: String,
+    default: '',
+    trim: true
+  },
+  withdrawnAt: {
+    type: Date,
+    default: null
   },
   address: {
     type: String,

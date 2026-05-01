@@ -111,21 +111,62 @@
 
 ---
 
-## Wednesday: Admin Dashboard & Advanced Filtering
+## Friday: Mentor Rejection Feedback & Data Integrity (COMPLETED)
 
-_To be filled after previous day is complete._
+#### **👤 Member 1 - Backend Systems Architect:** disha
+- `nodeapp/models/StartupSubmission.js` (Transitioned `status` from Number to String Enum: 'pending', 'approved', 'rejected')
+- `nodeapp/models/StartupSubmission.js` (Implemented `rejectionFeedback` field for transparent decline reasons)
+
+#### **👤 Member 2 - Backend API Logic Developer:** animesh
+- `nodeapp/controllers/startupSubmissionController.js` (Built `rejectSubmission` logic with mandatory 10-character feedback validation)
+- `nodeapp/routers/startupSubmissionRoutes.js` (Mounted `PUT /:id/reject` endpoint with strict role-based protection)
+
+#### **👤 Member 3 - Frontend State and Routing Manager:** faiz
+- `reactapp/src/services/startupSubmissionService.js` (Integrated new `rejectSubmission` API call for the feedback flow)
+- `reactapp/src/MentorComponents/StartupSubmissions.jsx` (Synchronized status logic to support new string-based state transitions)
+
+#### **👤 Member 4 - Frontend UI/UX Specialist:** surbhi
+- `reactapp/src/MentorComponents/StartupSubmissions.jsx` (Designed and implemented the Rejection Feedback Modal with live character validation)
+- `reactapp/src/MentorComponents/StartupSubmissions.jsx` (Integrated inline error handling for empty/short feedback messages)
+
+#### **👤 Member 5 - Frontend Feature Developer:** prashant
+- `reactapp/src/EntrepreneurComponents/MySubmissions.jsx` (Developed the 'Rejected by Mentor' UI block with italicized reason display)
+- `reactapp/src/EntrepreneurComponents/MySubmissions.jsx` (Refactored status badges to support string enums for both Mobile and Desktop views)
 
 ---
 
-## Thursday: Integration, Testing & Final Polish
+## Saturday: Entrepreneur Idea Withdrawal (COMPLETED)
 
-_To be filled after previous day is complete._
+#### **👤 Member 1 - Backend Systems Architect:** disha
+- `nodeapp/models/StartupSubmission.js` (Added `isWithdrawn`, `withdrawalReason`, and `withdrawnAt` fields for traceability)
+- `nodeapp/routers/startupSubmissionRoutes.js` (Secured `PUT /:id/withdraw` with `validateToken` and `isEntrepreneur` middleware)
+
+#### **👤 Member 2 - Backend API Logic Developer:** animesh
+- `nodeapp/controllers/startupSubmissionController.js` (Implemented `withdrawSubmission` with 'shortlisted-only' validation and ownership checks)
+
+#### **👤 Member 3 - Frontend State and Routing Manager:** faiz
+- `reactapp/src/services/startupSubmissionService.js` (Added the `withdrawSubmission` API connector for the entrepreneur flow)
+- `reactapp/src/EntrepreneurComponents/MySubmissions.jsx` (Integrated state-driven withdrawal logic and local state refresh after successful retraction)
+
+#### **👤 Member 4 - Frontend UI/UX Specialist:** surbhi
+- `reactapp/src/EntrepreneurComponents/MySubmissions.jsx` (Designed the Withdrawal Confirmation Modal with required reason validation)
+- `reactapp/src/MentorComponents/StartupSubmissions.jsx` (Enhanced the 'Admin Panel' view with a dedicated Withdrawal column and italicized reasons)
+
+#### **👤 Member 5 - Frontend Feature Developer:** prashant
+- `reactapp/src/EntrepreneurComponents/MySubmissions.jsx` (Developed the 'Withdrawn by you' dashboard section with grey-badge status tracking)
+- `reactapp/src/MentorComponents/StartupSubmissions.jsx` (Implemented conditional action-locking on the Admin side for withdrawn records)
 
 ---
 
 ## 🛠️ Appendix: Technical Workflow Details
 
-### 1. The "Browse Opportunities" Flow (`ViewStartupOpportunities.jsx`)
+### 1. The "Rejection Feedback" Flow (`rejectSubmission`)
+- **Trigger**: Mentor clicks "Reject" on a pending submission.
+- **Validation**: Frontend ensures feedback is not empty and exceeds 10 characters before the API is even hit.
+- **Atomic Update**: Backend updates both the `status` to `'rejected'` and the `rejectionFeedback` string in a single atomic database operation.
+- **Transparency**: Entrepreneurs receive the exact reasoning for the decline in a soft-red alert box directly on their dashboard, improving the platform's professional utility.
+
+### 2. The "Browse Opportunities" Flow (`ViewStartupOpportunities.jsx`)
 - **Initialization**: Page asks the server for Mentor Profiles and the User's submission history simultaneously.
 - **Debounce Logic**: A 500ms timer waits for the user to stop typing before sending a search query to the backend.
 - **Button Locking**: The component compares the list of profiles with the user's history; if a match is found, the button is disabled and labeled "Already Applied."

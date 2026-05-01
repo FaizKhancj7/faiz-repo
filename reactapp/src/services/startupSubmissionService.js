@@ -50,6 +50,19 @@ const startupSubmissionService = {
     },
 
     /**
+     * withdrawSubmission (Entrepreneur)
+     * Withdraws a shortlisted idea with a reason.
+     */
+    withdrawSubmission: async (id, reason) => {
+        try {
+            const response = await api.put(`/submission/${id}/withdraw`, { reason });
+            return response.data;
+        } catch (error) {
+            throw error.response ? error.response.data : new Error("Failed to withdraw submission");
+        }
+    },
+
+    /**
      * getMentorSubmissions (Mentor)
      * Fetches submissions received for the mentor's profiles.
      * Supports: page, status, order.
@@ -86,6 +99,19 @@ const startupSubmissionService = {
             return response.data;
         } catch (error) {
             throw error.response ? error.response.data : new Error("Failed to delete submission");
+        }
+    },
+
+    /**
+     * rejectSubmission (Mentor)
+     * Rejects a submission with mandatory feedback.
+     */
+    rejectSubmission: async (id, feedback) => {
+        try {
+            const response = await api.put(`/submission/${id}/reject`, { feedback });
+            return response.data;
+        } catch (error) {
+            throw error.response ? error.response.data : new Error("Failed to reject submission");
         }
     }
 };

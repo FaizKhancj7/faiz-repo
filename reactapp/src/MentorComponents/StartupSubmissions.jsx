@@ -14,7 +14,8 @@ import {
     RiCloseLine, 
     RiFilePdfLine,
     RiRocketLine,
-    RiInboxArchiveLine
+    RiInboxArchiveLine,
+    RiFileTextLine
 } from 'react-icons/ri';
 
 // Import our reusable components
@@ -35,7 +36,18 @@ const StartupSubmissions = () => {
     const [sortOrder, setSortOrder] = useState('desc');
     const [selectedSubmission, setSelectedSubmission] = useState(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
+    
+    // REJECTION FEEDBACK STATES
+    const [showRejectModal, setShowRejectModal] = useState(false);
+    const [rejectId, setRejectId] = useState(null);
+    const [feedbackText, setFeedbackText] = useState('');
+    const [feedbackError, setFeedbackError] = useState('');
+    const [rejectLoading, setRejectLoading] = useState(false);
+
     const [confirmAction, setConfirmAction] = useState({ show: false, type: '', id: null });
+
+    // REASON MODAL STATES
+    const [reasonModal, setReasonModal] = useState({ show: false, title: '', content: '' });
 
     // --- 2. DATA FETCHING ---
     const loadSubmissions = useCallback(async (page = 1) => {
@@ -90,11 +102,10 @@ const StartupSubmissions = () => {
                     toast.success("Submission deleted successfully");
                     loadSubmissions(pagination.currentPage);
                 }
-            } else {
-                const status = type === 'shortlist' ? 2 : 3;
-                const response = await startupSubmissionService.updateStatus(id, status);
+            } else if (type === 'shortlist') {
+                const response = await startupSubmissionService.updateStatus(id, 'approved');
                 if (response.success) {
-                    toast.success(`Submission ${type === 'shortlist' ? 'shortlisted' : 'rejected'}`);
+                    toast.success("Submission shortlisted successfully");
                     loadSubmissions(pagination.currentPage);
                 }
             }
@@ -103,16 +114,60 @@ const StartupSubmissions = () => {
         }
     };
 
-    const getStatusBadge = (status) => {
+    const handleRejectClick = (id) => {
+        setRejectId(id);
+        setFeedbackText('');
+        setFeedbackError('');
+        setShowRejectModal(true);
+    };
+
+    const handleConfirmRejection = async () => {
+        if (!feedbackText.trim()) {
+            setFeedbackError("Feedback is required before rejecting.");
+            return;
+        }
+        if (feedbackText.trim().length < 10) {
+            setFeedbackError("Feedback must be at least 10 characters long.");
+            return;
+        }
+
+        setRejectLoading(true);
+        try {
+            const response = await startupSubmissionService.rejectSubmission(rejectId, feedbackText);
+            if (response.success) {
+                toast.success("Submission rejected with feedback.");
+                setShowRejectModal(false);
+                loadSubmissions(pagination.currentPage);
+            }
+        } catch (error) {
+            setFeedbackError(error.message || "Failed to reject submission");
+        } finally {
+            setRejectLoading(false);
+        }
+    };
+
+    const handleOpenReasonModal = (title, content) => {
+        setReasonModal({ show: true, title, content });
+    };
+
+    const getStatusBadge = (submission) => {
+        if (submission.isWithdrawn) {
+            return (
+                <span className="px-3 py-1 rounded-lg bg-red-50 text-red-600 border border-red-100 text-[10px] font-black uppercase tracking-wider">
+                    Withdrawn
+                </span>
+            );
+        }
+
         const styles = {
-            1: "bg-yellow-50 text-yellow-600 border-yellow-100",
-            2: "bg-green-50 text-green-600 border-green-100",
-            3: "bg-red-50 text-red-600 border-red-100"
+            'pending': "bg-yellow-50 text-yellow-600 border-yellow-100",
+            'approved': "bg-green-50 text-green-600 border-green-100",
+            'rejected': "bg-red-50 text-red-600 border-red-100"
         };
-        const labels = { 1: "Pending", 2: "Shortlisted", 3: "Rejected" };
+        const labels = { 'pending': "Pending", 'approved': "Approved", 'rejected': "Rejected" };
         return (
-            <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${styles[status]}`}>
-                {labels[status]}
+            <span className={`px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider border ${styles[submission.status] || styles['pending']}`}>
+                {labels[submission.status] || "Pending"}
             </span>
         );
     };
@@ -192,7 +247,8 @@ const StartupSubmissions = () => {
                                             <th className="w-[25%] px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase">Category</th>
                                             <th className="w-[15%] px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-center">Submitted</th>
                                             <th className="w-[15%] px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-center">Status</th>
-                                            <th className="w-[20%] px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-right">Actions</th>
+                                            <th className="w-[20%] px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase">Withdrawal</th>
+                                            <th className="w-[15%] px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#ff7a21] uppercase text-right">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody className="divide-y divide-gray-50">
@@ -213,7 +269,31 @@ const StartupSubmissions = () => {
                                                     {new Date(submission.submissionDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
                                                 </td>
                                                 <td className="px-6 py-5 text-center">
-                                                    {getStatusBadge(submission.status)}
+                                                    {getStatusBadge(submission)}
+                                                </td>
+                                                <td className="px-6 py-5">
+                                                    <div className="flex items-center gap-2">
+                                                        {submission.isWithdrawn ? (
+                                                            <button 
+                                                                onClick={() => handleOpenReasonModal("Withdrawal Reason", submission.withdrawalReason)}
+                                                                className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all border border-transparent hover:border-red-100"
+                                                                title="View Withdrawal Reason"
+                                                            >
+                                                                <RiFileTextLine size={16} />
+                                                            </button>
+                                                        ) : (
+                                                            <span className="text-gray-300 font-bold">—</span>
+                                                        )}
+                                                        {submission.status === 'rejected' && submission.rejectionFeedback && (
+                                                            <button 
+                                                                onClick={() => handleOpenReasonModal("Rejection Feedback", submission.rejectionFeedback)}
+                                                                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all border border-transparent hover:border-red-100"
+                                                                title="View Your Feedback"
+                                                            >
+                                                                <RiFileTextLine size={16} />
+                                                            </button>
+                                                        )}
+                                                    </div>
                                                 </td>
                                                 <td className="px-6 py-5 text-right">
                                                     <div className="flex items-center justify-end gap-2">
@@ -221,10 +301,11 @@ const StartupSubmissions = () => {
                                                             onClick={() => handleViewDetails(submission)}
                                                             className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all border border-transparent hover:border-blue-100"
                                                             title="View Details"
+                                                            disabled={submission.isWithdrawn}
                                                         >
                                                             <RiEyeLine size={16} />
                                                         </button>
-                                                        {submission.status !== 2 && (
+                                                        {submission.status !== 'approved' && !submission.isWithdrawn && (
                                                             <button 
                                                                 onClick={() => openConfirm('shortlist', submission._id)}
                                                                 className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-all border border-transparent hover:border-green-100"
@@ -233,9 +314,9 @@ const StartupSubmissions = () => {
                                                                 <RiCheckLine size={16} />
                                                             </button>
                                                         )}
-                                                        {submission.status !== 3 && (
+                                                        {submission.status !== 'rejected' && !submission.isWithdrawn && (
                                                             <button 
-                                                                onClick={() => openConfirm('reject', submission._id)}
+                                                                onClick={() => handleRejectClick(submission._id)}
                                                                 className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all border border-transparent hover:border-red-100"
                                                                 title="Reject"
                                                             >
@@ -266,39 +347,66 @@ const StartupSubmissions = () => {
                                             </span>
                                         </div>
                                         <div className="text-right flex-shrink-0">
-                                            {getStatusBadge(submission.status)}
+                                            {getStatusBadge(submission)}
                                             <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-2">
                                                 {new Date(submission.submissionDate).toLocaleDateString()}
                                             </p>
                                         </div>
                                     </div>
                                     
-                                    <div className="flex items-center gap-2 pt-1">
-                                        <button 
-                                            onClick={() => handleViewDetails(submission)}
-                                            className="flex-1 flex items-center justify-center gap-2 py-3 bg-blue-50 text-blue-600 rounded-xl text-[9px] font-black uppercase tracking-widest border border-blue-100 transition-all active:scale-95"
-                                        >
-                                            <RiEyeLine size={14} /> Review
-                                        </button>
-                                        <div className="flex gap-2">
-                                            {submission.status !== 2 && (
-                                                <button 
-                                                    onClick={() => openConfirm('shortlist', submission._id)}
-                                                    className="p-3 bg-green-50 text-green-600 rounded-xl border border-green-100 transition-all active:scale-95"
-                                                >
-                                                    <RiCheckLine size={14} />
-                                                </button>
-                                            )}
-                                            {submission.status !== 3 && (
-                                                <button 
-                                                    onClick={() => openConfirm('reject', submission._id)}
-                                                    className="p-3 bg-red-50 text-red-600 rounded-xl border border-red-100 transition-all active:scale-95"
-                                                >
-                                                    <RiCloseLine size={14} />
-                                                </button>
-                                            )}
+                                    {submission.isWithdrawn && (
+                                        <div className="flex items-center gap-2 pt-2">
+                                            <div className="flex-grow py-3 bg-red-50 text-red-600 rounded-xl text-[9px] font-black uppercase tracking-widest border border-red-100 text-center">
+                                                Withdrawn
+                                            </div>
+                                            <button 
+                                                onClick={() => handleOpenReasonModal("Withdrawal Reason", submission.withdrawalReason)}
+                                                className="p-3 bg-red-50 text-red-500 rounded-xl border border-red-100 transition-all active:scale-95"
+                                            >
+                                                <RiFileTextLine size={14} />
+                                            </button>
                                         </div>
-                                    </div>
+                                    )}
+
+                                    {submission.status === 'rejected' && submission.rejectionFeedback && !submission.isWithdrawn && (
+                                        <div className="pt-2">
+                                            <button 
+                                                onClick={() => handleOpenReasonModal("Your Rejection Feedback", submission.rejectionFeedback)}
+                                                className="w-full flex items-center justify-center gap-2 py-3 bg-red-50 text-red-600 rounded-xl text-[9px] font-black uppercase tracking-widest border border-red-100 transition-all active:scale-95"
+                                            >
+                                                <RiFileTextLine size={14} /> View Feedback
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    {!submission.isWithdrawn && (
+                                        <div className="flex items-center gap-2 pt-1">
+                                            <button 
+                                                onClick={() => handleViewDetails(submission)}
+                                                className="flex-1 flex items-center justify-center gap-2 py-3 bg-blue-50 text-blue-600 rounded-xl text-[9px] font-black uppercase tracking-widest border border-blue-100 transition-all active:scale-95"
+                                            >
+                                                <RiEyeLine size={14} /> Review
+                                            </button>
+                                            <div className="flex gap-2">
+                                                {submission.status !== 'approved' && (
+                                                    <button 
+                                                        onClick={() => openConfirm('shortlist', submission._id)}
+                                                        className="p-3 bg-green-50 text-green-600 rounded-xl border border-green-100 transition-all active:scale-95"
+                                                    >
+                                                        <RiCheckLine size={14} />
+                                                    </button>
+                                                )}
+                                                {submission.status !== 'rejected' && (
+                                                    <button 
+                                                        onClick={() => handleRejectClick(submission._id)}
+                                                        className="p-3 bg-red-50 text-red-600 rounded-xl border border-red-100 transition-all active:scale-95"
+                                                    >
+                                                        <RiCloseLine size={14} />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>
@@ -378,16 +486,86 @@ const StartupSubmissions = () => {
                 )}
             </Modal>
 
+            {/* Rejection Feedback Modal */}
+            <Modal
+                isOpen={showRejectModal}
+                onClose={() => !rejectLoading && setShowRejectModal(false)}
+                title="Reject this idea?"
+            >
+                <div className="space-y-4">
+                    <p className="text-sm text-gray-500 font-medium">
+                        Please provide a reason for rejection. This feedback will be shared with the entrepreneur.
+                    </p>
+                    
+                    <div>
+                        <textarea
+                            value={feedbackText}
+                            onChange={(e) => {
+                                setFeedbackText(e.target.value);
+                                if (e.target.value.trim().length >= 10) setFeedbackError('');
+                            }}
+                            placeholder="Write your feedback for the entrepreneur (required)..."
+                            className={`w-full h-32 p-4 bg-slate-50 border ${feedbackError ? 'border-red-300' : 'border-slate-200'} rounded-2xl outline-none focus:border-[#ff7a21] transition-all text-sm font-medium resize-none`}
+                        />
+                        {feedbackError && (
+                            <p className="text-[10px] font-bold text-red-500 mt-1 uppercase tracking-wider">{feedbackError}</p>
+                        )}
+                    </div>
+
+                    <div className="flex gap-3 pt-2">
+                        <button
+                            onClick={() => setShowRejectModal(false)}
+                            disabled={rejectLoading}
+                            className="flex-1 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-50 hover:bg-gray-100 transition-all"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handleConfirmRejection}
+                            disabled={rejectLoading}
+                            className="flex-1 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-white bg-red-500 hover:bg-red-600 shadow-lg shadow-red-200 transition-all disabled:opacity-50"
+                        >
+                            {rejectLoading ? 'Processing...' : 'Confirm Rejection'}
+                        </button>
+                    </div>
+                </div>
+            </Modal>
+
             {/* Confirmation Dialog */}
             <ConfirmDialog 
                 isOpen={confirmAction.show}
                 onCancel={() => setConfirmAction({ show: false, type: '', id: null })}
                 onConfirm={handleConfirmAction}
-                title={`Confirm ${confirmAction.type === 'delete' ? 'Deletion' : 'Status Update'}`}
-                message={`Are you sure you want to ${confirmAction.type} this submission? This action will notify the entrepreneur.`}
-                confirmText={`Yes, ${confirmAction.type.charAt(0).toUpperCase() + confirmAction.type.slice(1)}`}
-                danger={confirmAction.type === 'delete' || confirmAction.type === 'reject'}
+                title={`Confirm ${confirmAction.type === 'delete' ? 'Deletion' : 'Shortlisting'}`}
+                message={`Are you sure you want to ${confirmAction.type} this submission?`}
+                confirmText={`Yes, ${confirmAction.type === 'delete' ? 'Delete' : 'Shortlist'}`}
+                danger={confirmAction.type === 'delete'}
             />
+
+            {/* Rejection/Withdrawal Reason View Modal */}
+            <Modal
+                isOpen={reasonModal.show}
+                onClose={() => setReasonModal({ ...reasonModal, show: false })}
+                title={reasonModal.title}
+            >
+                <div className="space-y-4">
+                    <div className="flex items-center gap-3 p-4 bg-[#f7f9ff] rounded-2xl border border-gray-100 shadow-sm">
+                        <div className="p-2 bg-white rounded-lg shadow-sm border border-gray-50">
+                            <RiFileTextLine className="text-xl text-[#ff7a21]" />
+                        </div>
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Justification Details</span>
+                    </div>
+                    <p className="text-sm text-gray-600 leading-relaxed font-medium bg-slate-50 p-6 rounded-3xl border border-slate-100 italic">
+                        "{reasonModal.content}"
+                    </p>
+                    <button
+                        onClick={() => setReasonModal({ ...reasonModal, show: false })}
+                        className="w-full py-4 bg-[#0e1d2a] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#162a3f] transition-all shadow-xl"
+                    >
+                        Close Details
+                    </button>
+                </div>
+            </Modal>
         </div>
     );
 };

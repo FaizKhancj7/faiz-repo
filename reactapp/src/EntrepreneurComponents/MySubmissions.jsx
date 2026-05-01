@@ -38,6 +38,16 @@ const MySubmissions = () => {
     const [showProfileModal, setShowProfileModal] = useState(false);
     const [deleteConfirm, setDeleteConfirm] = useState({ show: false, id: null });
 
+    // WITHDRAWAL STATES
+    const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+    const [selectedWithdrawId, setSelectedWithdrawId] = useState(null);
+    const [withdrawReason, setWithdrawReason] = useState('');
+    const [withdrawError, setWithdrawError] = useState('');
+    const [withdrawLoading, setWithdrawLoading] = useState(false);
+    
+    // REASON MODAL STATES
+    const [reasonModal, setReasonModal] = useState({ show: false, title: '', content: '' });
+
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearch(searchTerm);
@@ -97,21 +107,61 @@ const MySubmissions = () => {
         }
     };
 
+    const handleOpenWithdraw = (id) => {
+        setSelectedWithdrawId(id);
+        setWithdrawReason('');
+        setWithdrawError('');
+        setShowWithdrawModal(true);
+    };
+
+    const handleConfirmWithdrawal = async () => {
+        if (!withdrawReason.trim() || withdrawReason.trim().length < 10) {
+            setWithdrawError("Please write a reason of at least 10 characters.");
+            return;
+        }
+
+        setWithdrawLoading(true);
+        try {
+            const response = await startupSubmissionService.withdrawSubmission(selectedWithdrawId, withdrawReason);
+            if (response.success) {
+                toast.success("Your idea has been withdrawn.");
+                setShowWithdrawModal(false);
+                loadSubmissions(pagination.currentPage, debouncedSearch);
+            }
+        } catch (error) {
+            setWithdrawError(error.message || "Failed to withdraw submission");
+        } finally {
+            setWithdrawLoading(false);
+        }
+    };
+
     const viewPitchDeck = (filePath) => {
         const url = `http://localhost:8080/${filePath}`;
         window.open(url, '_blank');
     };
 
-    const getStatusBadge = (status) => {
+    const handleOpenReasonModal = (title, content) => {
+        setReasonModal({ show: true, title, content });
+    };
+
+    const getStatusBadge = (submission) => {
+        if (submission.isWithdrawn) {
+            return (
+                <span className="px-3 py-1 rounded-lg border text-[10px] font-black uppercase tracking-widest bg-gray-50 text-gray-400 border-gray-100">
+                    Withdrawn
+                </span>
+            );
+        }
+
         const styles = {
-            1: "bg-yellow-50 text-yellow-600 border-yellow-100",
-            2: "bg-green-50 text-green-600 border-green-100",
-            3: "bg-red-50 text-red-600 border-red-100"
+            'pending': "bg-yellow-50 text-yellow-600 border-yellow-100",
+            'approved': "bg-green-50 text-green-600 border-green-100",
+            'rejected': "bg-red-50 text-red-600 border-red-100"
         };
-        const labels = { 1: "Pending", 2: "Shortlisted", 3: "Rejected" };
+        const labels = { 'pending': "Pending", 'approved': "Approved", 'rejected': "Rejected" };
         return (
-            <span className={`px-3 py-1 rounded-lg border text-[10px] font-black uppercase tracking-widest ${styles[status]}`}>
-                {labels[status]}
+            <span className={`px-3 py-1 rounded-lg border text-[10px] font-black uppercase tracking-widest ${styles[submission.status] || styles['pending']}`}>
+                {labels[submission.status] || "Pending"}
             </span>
         );
     };
@@ -178,50 +228,83 @@ const MySubmissions = () => {
                                     </thead>
                                     <tbody className="divide-y divide-gray-50">
                                         {submissions.map((submission) => (
-                                            <tr key={submission._id} className="transition-all duration-200 hover:bg-slate-50/80">
-                                                <td className="px-6 py-5 overflow-hidden">
-                                                    <div className="flex flex-col truncate">
-                                                        <span className="text-sm font-bold text-gray-900 leading-tight truncate">{submission.startupProfileId?.mentorId?.userName || 'N/A'}</span>
-                                                        <span className="text-[10px] text-gray-400 font-medium italic mt-0.5 truncate">{submission.startupProfileId?.mentorId?.email}</span>
-                                                    </div>
-                                                </td>
-                                                <td className="px-6 py-5">
-                                                    <span className="text-sm text-gray-700 font-bold uppercase tracking-tight truncate block">
-                                                        {submission.startupProfileId?.category || 'N/A'}
-                                                    </span>
-                                                </td>
-                                                <td className="px-6 py-5 text-sm text-gray-500 font-medium text-center">
-                                                    {new Date(submission.submissionDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
-                                                </td>
-                                                <td className="px-6 py-5 text-center">
-                                                    {getStatusBadge(submission.status)}
-                                                </td>
-                                                <td className="px-6 py-5 text-right">
-                                                    <div className="flex items-center justify-end gap-2">
-                                                        <button 
-                                                            onClick={() => handleViewProfile(submission.startupProfileId)}
-                                                            className="px-2 py-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all text-[9px] font-black uppercase tracking-wider border border-transparent hover:border-blue-100"
-                                                            title="View Profile"
-                                                        >
-                                                            <RiEyeLine size={14} />
-                                                        </button>
-                                                        <button 
-                                                            onClick={() => viewPitchDeck(submission.pitchDeckFile)}
-                                                            className="px-2 py-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-all text-[9px] font-black uppercase tracking-wider border border-transparent hover:border-orange-100"
-                                                            title="View Pitch"
-                                                        >
-                                                            <RiFilePdfLine size={14} />
-                                                        </button>
-                                                        <button 
-                                                            onClick={() => handleOpenDelete(submission._id)}
-                                                            className="px-2 py-1.5 text-gray-300 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all text-[9px] font-black uppercase tracking-wider border border-transparent hover:border-red-100"
-                                                            title="Remove"
-                                                        >
-                                                            <RiDeleteBin6Line size={14} />
-                                                        </button>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                            <React.Fragment key={submission._id}>
+                                                <tr className="transition-all duration-200 hover:bg-slate-50/80">
+                                                    <td className="px-6 py-5 overflow-hidden">
+                                                        <div className="flex flex-col truncate">
+                                                            <span className="text-sm font-bold text-gray-900 leading-tight truncate">{submission.startupProfileId?.mentorId?.userName || 'N/A'}</span>
+                                                            <span className="text-[10px] text-gray-400 font-medium italic mt-0.5 truncate">{submission.startupProfileId?.mentorId?.email}</span>
+                                                        </div>
+                                                    </td>
+                                                    <td className="px-6 py-5">
+                                                        <span className="text-sm text-gray-700 font-bold uppercase tracking-tight truncate block">
+                                                            {submission.startupProfileId?.category || 'N/A'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-5 text-sm text-gray-500 font-medium text-center">
+                                                        {new Date(submission.submissionDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
+                                                    </td>
+                                                    <td className="px-6 py-5 text-center">
+                                                        {getStatusBadge(submission)}
+                                                    </td>
+                                                    <td className="px-6 py-5 text-right">
+                                                        <div className="flex items-center justify-end gap-2">
+                                                            {(submission.status === 'rejected' && submission.rejectionFeedback) && (
+                                                                <button 
+                                                                    onClick={() => handleOpenReasonModal("Mentor Feedback", submission.rejectionFeedback)}
+                                                                    className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all border border-transparent hover:border-red-100"
+                                                                    title="View Rejection Feedback"
+                                                                >
+                                                                    <RiFileTextLine size={16} />
+                                                                </button>
+                                                            )}
+                                                            {(submission.isWithdrawn && submission.withdrawalReason) && (
+                                                                <button 
+                                                                    onClick={() => handleOpenReasonModal("Withdrawal Reason", submission.withdrawalReason)}
+                                                                    className="p-2 text-gray-400 hover:bg-gray-50 rounded-lg transition-all border border-transparent hover:border-gray-100"
+                                                                    title="View Withdrawal Reason"
+                                                                >
+                                                                    <RiFileTextLine size={16} />
+                                                                </button>
+                                                            )}
+                                                            {submission.status === 'approved' && !submission.isWithdrawn ? (
+                                                                <button 
+                                                                    onClick={() => handleOpenWithdraw(submission._id)}
+                                                                    className="px-3 py-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-all text-[9px] font-black uppercase tracking-wider border border-red-100"
+                                                                >
+                                                                    Withdraw
+                                                                </button>
+                                                            ) : submission.isWithdrawn ? (
+                                                                <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest px-2">Withdrawn</span>
+                                                            ) : (
+                                                                <>
+                                                                    <button 
+                                                                        onClick={() => handleViewProfile(submission.startupProfileId)}
+                                                                        className="px-2 py-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-all text-[9px] font-black uppercase tracking-wider border border-transparent hover:border-blue-100"
+                                                                        title="View Profile"
+                                                                    >
+                                                                        <RiEyeLine size={14} />
+                                                                    </button>
+                                                                    <button 
+                                                                        onClick={() => viewPitchDeck(submission.pitchDeckFile)}
+                                                                        className="px-2 py-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-all text-[9px] font-black uppercase tracking-wider border border-transparent hover:border-orange-100"
+                                                                        title="View Pitch"
+                                                                    >
+                                                                        <RiFilePdfLine size={14} />
+                                                                    </button>
+                                                                    <button 
+                                                                        onClick={() => handleOpenDelete(submission._id)}
+                                                                        className="px-2 py-1.5 text-gray-300 hover:bg-red-50 hover:text-red-600 rounded-lg transition-all text-[9px] font-black uppercase tracking-wider border border-transparent hover:border-red-100"
+                                                                        title="Remove"
+                                                                    >
+                                                                        <RiDeleteBin6Line size={14} />
+                                                                    </button>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </React.Fragment>
                                         ))}
                                     </tbody>
                                 </table>
@@ -241,7 +324,7 @@ const MySubmissions = () => {
                                             <span className="text-[10px] text-gray-700 font-black uppercase tracking-tight">{submission.startupProfileId?.category || 'N/A'}</span>
                                         </div>
                                         <div className="text-right flex-shrink-0">
-                                            {getStatusBadge(submission.status)}
+                                            {getStatusBadge(submission)}
                                             <p className="text-[8px] font-black text-gray-400 uppercase tracking-widest mt-2">
                                                 {new Date(submission.submissionDate).toLocaleDateString()}
                                             </p>
@@ -249,25 +332,59 @@ const MySubmissions = () => {
                                     </div>
                                     
                                     <div className="flex items-center gap-2 pt-1">
-                                        <button 
-                                            onClick={() => handleViewProfile(submission.startupProfileId)}
-                                            className="flex-1 flex items-center justify-center gap-2 py-3 bg-slate-50 text-blue-600 rounded-xl text-[9px] font-black uppercase tracking-widest border border-slate-100 transition-all active:scale-95"
-                                        >
-                                            <RiEyeLine size={14} /> Profile
-                                        </button>
-                                        <button 
-                                            onClick={() => viewPitchDeck(submission.pitchDeckFile)}
-                                            className="flex-1 flex items-center justify-center gap-2 py-3 bg-orange-50 text-[#ff7a21] rounded-xl text-[9px] font-black uppercase tracking-widest border border-orange-100 transition-all active:scale-95"
-                                        >
-                                            <RiFilePdfLine size={14} /> Pitch
-                                        </button>
-                                        <button 
-                                            onClick={() => handleOpenDelete(submission._id)}
-                                            className="p-3 bg-red-50 text-red-600 rounded-xl border border-red-100 transition-all active:scale-95"
-                                        >
-                                            <RiDeleteBin6Line size={14} />
-                                        </button>
+                                        {submission.status === 'approved' && !submission.isWithdrawn ? (
+                                            <button 
+                                                onClick={() => handleOpenWithdraw(submission._id)}
+                                                className="flex-1 py-3 bg-red-50 text-red-600 rounded-xl text-[9px] font-black uppercase tracking-widest border border-red-100 transition-all active:scale-95"
+                                            >
+                                                Withdraw Idea
+                                            </button>
+                                        ) : submission.isWithdrawn ? (
+                                            <div className="flex flex-1 items-center gap-2">
+                                                <div className="flex-grow py-3 bg-gray-50 text-gray-400 rounded-xl text-[9px] font-black uppercase tracking-widest border border-gray-100 text-center">
+                                                    Withdrawn
+                                                </div>
+                                                {submission.withdrawalReason && (
+                                                    <button 
+                                                        onClick={() => handleOpenReasonModal("Withdrawal Reason", submission.withdrawalReason)}
+                                                        className="p-3 bg-gray-50 text-gray-400 rounded-xl border border-gray-100 transition-all active:scale-95"
+                                                    >
+                                                        <RiFileTextLine size={14} />
+                                                    </button>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <button 
+                                                    onClick={() => handleViewProfile(submission.startupProfileId)}
+                                                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-slate-50 text-blue-600 rounded-xl text-[9px] font-black uppercase tracking-widest border border-slate-100 transition-all active:scale-95"
+                                                >
+                                                    <RiEyeLine size={14} /> Profile
+                                                </button>
+                                                <button 
+                                                    onClick={() => viewPitchDeck(submission.pitchDeckFile)}
+                                                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-orange-50 text-[#ff7a21] rounded-xl text-[9px] font-black uppercase tracking-widest border border-orange-100 transition-all active:scale-95"
+                                                >
+                                                    <RiFilePdfLine size={14} /> Pitch
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleOpenDelete(submission._id)}
+                                                    className="p-3 bg-red-50 text-red-600 rounded-xl border border-red-100 transition-all active:scale-95"
+                                                >
+                                                    <RiDeleteBin6Line size={14} />
+                                                </button>
+                                            </>
+                                        )}
+                                        {(submission.status === 'rejected' && submission.rejectionFeedback) && (
+                                            <button 
+                                                onClick={() => handleOpenReasonModal("Mentor Feedback", submission.rejectionFeedback)}
+                                                className="p-3 bg-red-50 text-red-500 rounded-xl border border-red-100 transition-all active:scale-95"
+                                            >
+                                                <RiFileTextLine size={14} />
+                                            </button>
+                                        )}
                                     </div>
+
                                 </div>
                             ))}
                         </div>
@@ -288,6 +405,52 @@ const MySubmissions = () => {
                     />
                 )}
             </div>
+
+            {/* Withdraw Confirmation Modal */}
+            <Modal
+                isOpen={showWithdrawModal}
+                onClose={() => !withdrawLoading && setShowWithdrawModal(false)}
+                title="Withdraw your idea?"
+            >
+                <div className="space-y-4">
+                    <div className="space-y-1">
+                        <p className="text-sm text-gray-800 font-bold">This action cannot be undone.</p>
+                        <p className="text-xs text-gray-500 font-medium">Please tell us why you are withdrawing.</p>
+                    </div>
+                    
+                    <div>
+                        <textarea
+                            value={withdrawReason}
+                            onChange={(e) => {
+                                setWithdrawReason(e.target.value);
+                                if (e.target.value.trim().length >= 10) setWithdrawError('');
+                            }}
+                            placeholder="Write your reason for withdrawing this idea (required)..."
+                            className={`w-full h-32 p-4 bg-slate-50 border ${withdrawError ? 'border-red-300' : 'border-slate-200'} rounded-2xl outline-none focus:border-red-500 transition-all text-sm font-medium resize-none`}
+                        />
+                        {withdrawError && (
+                            <p className="text-[10px] font-bold text-red-500 mt-1 uppercase tracking-wider">{withdrawError}</p>
+                        )}
+                    </div>
+
+                    <div className="flex gap-3 pt-2">
+                        <button
+                            onClick={() => setShowWithdrawModal(false)}
+                            disabled={withdrawLoading}
+                            className="flex-1 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-gray-400 bg-gray-50 hover:bg-gray-100 transition-all"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            onClick={handleConfirmWithdrawal}
+                            disabled={withdrawLoading}
+                            className="flex-1 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-white bg-red-500 hover:bg-red-600 shadow-lg shadow-red-200 transition-all disabled:opacity-50"
+                        >
+                            {withdrawLoading ? 'Withdrawing...' : 'Confirm Withdrawal'}
+                        </button>
+                    </div>
+                </div>
+            </Modal>
 
             {/* View Profile Modal */}
             <Modal isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} title="Mentor Opportunity Details">
@@ -318,6 +481,31 @@ const MySubmissions = () => {
                         </div>
                     </div>
                 )}
+            </Modal>
+
+            {/* Rejection/Withdrawal Reason View Modal */}
+            <Modal
+                isOpen={reasonModal.show}
+                onClose={() => setReasonModal({ ...reasonModal, show: false })}
+                title={reasonModal.title}
+            >
+                <div className="space-y-4">
+                    <div className="flex items-center gap-3 p-4 bg-[#f7f9ff] rounded-2xl border border-gray-100 shadow-sm">
+                        <div className="p-2 bg-white rounded-lg shadow-sm border border-gray-50">
+                            <RiFileTextLine className="text-xl text-[#ff7a21]" />
+                        </div>
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Justification</span>
+                    </div>
+                    <p className="text-sm text-gray-600 leading-relaxed font-medium bg-slate-50 p-6 rounded-3xl border border-slate-100 italic">
+                        "{reasonModal.content}"
+                    </p>
+                    <button
+                        onClick={() => setReasonModal({ ...reasonModal, show: false })}
+                        className="w-full py-4 bg-[#0e1d2a] text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:bg-[#162a3f] transition-all shadow-xl"
+                    >
+                        Close Feedback
+                    </button>
+                </div>
             </Modal>
 
             {/* Delete Confirmation */}

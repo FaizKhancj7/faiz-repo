@@ -84,6 +84,17 @@ router.delete(
     submissionController.deleteEntrepreneurSubmission
 );
 
+/**
+ * PUT /:id/withdraw
+ * FEATURE: Allows the Entrepreneur to withdraw a shortlisted idea with a reason.
+ */
+router.put(
+    '/:id/withdraw',
+    validateToken,
+    checkRole('Entrepreneur'),
+    submissionController.withdrawSubmission
+);
+
 // --- MENTOR ROUTES ---
 
 /**
@@ -107,6 +118,17 @@ router.put(
     validateToken,
     checkRole('Mentor'),
     submissionController.updateSubmissionStatus
+);
+
+/**
+ * PUT /:id/reject
+ * FEATURE: Allows the Mentor to reject a submission with mandatory feedback.
+ */
+router.put(
+    '/:id/reject',
+    validateToken,
+    checkRole('Mentor'),
+    submissionController.rejectSubmission
 );
 
 /**
