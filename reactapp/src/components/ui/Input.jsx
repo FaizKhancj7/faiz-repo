@@ -8,7 +8,7 @@ const Input = ({ label, type, name, value, onChange, error, ...rest }) => {
     return (
         <div className="flex flex-col gap-1.5 w-full text-left">
             {/* Label */}
-            <label className="text-[11px] md:text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--theme-text-secondary)' }}>
+            <label className="text-[11px] font-black uppercase tracking-[0.1em] ml-1 flex items-center gap-1 whitespace-nowrap" style={{ color: 'var(--theme-text-muted)' }}>
                 {label} <span style={{ color: 'var(--theme-accent)' }}>*</span>
             </label>
             

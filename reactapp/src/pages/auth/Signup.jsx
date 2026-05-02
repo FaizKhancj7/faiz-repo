@@ -1,14 +1,40 @@
-// Signup Page — Theme-Aware Implementation
-// Uses CSS custom properties for layouts, cards, and accent colors.
+// Signup Page — Corporate Memphis Redesign (Sharpened & Compact)
+// Features: HD illustrations, theme-aware colors, and NON-SCROLLABLE layout.
 
 import React, { useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { RiRocketLine } from 'react-icons/ri';
+import { RiRocketLine, RiArrowRightLine, RiArrowLeftLine } from 'react-icons/ri';
 import api from '../../config/apiConfig';
-import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
-import AnimatedBackground from '../../components/ui/AnimatedBackground';
+
+// --- CORPORATE MEMPHIS SVG ILLUSTRATIONS (Sharpened & Compact) ---
+
+const MemphisSignup = () => (
+    <svg viewBox="0 0 400 400" className="w-full max-w-[320px] h-auto transition-all duration-500">
+        <defs>
+            <filter id="hd-shadow-signup" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="5" />
+                <feOffset dx="0" dy="8" result="offsetblur" />
+                <feComponentTransfer><feFuncA type="linear" slope="0.2" /></feComponentTransfer>
+                <feMerge><feMergeNode /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
+        </defs>
+        <g filter="url(#hd-shadow-signup)">
+            <circle cx="200" cy="200" r="180" fill="var(--theme-accent-light)" opacity="0.3" />
+            <rect x="50" y="300" width="300" height="20" rx="10" fill="var(--theme-text-primary)" opacity="0.1" stroke="var(--theme-text-primary)" strokeWidth="1" />
+            <path d="M120 300 Q100 200 140 180" fill="none" stroke="#ad2c00" strokeWidth="16" strokeLinecap="round" />
+            <circle cx="150" cy="160" r="14" fill="#ad2c00" stroke="var(--theme-text-primary)" strokeWidth="2" />
+            <path d="M280 300 Q300 200 260 180" fill="none" stroke="var(--theme-accent)" strokeWidth="16" strokeLinecap="round" />
+            <circle cx="250" cy="160" r="14" fill="var(--theme-accent)" stroke="var(--theme-text-primary)" strokeWidth="2" />
+            <path d="M160 160 Q200 120 240 160" fill="none" stroke="var(--theme-text-primary)" strokeWidth="3" strokeDasharray="6 6" />
+            <g className="animate-bounce" style={{ animationDuration: '3s' }}>
+                <path d="M200 100 L215 130 L185 130 Z" fill="#ff8c00" stroke="var(--theme-text-primary)" strokeWidth="2" />
+                <path d="M195 130 L205 130 L200 145 Z" fill="#ad2c00" />
+            </g>
+        </g>
+    </svg>
+);
 
 const Signup = () => {
     const navigate = useNavigate();
@@ -39,35 +65,35 @@ const Signup = () => {
 
         const userNameRegex = /^[a-zA-Z0-9_]{3,}$/;
         if (!userNameRegex.test(formData.userName)) {
-            newErrors.userName = 'Username must be at least 3 characters (letters, numbers, or underscores).';
+            newErrors.userName = 'Min 3 chars';
             isValid = false;
         }
 
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(formData.email)) {
-            newErrors.email = 'Please enter a valid email address.';
+            newErrors.email = 'Invalid email';
             isValid = false;
         }
 
         const mobileRegex = /^[6-9]\d{9}$/;
         if (!mobileRegex.test(formData.mobile)) {
-            newErrors.mobile = 'Please enter a valid 10-digit mobile number.';
+            newErrors.mobile = 'Invalid mobile';
             isValid = false;
         }
 
         const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         if (!passwordRegex.test(formData.password)) {
-            newErrors.password = 'Password needs: min 8 chars, 1 uppercase, 1 number, and 1 special character.';
+            newErrors.password = 'Strong password req.';
             isValid = false;
         }
 
         if (formData.password !== formData.confirmPassword) {
-            newErrors.confirmPassword = 'Passwords do not match.';
+            newErrors.confirmPassword = 'Mismatch';
             isValid = false;
         }
 
         if (!formData.secretQuestionAnswer) {
-            newErrors.secretQuestionAnswer = 'Please provide an answer for the secret question.';
+            newErrors.secretQuestionAnswer = 'Answer req.';
             isValid = false;
         }
 
@@ -78,7 +104,7 @@ const Signup = () => {
     const handleSignup = useCallback(async (e) => {
         e.preventDefault();
         if (!validateForm()) {
-            toast.error("Please fix the errors in the form.");
+            toast.error("Please fix errors.");
             return;
         }
 
@@ -86,188 +112,123 @@ const Signup = () => {
             const response = await api.post('/user/signup', formData);
             if (response.data.success) {
                 toast.success(response.data.message);
-                navigate('/');
+                navigate('/login');
             }
         } catch (error) {
-            const message = error.response?.data?.message || "Failed to create account. Please try again.";
+            const message = error.response?.data?.message || "Failed to create account.";
             toast.error(message);
         }
-    }, [formData, navigate, validateForm]);
+    }, [formData, navigate]);
 
     return (
-        <div className="h-screen overflow-hidden flex transition-all duration-300 relative" style={{ fontFamily: "'Inter', sans-serif", background: 'var(--theme-bg-primary)' }}>
-            {/* High-Energy Global Background */}
-            <AnimatedBackground showOrnaments={true} />
+        <div className="h-screen overflow-hidden flex transition-all duration-300 relative" 
+            style={{ 
+                fontFamily: "'Plus Jakarta Sans', sans-serif", 
+                background: 'var(--theme-bg-primary)',
+                color: 'var(--theme-text-primary)'
+            }}>
+            
+            {/* Background Memphis Blobs */}
+            <div className="absolute top-[-15%] left-[-10%] w-[600px] h-[600px] rounded-full blur-[130px] opacity-20 animate-liquid" style={{ background: 'var(--theme-accent)' }}></div>
+            <div className="absolute bottom-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full blur-[110px] opacity-20 animate-liquid" style={{ background: '#ad2c00' }}></div>
 
             {/* LEFT — Illustration Panel */}
-            <div className="hidden lg:flex w-[480px] flex-shrink-0 flex-col justify-between relative overflow-hidden border-r"
-                style={{ background: 'var(--theme-bg-secondary)', backdropFilter: 'var(--theme-glass)', borderColor: 'var(--theme-border)' }}>
+            <div className="hidden lg:flex w-[460px] flex-shrink-0 flex-col justify-between relative overflow-hidden border-r-2"
+                style={{ background: 'var(--theme-bg-secondary)', borderColor: 'var(--theme-border)' }}>
 
                 <div className="relative z-10 flex flex-col justify-between h-full">
-                    {/* Logo */}
-                    <div className="p-10">
-                        <div className="flex items-center gap-2.5 cursor-pointer group" onClick={() => navigate('/')}>
-                            <div className="p-2 rounded-xl transition-all duration-300 group-hover:rotate-12 active:scale-95"
+                    <div className="p-8">
+                        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
+                            <div className="p-2 rounded-xl transition-all duration-500 group-hover:rotate-12"
                                 style={{ background: 'var(--theme-accent-gradient)' }}>
                                 <RiRocketLine className="text-white text-lg" />
                             </div>
-                            <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: '18px', color: 'var(--theme-text-primary)' }}>
+                            <span className="text-xl font-black tracking-tighter" style={{ color: 'var(--theme-text-primary)' }}>
                                 Startup<span style={{ color: 'var(--theme-accent)' }}>Nest</span>
                             </span>
                         </div>
                     </div>
 
-                    {/* Tagline */}
-                    <div className="p-10">
-                        <h2 className="animate-lift" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '36px', fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.03em', color: 'var(--theme-text-primary)' }}>
-                            Build something{' '}<span style={{ color: 'var(--theme-accent)', fontStyle: 'italic' }}>extraordinary.</span>
-                        </h2>
-                        <p className="animate-lift delay-100 mt-4" style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--theme-text-secondary)' }}>
-                            Join 500+ founders and investors building the future on StartupNest.
-                        </p>
+                    <div className="flex justify-center p-4">
+                        <MemphisSignup />
                     </div>
 
-                    {/* Copyright */}
-                    <div className="p-10">
-                        <p style={{ fontSize: '10px', color: 'var(--theme-text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 500 }}>
-                            © 2026 StartupNest Ecosystem
-                        </p>
+                    <div className="p-8">
+                        <h2 className="text-3xl font-black leading-tight tracking-tight mb-3">
+                            Start your<br />
+                            journey <span style={{ color: 'var(--theme-accent)' }}>today.</span>
+                        </h2>
+                        <button onClick={() => navigate('/')} className="flex items-center gap-2 text-xs font-black uppercase tracking-widest opacity-60 hover:opacity-100 hover:text-[var(--theme-accent)] transition-all">
+                            <RiArrowLeftLine /> Back to Landing Page
+                        </button>
                     </div>
                 </div>
             </div>
 
-            {/* RIGHT — Signup Form */}
-            <div className="flex-grow flex items-center justify-center p-6 relative overflow-hidden custom-scrollbar"
-                style={{ overflowY: 'auto' }}>
-
-                <div className="w-full max-w-lg relative z-10 animate-lift delay-100 my-auto py-8">
-
+            {/* RIGHT — Signup Form (Non-Scrollable) */}
+            <div className="flex-grow flex items-center justify-center p-4 relative overflow-hidden">
+                <div className="w-full max-w-xl relative z-10 animate-lift">
                     {/* Mobile Logo */}
-                    <div className="lg:hidden flex items-center gap-2.5 mb-8 cursor-pointer" onClick={() => navigate('/')}>
-                        <div className="p-2 rounded-xl active:scale-95" style={{ background: 'var(--theme-accent-gradient)' }}>
-                            <RiRocketLine className="text-white text-lg" />
+                    <div className="lg:hidden flex items-center gap-3 mb-6 justify-center cursor-pointer" onClick={() => navigate('/')}>
+                        <div className="p-2 rounded-xl" style={{ background: 'var(--theme-accent-gradient)' }}>
+                            <RiRocketLine className="text-white" />
                         </div>
-                        <span style={{ fontFamily: "'Plus Jakarta Sans'", fontWeight: 800, fontSize: '18px', color: 'var(--theme-text-primary)' }}>
-                            Startup<span style={{ color: 'var(--theme-accent)' }}>Nest</span>
-                        </span>
+                        <span className="text-xl font-black tracking-tighter">StartupNest</span>
                     </div>
 
-                    {/* Form Card */}
-                    <div className="p-5 md:p-10 shadow-2xl transition-all duration-300"
+                    <div className="p-6 md:p-8 shadow-2xl transition-all duration-300 border-2"
                         style={{
                             background: 'var(--theme-bg-card)',
-                            borderRadius: 'var(--theme-radius-xl)',
-                            border: '1px solid var(--theme-border)',
+                            borderRadius: '32px',
+                            borderColor: 'var(--theme-border)',
                             boxShadow: 'var(--theme-shadow-lg)'
                         }}
                     >
                         <div className="mb-6 text-center">
-                            <h2 style={{ fontFamily: "'Plus Jakarta Sans'", letterSpacing: '-0.03em', color: 'var(--theme-text-primary)' }} className="text-2xl md:text-[28px] font-extrabold">Create Account</h2>
-                            <p className="mt-1 text-xs md:text-sm" style={{ color: 'var(--theme-text-secondary)' }}>Join StartupNest and start your journey</p>
+                            <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-1" style={{ color: 'var(--theme-text-primary)' }}>Create Account</h2>
+                            <p className="text-[13px] font-medium" style={{ color: 'var(--theme-text-secondary)' }}>Join the world's most vibrant startup ecosystem.</p>
                         </div>
 
-                        <form onSubmit={handleSignup} className="space-y-4 md:space-y-5">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
-                                <Input 
-                                    label="Username"
-                                    name="userName"
-                                    placeholder="johndoe_99"
-                                    value={formData.userName}
-                                    onChange={handleChange}
-                                    error={errors.userName}
-                                />
-                                <Input 
-                                    label="Mobile Number"
-                                    name="mobile"
-                                    placeholder="9876543210"
-                                    value={formData.mobile}
-                                    onChange={handleChange}
-                                    error={errors.mobile}
-                                />
+                        <form onSubmit={handleSignup} className="space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <Input label="Username" name="userName" placeholder="johndoe" value={formData.userName} onChange={handleChange} error={errors.userName} className="py-2" />
+                                <Input label="Mobile" name="mobile" placeholder="9876543210" value={formData.mobile} onChange={handleChange} error={errors.mobile} className="py-2" />
                             </div>
 
-                            <Input 
-                                label="Email Address"
-                                name="email"
-                                type="email"
-                                placeholder="john@example.com"
-                                value={formData.email}
-                                onChange={handleChange}
-                                error={errors.email}
-                            />
-
-                            {/* Role Selection */}
-                            <div className="flex flex-col gap-1.5">
-                                <label className="text-[11px] md:text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--theme-text-secondary)' }}>
-                                    Select Role <span style={{ color: 'var(--theme-accent)' }}>*</span>
-                                </label>
-                                <select 
-                                    name="role"
-                                    value={formData.role}
-                                    onChange={handleChange}
-                                    className="w-full px-4 py-3 md:py-3.5 text-sm font-medium outline-none transition-all appearance-none cursor-pointer"
-                                    style={{ 
-                                        background: 'var(--theme-bg-input)',
-                                        border: '2px solid var(--theme-border)',
-                                        borderRadius: 'var(--theme-radius)',
-                                        color: 'var(--theme-text-primary)',
-                                        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='gray'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
-                                        backgroundRepeat: 'no-repeat',
-                                        backgroundPosition: 'right 1rem center',
-                                        backgroundSize: '1em'
-                                    }}
-                                    onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--theme-accent)'; e.currentTarget.style.background = 'var(--theme-bg-card)'; }}
-                                    onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--theme-border)'; e.currentTarget.style.background = 'var(--theme-bg-input)'; }}
-                                >
-                                    <option value="Entrepreneur">Entrepreneur</option>
-                                    <option value="Mentor">Mentor</option>
-                                </select>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <Input label="Email" name="email" type="email" placeholder="john@example.com" value={formData.email} onChange={handleChange} error={errors.email} className="py-2" />
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-[10px] font-black uppercase tracking-widest opacity-60">Your Role</label>
+                                    <select name="role" value={formData.role} onChange={handleChange} className="w-full px-4 py-2.5 rounded-xl outline-none border-2 transition-all appearance-none cursor-pointer font-bold text-sm"
+                                        style={{ background: 'var(--theme-bg-input)', borderColor: 'var(--theme-border)', color: 'var(--theme-text-primary)' }}>
+                                        <option value="Entrepreneur">Entrepreneur</option>
+                                        <option value="Mentor">Mentor</option>
+                                    </select>
+                                </div>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
-                                <Input 
-                                    label="Password"
-                                    name="password"
-                                    type="password"
-                                    placeholder="••••••••"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    error={errors.password}
-                                />
-                                <Input 
-                                    label="Confirm Password"
-                                    name="confirmPassword"
-                                    type="password"
-                                    placeholder="••••••••"
-                                    value={formData.confirmPassword}
-                                    onChange={handleChange}
-                                    error={errors.confirmPassword}
-                                />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <Input label="Password" name="password" type="password" placeholder="••••••••" value={formData.password} onChange={handleChange} error={errors.password} className="py-2" />
+                                <Input label="Confirm" name="confirmPassword" type="password" placeholder="••••••••" value={formData.confirmPassword} onChange={handleChange} error={errors.confirmPassword} className="py-2" />
                             </div>
 
-                            <div className="p-4 transition-all duration-300" style={{ background: 'var(--theme-bg-input)', borderRadius: 'var(--theme-radius-lg)', border: '1px solid var(--theme-border)' }}>
-                                <p className="text-[10px] font-black uppercase mb-2 tracking-widest" style={{ color: 'var(--theme-text-muted)' }}>Security Question</p>
-                                <p className="text-xs md:text-[13px] font-semibold mb-3 leading-relaxed" style={{ color: 'var(--theme-text-secondary)' }}>What was the name of your first school?</p>
-                                <Input 
-                                    label="Your Answer"
-                                    name="secretQuestionAnswer"
-                                    placeholder="St. Mary's School"
-                                    value={formData.secretQuestionAnswer}
-                                    onChange={handleChange}
-                                    error={errors.secretQuestionAnswer}
-                                />
+                            <div className="p-4 rounded-2xl border-2" style={{ background: 'var(--theme-bg-input)', borderColor: 'var(--theme-border)' }}>
+                                <p className="text-[9px] font-black uppercase tracking-widest mb-1 opacity-60">Security Question: School Name?</p>
+                                <Input label="" name="secretQuestionAnswer" placeholder="Your Answer" value={formData.secretQuestionAnswer} onChange={handleChange} error={errors.secretQuestionAnswer} className="py-1.5" />
                             </div>
 
-                            <div className="pt-2">
-                                <Button text="Register Account" type="submit" className="w-full py-4 text-[13px]" />
-                            </div>
+                            <button type="submit" className="group w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-white font-black uppercase tracking-widest text-xs transition-all hover:scale-[1.01] active:scale-95 shadow-xl"
+                                style={{ background: 'var(--theme-accent-gradient)', boxShadow: '0 15px 30px -10px var(--theme-accent-glow)' }}>
+                                <span>Complete Registration</span>
+                                <RiArrowRightLine className="text-lg transition-transform group-hover:translate-x-1" />
+                            </button>
                         </form>
 
-                        <div className="mt-6 pt-5 text-center" style={{ borderTop: '1px solid var(--theme-border)' }}>
-                            <p className="text-xs md:text-sm" style={{ color: 'var(--theme-text-secondary)' }}>
-                                Already have an account?{' '}
-                                <Link to="/login" className="font-bold transition-colors duration-300 hover:underline" style={{ color: 'var(--theme-accent)' }}>
-                                    Login Here
+                        <div className="mt-6 pt-4 text-center border-t-2" style={{ borderColor: 'var(--theme-border)' }}>
+                            <p className="text-xs font-medium" style={{ color: 'var(--theme-text-secondary)' }}>
+                                Already a member?{' '}
+                                <Link to="/login" className="font-black hover:text-[var(--theme-accent)] transition-colors" style={{ color: 'var(--theme-accent)' }}>
+                                    Login Instead
                                 </Link>
                             </p>
                         </div>

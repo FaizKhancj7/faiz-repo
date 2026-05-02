@@ -173,7 +173,15 @@ exports.getEntrepreneurSubmissions = asyncHandler(async (req, res) => {
 
     const query = { userId: req.user.id };
 
-    // SMART SEARCH — searches across all submission + profile fields
+    // Status Filter
+    if (req.query.status) {
+        if (req.query.status === 'withdrawn') {
+            query.isWithdrawn = true;
+        } else {
+            query.status = req.query.status;
+            query.isWithdrawn = { $ne: true }; // Don't show withdrawn if specifically filtering for a status
+        }
+    }
     if (keyword) {
         // Find profiles matching keyword in category, industry, stage, or description
         const matchingProfiles = await StartupProfile.find({

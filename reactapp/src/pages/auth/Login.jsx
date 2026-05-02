@@ -1,15 +1,45 @@
-// Login Page — Theme-Aware Implementation
-// Uses CSS custom properties for layouts, cards, and accent colors.
+// Login Page — Corporate Memphis Redesign (Sharpened)
+// Features: HD illustrations, theme-aware colors, and full navigation.
 
 import React, { useState, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
-import { RiRocketLine, RiArrowRightLine } from 'react-icons/ri';
+import { RiRocketLine, RiArrowRightLine, RiArrowLeftLine } from 'react-icons/ri';
 import api from '../../config/apiConfig';
 import { loginSuccess } from '../../store/userSlice';
 import Input from '../../components/ui/Input';
-import AnimatedBackground from '../../components/ui/AnimatedBackground';
+
+// --- CORPORATE MEMPHIS SVG ILLUSTRATIONS (Sharpened & Theme-Aware) ---
+
+const MemphisLogin = () => (
+    <svg viewBox="0 0 400 400" className="w-full max-w-[380px] h-auto transition-all duration-500">
+        <defs>
+            <filter id="hd-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="5" />
+                <feOffset dx="0" dy="10" result="offsetblur" />
+                <feComponentTransfer><feFuncA type="linear" slope="0.3" /></feComponentTransfer>
+                <feMerge><feMergeNode /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
+        </defs>
+        <g filter="url(#hd-shadow)">
+            <circle cx="200" cy="200" r="180" fill="var(--theme-accent-light)" opacity="0.4" />
+            {/* Door/Portal with sharp border */}
+            <path d="M120 320 L120 120 Q120 80 160 80 L240 80 Q280 80 280 120 L280 320" fill="var(--theme-bg-card)" stroke="var(--theme-accent)" strokeWidth="4" />
+            {/* Person - Walking into portal (Kinetic Palette) */}
+            <path d="M180 320 L200 220 L220 320" fill="#ff8c00" stroke="var(--theme-text-primary)" strokeWidth="2" />
+            <circle cx="200" cy="180" r="15" fill="#ad2c00" stroke="var(--theme-text-primary)" strokeWidth="2" />
+            <path d="M190 230 Q250 200 280 250" fill="none" stroke="#ff8c00" strokeWidth="14" strokeLinecap="round" />
+            <path d="M185 320 Q160 400 120 390" fill="none" stroke="#ff8c00" strokeWidth="14" strokeLinecap="round" />
+            <path d="M215 320 Q240 400 280 390" fill="none" stroke="#ad2c00" strokeWidth="14" strokeLinecap="round" />
+            {/* Key Icon */}
+            <g transform="translate(300, 100) rotate(-15)">
+                <circle cx="20" cy="20" r="15" fill="var(--theme-accent)" stroke="var(--theme-text-primary)" strokeWidth="2" />
+                <rect x="15" y="35" width="10" height="15" fill="var(--theme-accent)" stroke="var(--theme-text-primary)" strokeWidth="2" />
+            </g>
+        </g>
+    </svg>
+);
 
 const Login = () => {
     const navigate = useNavigate();
@@ -79,92 +109,86 @@ const Login = () => {
     }, [formData, navigate, dispatch]);
 
     return (
-        <div className="h-screen overflow-hidden flex transition-all duration-300 relative" style={{ fontFamily: "'Inter', sans-serif", background: 'var(--theme-bg-primary)' }}>
-            {/* High-Energy Global Background */}
-            <AnimatedBackground showOrnaments={true} />
+        <div className="h-screen overflow-hidden flex transition-all duration-300 relative" 
+            style={{ 
+                fontFamily: "'Plus Jakarta Sans', sans-serif", 
+                background: 'var(--theme-bg-primary)',
+                color: 'var(--theme-text-primary)'
+            }}>
+            
+            {/* Background Memphis Blobs */}
+            <div className="absolute top-[-10%] right-[-5%] w-[500px] h-[500px] rounded-full blur-[120px] opacity-20 animate-liquid" style={{ background: 'var(--theme-accent)' }}></div>
+            <div className="absolute bottom-[-10%] left-[-5%] w-[400px] h-[400px] rounded-full blur-[100px] opacity-20 animate-liquid" style={{ background: '#ff8c00' }}></div>
 
             {/* LEFT — Illustration Panel */}
-            <div className="hidden lg:flex w-[480px] flex-shrink-0 flex-col justify-between relative overflow-hidden border-r"
-                style={{ background: 'var(--theme-bg-secondary)', backdropFilter: 'var(--theme-glass)', borderColor: 'var(--theme-border)' }}>
+            <div className="hidden lg:flex w-[500px] flex-shrink-0 flex-col justify-between relative overflow-hidden border-r-2"
+                style={{ background: 'var(--theme-bg-secondary)', borderColor: 'var(--theme-border)' }}>
 
-                {/* Content overlay */}
                 <div className="relative z-10 flex flex-col justify-between h-full">
-                    {/* Logo */}
-                    <div className="p-10">
-                        <div className="flex items-center gap-2.5 cursor-pointer group" onClick={() => navigate('/')}>
-                            <div className="p-2 rounded-xl transition-all duration-300 group-hover:rotate-12 active:scale-95"
+                    <div className="p-12">
+                        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => navigate('/')}>
+                            <div className="p-2.5 rounded-2xl transition-all duration-500 group-hover:rotate-12"
                                 style={{ background: 'var(--theme-accent-gradient)' }}>
-                                <RiRocketLine className="text-white text-lg" />
+                                <RiRocketLine className="text-white text-xl" />
                             </div>
-                            <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 800, fontSize: '18px', color: 'var(--theme-text-primary)' }}>
+                            <span className="text-2xl font-black tracking-tighter" style={{ color: 'var(--theme-text-primary)' }}>
                                 Startup<span style={{ color: 'var(--theme-accent)' }}>Nest</span>
                             </span>
                         </div>
                     </div>
 
-                    {/* Tagline */}
-                    <div className="p-10">
-                        <h2 className="animate-lift" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontSize: '36px', fontWeight: 800, lineHeight: 1.15, letterSpacing: '-0.03em', color: 'var(--theme-text-primary)' }}>
-                            Welcome back to the{' '}<span style={{ color: 'var(--theme-accent)', fontStyle: 'italic' }}>nest.</span>
-                        </h2>
-                        <p className="animate-lift delay-100 mt-4" style={{ fontSize: '14px', lineHeight: 1.7, color: 'var(--theme-text-secondary)' }}>
-                            Continue your journey where big ideas take flight.
-                        </p>
+                    <div className="flex justify-center p-12">
+                        <MemphisLogin />
                     </div>
 
-                    {/* Copyright */}
-                    <div className="p-10">
-                        <p style={{ fontSize: '10px', color: 'var(--theme-text-muted)', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 500 }}>
-                            © 2026 StartupNest Ecosystem
-                        </p>
+                    <div className="p-12">
+                        <h2 className="text-4xl font-black leading-tight tracking-tight mb-4">
+                            Welcome back<br />
+                            to the <span style={{ color: 'var(--theme-accent)' }}>nest.</span>
+                        </h2>
+                        <button onClick={() => navigate('/')} className="flex items-center gap-2 text-xs font-black uppercase tracking-widest opacity-60 hover:opacity-100 hover:text-[var(--theme-accent)] transition-all">
+                            <RiArrowLeftLine /> Back to Landing Page
+                        </button>
                     </div>
                 </div>
             </div>
 
             {/* RIGHT — Login Form */}
-            <div className="flex-grow flex items-center justify-center p-6 relative overflow-hidden">
-
-                <div className="w-full max-w-md relative z-10 animate-lift delay-100">
-
+            <div className="flex-grow flex items-center justify-center p-6 relative">
+                <div className="w-full max-w-md relative z-10 animate-lift">
                     {/* Mobile Logo */}
-                    <div className="lg:hidden flex items-center gap-2.5 mb-8 cursor-pointer" onClick={() => navigate('/')}>
-                        <div className="p-2 rounded-xl active:scale-95" style={{ background: 'var(--theme-accent-gradient)' }}>
-                            <RiRocketLine className="text-white text-lg" />
+                    <div className="lg:hidden flex items-center gap-3 mb-12 justify-center cursor-pointer" onClick={() => navigate('/')}>
+                        <div className="p-2 rounded-xl" style={{ background: 'var(--theme-accent-gradient)' }}>
+                            <RiRocketLine className="text-white" />
                         </div>
-                        <span style={{ fontFamily: "'Plus Jakarta Sans'", fontWeight: 800, fontSize: '18px', color: 'var(--theme-text-primary)' }}>
-                            Startup<span style={{ color: 'var(--theme-accent)' }}>Nest</span>
-                        </span>
+                        <span className="text-xl font-black tracking-tighter">StartupNest</span>
                     </div>
 
-                    {/* The main card for the login form */}
-                    <div className="p-6 md:p-10 shadow-2xl transition-all duration-300"
+                    <div className="p-10 shadow-2xl transition-all duration-300 border-2"
                         style={{
                             background: 'var(--theme-bg-card)',
-                            borderRadius: 'var(--theme-radius-xl)',
-                            border: '1px solid var(--theme-border)',
+                            borderRadius: '40px',
+                            borderColor: 'var(--theme-border)',
                             boxShadow: 'var(--theme-shadow-lg)'
                         }}
                     >
-                        
-                        {/* Header */}
-                        <div className="mb-6 md:mb-8 text-center">
-                            <h2 style={{ fontFamily: "'Plus Jakarta Sans'", letterSpacing: '-0.03em', color: 'var(--theme-text-primary)' }} className="text-2xl md:text-[28px] font-extrabold">Welcome Back</h2>
-                            <p className="mt-2 text-xs md:text-sm" style={{ color: 'var(--theme-text-secondary)' }}>Enter your details to access your account</p>
+                        <div className="mb-10 text-center">
+                            <h2 className="text-3xl font-black tracking-tight mb-2" style={{ color: 'var(--theme-text-primary)' }}>Member Login</h2>
+                            <p className="text-sm font-medium" style={{ color: 'var(--theme-text-secondary)' }}>Ready for the next big leap?</p>
                         </div>
 
-                        {/* The Login Form */}
-                        <form onSubmit={handleLogin} className="space-y-4 md:space-y-6">
+                        <form onSubmit={handleLogin} className="space-y-6">
                             <Input
                                 label="Email Address"
                                 name="email"
                                 type="email"
-                                placeholder="john@example.com"
+                                placeholder="john@startupnest.com"
                                 value={formData.email}
                                 onChange={handleChange}
                                 error={errors.email}
                             />
 
-                            <div className="space-y-1">
+                            <div className="space-y-2">
                                 <Input
                                     label="Password"
                                     name="password"
@@ -175,49 +199,27 @@ const Login = () => {
                                     error={errors.password}
                                 />
                                 <div className="text-right">
-                                    <Link to="/forgot-password" intrinsic="true" className="text-[11px] md:text-sm font-bold hover:underline" style={{ color: 'var(--theme-accent)' }}>
+                                    <Link to="/forgot-password" intrinsic="true" className="text-xs font-black uppercase tracking-widest hover:text-[var(--theme-accent)] transition-colors" style={{ color: 'var(--theme-accent)' }}>
                                         Forgot Password?
                                     </Link>
                                 </div>
                             </div>
 
-                            <button type="submit" className="w-full flex items-center justify-center gap-2 text-[12px] md:text-sm font-bold uppercase transition-all duration-300 active:scale-95"
-                                style={{ 
-                                    fontFamily: "'Plus Jakarta Sans'", 
-                                    letterSpacing: '0.1em', 
-                                    background: 'var(--theme-accent-gradient)', 
-                                    color: 'var(--theme-text-on-accent)',
-                                    padding: '14px', 
-                                    borderRadius: '9999px', 
-                                    boxShadow: '0 6px 24px var(--theme-accent-glow)', 
-                                    marginTop: '8px' 
-                                }}
-                                onMouseEnter={(e) => { e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)'; e.currentTarget.style.boxShadow = '0 10px 32px var(--theme-accent-glow)'; }}
-                                onMouseLeave={(e) => { e.currentTarget.style.transform = 'translateY(0) scale(1)'; e.currentTarget.style.boxShadow = '0 6px 24px var(--theme-accent-glow)'; }}>
-                                <span>Login</span>
-                                <RiArrowRightLine className="text-lg" />
+                            <button type="submit" className="group w-full flex items-center justify-center gap-3 py-4 rounded-2xl text-white font-black uppercase tracking-widest text-xs transition-all hover:scale-[1.02] active:scale-95 shadow-xl"
+                                style={{ background: 'var(--theme-accent-gradient)', boxShadow: '0 20px 40px -10px var(--theme-accent-glow)' }}>
+                                <span>Sign In</span>
+                                <RiArrowRightLine className="text-xl transition-transform group-hover:translate-x-1" />
                             </button>
                         </form>
 
-                        {/* Link to the Signup page */}
-                        <div className="mt-6 md:mt-8 text-center pt-5 md:pt-6" style={{ borderTop: '1px solid var(--theme-border)' }}>
-                            <p className="text-xs md:text-sm" style={{ color: 'var(--theme-text-secondary)' }}>
-                                New here?{' '}
-                                <Link to="/signup" className="font-bold transition-colors duration-300 hover:underline" style={{ color: 'var(--theme-accent)' }}>
-                                    Create an Account
+                        <div className="mt-10 pt-8 text-center border-t-2" style={{ borderColor: 'var(--theme-border)' }}>
+                            <p className="text-sm font-medium" style={{ color: 'var(--theme-text-secondary)' }}>
+                                Don't have an account?{' '}
+                                <Link to="/signup" className="font-black hover:text-[var(--theme-accent)] transition-colors" style={{ color: 'var(--theme-accent)' }}>
+                                    Join the Hub
                                 </Link>
                             </p>
                         </div>
-                    </div>
-
-                    {/* Back to Home Link */}
-                    <div className="mt-6 text-center">
-                        <Link to="/" className="text-[10px] md:text-xs font-black uppercase tracking-widest transition-colors"
-                            style={{ color: 'var(--theme-text-muted)' }}
-                            onMouseEnter={(e) => e.currentTarget.style.color = 'var(--theme-text-primary)'}
-                            onMouseLeave={(e) => e.currentTarget.style.color = 'var(--theme-text-muted)'}>
-                            ← Back to Landing Page
-                        </Link>
                     </div>
                 </div>
             </div>

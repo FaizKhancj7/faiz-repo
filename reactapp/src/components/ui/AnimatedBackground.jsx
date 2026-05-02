@@ -28,13 +28,13 @@ const AnimatedBackground = ({ showOrnaments = false }) => {
                     style={{ background: 'linear-gradient(90deg, transparent, var(--theme-accent), transparent)', animationDelay: '-2s' }}></div>
             </div>
 
-            {/* 3. Hue-Shifting Mesh Gradients (Peak Density) */}
-            <div className="absolute inset-0 animate-hue opacity-90 scale-110">
-                <div className="absolute top-0 left-1/4 w-[700px] h-[700px] rounded-full opacity-50 blur-[120px] animate-liquid" style={{ background: 'var(--theme-accent)' }}></div>
-                <div className="absolute top-1/2 right-1/4 w-[600px] h-[600px] rounded-full opacity-40 blur-[100px] animate-liquid" style={{ background: 'var(--theme-text-primary)', animationDelay: '-2s' }}></div>
-                <div className="absolute -bottom-20 left-1/2 -translate-x-1/2 w-[900px] h-[900px] rounded-full opacity-30 blur-[150px] animate-liquid" style={{ background: 'var(--theme-accent)', animationDelay: '-4s' }}></div>
-                <div className="absolute top-1/4 left-1/3 w-[500px] h-[500px] rounded-full opacity-35 blur-[100px] animate-liquid" style={{ background: 'var(--theme-text-primary)', animationDelay: '-6s' }}></div>
-                <div className="absolute bottom-1/3 right-1/2 w-[600px] h-[600px] rounded-full opacity-25 blur-[120px] animate-liquid" style={{ background: 'var(--theme-accent)', animationDelay: '-8s' }}></div>
+            {/* 3. Hue-Shifting Mesh Gradients (Solar Focus) */}
+            <div className="absolute inset-0 opacity-80 scale-110">
+                <div className="absolute top-0 left-1/4 w-[700px] h-[700px] rounded-full opacity-30 blur-[120px] animate-liquid" style={{ background: 'var(--theme-accent)' }}></div>
+                <div className="absolute top-1/2 right-1/4 w-[600px] h-[600px] rounded-full opacity-20 blur-[100px] animate-liquid" style={{ background: 'var(--theme-accent-hover)', animationDelay: '-2s' }}></div>
+                <div className="absolute -bottom-20 left-1/2 -translate-x-1/2 w-[900px] h-[900px] rounded-full opacity-25 blur-[150px] animate-liquid" style={{ background: 'var(--theme-accent)', animationDelay: '-4s' }}></div>
+                <div className="absolute top-1/4 left-1/3 w-[500px] h-[500px] rounded-full opacity-15 blur-[100px] animate-liquid" style={{ background: 'var(--theme-accent-hover)', animationDelay: '-6s' }}></div>
+                <div className="absolute bottom-1/3 right-1/2 w-[600px] h-[600px] rounded-full opacity-10 blur-[120px] animate-liquid" style={{ background: 'var(--theme-accent)', animationDelay: '-8s' }}></div>
             </div>
 
             {/* 4. Digital Particle System (Peak Volume - 200 Particles) */}

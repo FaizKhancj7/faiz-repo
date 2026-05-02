@@ -1,8 +1,5 @@
-/**
- * MySubmissions.jsx — Theme-Aware Implementation
- * This component allows Entrepreneurs to track their pitches.
- * Uses CSS custom properties for backgrounds, cards, text, tables, and modals.
- */
+// MySubmissions — Kinetic Mentor Redesign
+// Features: Pitch Tracker dashboard, high-fidelity status badges, and portfolio-themed illustrations.
 
 import React, { useEffect, useState, useCallback } from 'react';
 import { toast } from 'react-toastify';
@@ -13,7 +10,10 @@ import {
     RiDeleteBin6Line,
     RiRocket2Line,
     RiFileTextLine,
-    RiNavigationLine
+    RiNavigationLine,
+    RiInboxArchiveLine,
+    RiArrowRightUpLine,
+    RiHistoryLine
 } from 'react-icons/ri';
 
 // Import our reusable components
@@ -23,8 +23,23 @@ import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import Modal from '../../components/ui/Modal';
 import Loader from '../../components/ui/Loader';
 import TableSkeleton from '../../components/ui/TableSkeleton';
+import Dropdown from '../../components/ui/Dropdown';
 
 import startupSubmissionService from '../../services/startupSubmissionService';
+
+// --- CORPORATE MEMPHIS SVG ILLUSTRATIONS (Kinetic Palette) ---
+
+const MemphisHistory = () => (
+    <svg viewBox="0 0 400 200" className="w-full max-w-[280px] h-auto drop-shadow-xl animate-float">
+        <circle cx="200" cy="100" r="80" fill="var(--theme-accent-light)" opacity="0.3" />
+        {/* Progress Line */}
+        <path d="M100 140 L150 100 L200 120 L250 60 L300 80" fill="none" stroke="var(--theme-accent)" strokeWidth="6" strokeLinecap="round" />
+        <circle cx="300" cy="80" r="8" fill="var(--theme-accent)" />
+        {/* Decorative elements */}
+        <rect x="140" y="50" width="30" height="30" rx="8" fill="#ad2c00" opacity="0.2" transform="rotate(-15, 155, 65)" />
+        <circle cx="120" cy="70" r="15" fill="#ff8c00" opacity="0.2" />
+    </svg>
+);
 
 const MySubmissions = () => {
     // --- 1. STATE MANAGEMENT ---
@@ -38,6 +53,7 @@ const MySubmissions = () => {
     const [selectedProfile, setSelectedProfile] = useState(null);
     const [showProfileModal, setShowProfileModal] = useState(false);
     const [deleteConfirm, setDeleteConfirm] = useState({ show: false, id: null });
+    const [statusFilter, setStatusFilter] = useState('');
 
     // WITHDRAWAL STATES
     const [showWithdrawModal, setShowWithdrawModal] = useState(false);
@@ -56,12 +72,13 @@ const MySubmissions = () => {
         return () => clearTimeout(timer);
     }, [searchTerm]);
 
-    const loadSubmissions = useCallback(async (page = 1, keyword = '') => {
+    const loadSubmissions = useCallback(async (page = 1, keyword = '', status = '') => {
         setLoading(true);
         try {
             const response = await startupSubmissionService.getMySubmissions({ 
                 page, 
-                keyword 
+                keyword,
+                status
             });
             if (response.success) {
                 setSubmissions(response.data);
@@ -71,18 +88,18 @@ const MySubmissions = () => {
                 });
             }
         } catch (error) {
-            toast.error(error.message || "Failed to load your submissions");
+            toast.error(error.message || "Failed to load submissions");
         } finally {
             setLoading(false);
         }
     }, []);
 
     useEffect(() => {
-        loadSubmissions(1, debouncedSearch);
-    }, [debouncedSearch, loadSubmissions]);
+        loadSubmissions(1, debouncedSearch, statusFilter);
+    }, [debouncedSearch, statusFilter, loadSubmissions]);
 
     const handlePageChange = (newPage) => {
-        loadSubmissions(newPage, debouncedSearch);
+        loadSubmissions(newPage, debouncedSearch, statusFilter);
     };
 
     const handleViewProfile = (profile) => {
@@ -100,11 +117,11 @@ const MySubmissions = () => {
         try {
             const response = await startupSubmissionService.deleteMySubmission(id);
             if (response.success) {
-                toast.success("Submission removed successfully");
+                toast.success("Submission removed");
                 loadSubmissions(pagination.currentPage, debouncedSearch);
             }
         } catch (error) {
-            toast.error(error.message || "Failed to delete submission");
+            toast.error(error.message || "Failed to delete");
         }
     };
 
@@ -117,7 +134,7 @@ const MySubmissions = () => {
 
     const handleConfirmWithdrawal = async () => {
         if (!withdrawReason.trim() || withdrawReason.trim().length < 10) {
-            setWithdrawError("Please write a reason of at least 10 characters.");
+            setWithdrawError("Please provide a valid reason.");
             return;
         }
 
@@ -125,12 +142,12 @@ const MySubmissions = () => {
         try {
             const response = await startupSubmissionService.withdrawSubmission(selectedWithdrawId, withdrawReason);
             if (response.success) {
-                toast.success("Your idea has been withdrawn.");
+                toast.success("Idea withdrawn.");
                 setShowWithdrawModal(false);
                 loadSubmissions(pagination.currentPage, debouncedSearch);
             }
         } catch (error) {
-            setWithdrawError(error.message || "Failed to withdraw submission");
+            setWithdrawError(error.message || "Failed to withdraw");
         } finally {
             setWithdrawLoading(false);
         }
@@ -148,7 +165,7 @@ const MySubmissions = () => {
     const getStatusBadge = (submission) => {
         if (submission.isWithdrawn) {
             return (
-                <span className="px-3 py-1 rounded-lg border text-[10px] font-black uppercase tracking-widest transition-all"
+                <span className="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border"
                     style={{ background: 'var(--theme-status-rejected-bg)', color: 'var(--theme-status-rejected-text)', borderColor: 'var(--theme-status-rejected-border)' }}>
                     Withdrawn
                 </span>
@@ -160,11 +177,11 @@ const MySubmissions = () => {
             'approved': { bg: 'var(--theme-status-approved-bg)', text: 'var(--theme-status-approved-text)', border: 'var(--theme-status-approved-border)' },
             'rejected': { bg: 'var(--theme-status-rejected-bg)', text: 'var(--theme-status-rejected-text)', border: 'var(--theme-status-rejected-border)' }
         };
-        const labels = { 'pending': "Pending", 'approved': "Approved", 'rejected': "Rejected" };
+        const labels = { 'pending': "In Review", 'approved': "Shortlisted", 'rejected': "Rejected" };
         const s = styles[submission.status] || styles['pending'];
 
         return (
-            <span className="px-3 py-1 rounded-lg border text-[10px] font-black uppercase tracking-widest transition-all"
+            <span className="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-wider border transition-all"
                 style={{ background: s.bg, color: s.text, borderColor: s.border }}>
                 {labels[submission.status] || "Pending"}
             </span>
@@ -172,389 +189,295 @@ const MySubmissions = () => {
     };
 
     return (
-        <div className="h-full relative flex flex-col transition-all duration-300" style={{ fontFamily: "'Inter', sans-serif" }}>
+        <div className="h-full relative flex flex-col transition-all duration-300" 
+            style={{ 
+                fontFamily: "'Plus Jakarta Sans', sans-serif",
+                background: 'var(--theme-bg-primary)',
+                color: 'var(--theme-text-primary)'
+            }}>
             
-            {/* Background handled by global AnimatedBackground in MainLayout */}
-
             <div className="relative z-10 w-full max-w-7xl mx-auto px-6 py-8 flex flex-col h-full overflow-hidden">
                 
-                {/* Header Section (Static) */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-6 animate-lift flex-shrink-0">
-                    <div>
-                        <div className="inline-flex items-center gap-2 px-3 py-1 mb-3 transition-all duration-300"
-                            style={{ background: 'var(--theme-accent-light)', borderRadius: 'var(--theme-radius)', border: '1px solid var(--theme-border)' }}>
-                            <RiFileTextLine style={{ color: 'var(--theme-accent)' }} className="text-xs" />
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: 'var(--theme-accent)' }}>My Portfolio</span>
+                {/* HEADER — Portfolio Context (Reduced Margins) */}
+                <div className="flex flex-col lg:flex-row items-center justify-between mb-6 gap-6 animate-lift flex-shrink-0">
+                    <div className="text-center lg:text-left flex-1">
+                        <div className="inline-flex items-center gap-3 px-3 py-1.5 mb-2 rounded-full" 
+                            style={{ background: 'var(--theme-accent-light)', border: '1px solid var(--theme-border)' }}>
+                            <RiHistoryLine style={{ color: 'var(--theme-accent)' }} />
+                            <span className="text-[9px] font-black uppercase tracking-[0.2em]" style={{ color: 'var(--theme-accent)' }}>Venture Tracker</span>
                         </div>
-                        <h1 style={{ fontFamily: "'Plus Jakarta Sans'", fontSize: '36px', fontWeight: 800, color: 'var(--theme-text-on-dark)', letterSpacing: '-0.04em', lineHeight: 1 }} className="transition-all duration-300">
-                            My Submissions
+                        <h1 className="text-3xl md:text-4xl font-black tracking-tight leading-none mb-2">
+                            My <span style={{ color: 'var(--theme-accent)' }}>Pitches.</span>
                         </h1>
-                        <p className="text-sm mt-2 font-medium transition-all duration-300" style={{ color: 'var(--theme-text-muted)' }}>Track the journey of your startup ideas and pitches.</p>
+                        <p className="text-xs font-medium max-w-lg" style={{ color: 'var(--theme-text-secondary)' }}>
+                            Track the status of your submitted ideas. Review mentor feedback and manage your venture portfolio.
+                        </p>
                     </div>
 
-                    {/* Premium Search Bar */}
-                    <div className="relative w-full md:w-80">
-                        <RiSearchLine className="absolute left-4 top-1/2 -translate-y-1/2 text-xl transition-all duration-300" style={{ color: 'var(--theme-text-muted)' }} />
+                    <div className="hidden md:block flex-shrink-0">
+                        <MemphisHistory />
+                    </div>
+                </div>
+
+                {/* SEARCH & FILTER STRIP */}
+                <div className="bg-white/50 dark:bg-black/20 p-3 rounded-[32px] border-2 mb-6 flex flex-col lg:flex-row items-center gap-4 animate-lift delay-100 relative z-[100]" style={{ borderColor: 'var(--theme-border)', backdropFilter: 'blur(10px)' }}>
+                    <div className="relative w-full lg:w-96 flex-shrink-0">
+                        <RiSearchLine className="absolute left-6 top-1/2 -translate-y-1/2 text-xl" style={{ color: 'var(--theme-text-muted)' }} />
                         <input
                             type="text"
-                            placeholder="Filter by category..."
+                            placeholder="Smart search..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 rounded-2xl outline-none transition-all font-bold text-sm"
-                            style={{ background: 'var(--theme-bg-input)', border: '1px solid var(--theme-border)', color: 'var(--theme-text-primary)' }}
+                            className="w-full pl-14 pr-6 py-4 rounded-2xl outline-none transition-all font-bold text-sm"
+                            style={{
+                                background: 'var(--theme-bg-input)',
+                                border: '1px solid var(--theme-border)',
+                                color: 'var(--theme-text-primary)'
+                            }}
                             onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--theme-accent)'; e.currentTarget.style.background = 'var(--theme-bg-card)'; }}
                             onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--theme-border)'; e.currentTarget.style.background = 'var(--theme-bg-input)'; }}
                         />
                     </div>
+
+                    <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto flex-grow justify-end">
+                        <div className="w-full sm:w-64">
+                            <Dropdown 
+                                value={statusFilter}
+                                options={[
+                                    { label: 'All States', value: '' },
+                                    { label: 'In Review', value: 'pending' },
+                                    { label: 'Shortlisted', value: 'approved' },
+                                    { label: 'Rejected', value: 'rejected' },
+                                    { label: 'Withdrawn', value: 'withdrawn' }
+                                ]}
+                                onChange={setStatusFilter}
+                                icon={RiHistoryLine}
+                            />
+                        </div>
+                    </div>
                 </div>
 
-                {/* Content Area */}
+                {/* CONTENT — Table/Cards */}
                 {loading ? (
                     <TableSkeleton columns={5} rows={5} />
                 ) : submissions && submissions.length > 0 ? (
-                    <div className="flex flex-col h-full overflow-hidden animate-lift delay-100">
+                    <div className="flex flex-col h-full overflow-hidden animate-lift delay-200">
                         
-                        {/* DESKTOP TABLE VIEW (Visible on LG screens and up) */}
-                        <div className="hidden lg:flex flex-col flex-grow overflow-hidden border shadow-2xl transition-all duration-300"
-                            style={{ background: 'var(--theme-bg-card)', borderColor: 'var(--theme-border)', borderRadius: 'var(--theme-radius-xl)', backdropFilter: 'var(--theme-glass)' }}>
-                            <div className="flex-grow overflow-auto custom-scrollbar">
-                                <table className="w-full text-left border-collapse table-fixed">
-                                    <thead className="sticky top-0 z-20 transition-all duration-300" style={{ background: 'var(--theme-bg-secondary)' }}>
-                                        <tr style={{ borderBottom: '1px solid var(--theme-border)' }}>
-                                            <th className="w-1/4 px-6 py-4 text-[10px] font-black tracking-[0.2em] uppercase" style={{ color: 'var(--theme-accent)' }}>Mentor</th>
-                                            <th className="w-1/5 px-6 py-4 text-[10px] font-black tracking-[0.2em] uppercase" style={{ color: 'var(--theme-accent)' }}>Category</th>
-                                            <th className="w-1/6 px-6 py-4 text-[10px] font-black tracking-[0.2em] uppercase text-center" style={{ color: 'var(--theme-accent)' }}>Date</th>
-                                            <th className="w-1/6 px-6 py-4 text-[10px] font-black tracking-[0.2em] uppercase text-center" style={{ color: 'var(--theme-accent)' }}>Status</th>
-                                            <th className="w-1/4 px-6 py-4 text-[10px] font-black tracking-[0.2em] uppercase text-right" style={{ color: 'var(--theme-accent)' }}>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y" style={{ borderTop: '1px solid transparent', borderColor: 'var(--theme-border)' }}>
-                                        {submissions.map((submission) => (
-                                            <React.Fragment key={submission._id}>
-                                                <tr className="transition-all duration-200" onMouseEnter={(e) => e.currentTarget.style.background = 'var(--theme-bg-secondary)'} onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}>
-                                                    <td className="px-6 py-5 overflow-hidden">
-                                                        <div className="flex flex-col truncate">
-                                                            <span className="text-sm font-bold leading-tight truncate transition-all duration-300" style={{ color: 'var(--theme-text-primary)' }}>{submission.startupProfileId?.mentorId?.userName || 'N/A'}</span>
-                                                            <span className="text-[10px] font-medium italic mt-0.5 truncate transition-all duration-300" style={{ color: 'var(--theme-text-muted)' }}>{submission.startupProfileId?.mentorId?.email}</span>
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-6 py-5">
-                                                        <span className="text-sm font-bold uppercase tracking-tight truncate block transition-all duration-300" style={{ color: 'var(--theme-text-secondary)' }}>
-                                                            {submission.startupProfileId?.category || 'N/A'}
-                                                        </span>
-                                                    </td>
-                                                    <td className="px-6 py-5 text-sm font-medium text-center transition-all duration-300" style={{ color: 'var(--theme-text-secondary)' }}>
-                                                        {new Date(submission.submissionDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
-                                                    </td>
-                                                    <td className="px-6 py-5 text-center">
-                                                        {getStatusBadge(submission)}
-                                                    </td>
-                                                    <td className="px-6 py-5 text-right">
-                                                        <div className="flex items-center justify-end gap-2">
-                                                            {(submission.status === 'rejected' && submission.rejectionFeedback) && (
-                                                                <button 
-                                                                    onClick={() => handleOpenReasonModal("Mentor Feedback", submission.rejectionFeedback)}
-                                                                    className="p-2 rounded-lg transition-all border border-transparent"
-                                                                    style={{ color: 'var(--theme-status-rejected-text)' }}
-                                                                    onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--theme-status-rejected-bg)'; e.currentTarget.style.borderColor = 'var(--theme-status-rejected-border)'; }}
-                                                                    onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'transparent'; }}
-                                                                    title="View Rejection Feedback"
-                                                                >
-                                                                    <RiFileTextLine size={16} />
-                                                                </button>
-                                                            )}
-                                                            {(submission.isWithdrawn && submission.withdrawalReason) && (
-                                                                <button 
-                                                                    onClick={() => handleOpenReasonModal("Withdrawal Reason", submission.withdrawalReason)}
-                                                                    className="p-2 rounded-lg transition-all border border-transparent"
-                                                                    style={{ color: 'var(--theme-text-muted)' }}
-                                                                    onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--theme-bg-secondary)'; e.currentTarget.style.borderColor = 'var(--theme-border)'; }}
-                                                                    onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'transparent'; }}
-                                                                    title="View Withdrawal Reason"
-                                                                >
-                                                                    <RiFileTextLine size={16} />
-                                                                </button>
-                                                            )}
-                                                            {submission.status === 'approved' && !submission.isWithdrawn ? (
-                                                                <button 
-                                                                    onClick={() => handleOpenWithdraw(submission._id)}
-                                                                    className="px-3 py-1.5 rounded-lg transition-all text-[9px] font-black uppercase tracking-wider border"
-                                                                    style={{ color: 'var(--theme-status-rejected-text)', borderColor: 'var(--theme-status-rejected-border)' }}
-                                                                    onMouseEnter={(e) => e.currentTarget.style.background = 'var(--theme-status-rejected-bg)'}
-                                                                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
-                                                                >
-                                                                    Withdraw
-                                                                </button>
-                                                            ) : submission.isWithdrawn ? (
-                                                                <span className="text-[9px] font-black uppercase tracking-widest px-2 transition-all duration-300" style={{ color: 'var(--theme-text-muted)' }}>Withdrawn</span>
-                                                            ) : (
-                                                                <>
-                                                                    <button 
-                                                                        onClick={() => handleViewProfile(submission.startupProfileId)}
-                                                                        className="px-2 py-1.5 rounded-lg transition-all text-[9px] font-black uppercase tracking-wider border border-transparent"
-                                                                        style={{ color: 'var(--theme-accent)' }}
-                                                                        onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--theme-accent-light)'; e.currentTarget.style.borderColor = 'var(--theme-border)'; }}
-                                                                        onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'transparent'; }}
-                                                                        title="View Profile"
-                                                                    >
-                                                                        <RiEyeLine size={14} />
-                                                                    </button>
-                                                                    <button 
-                                                                        onClick={() => viewPitchDeck(submission.pitchDeckFile)}
-                                                                        className="px-2 py-1.5 rounded-lg transition-all text-[9px] font-black uppercase tracking-wider border border-transparent"
-                                                                        style={{ color: 'var(--theme-status-pending-text)' }}
-                                                                        onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--theme-status-pending-bg)'; e.currentTarget.style.borderColor = 'var(--theme-status-pending-border)'; }}
-                                                                        onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'transparent'; }}
-                                                                        title="View Pitch"
-                                                                    >
-                                                                        <RiFilePdfLine size={14} />
-                                                                    </button>
-                                                                    <button 
-                                                                        onClick={() => handleOpenDelete(submission._id)}
-                                                                        className="px-2 py-1.5 rounded-lg transition-all text-[9px] font-black uppercase tracking-wider border border-transparent"
-                                                                        style={{ color: 'var(--theme-status-rejected-text)' }}
-                                                                        onMouseEnter={(e) => { e.currentTarget.style.background = 'var(--theme-status-rejected-bg)'; e.currentTarget.style.borderColor = 'var(--theme-status-rejected-border)'; }}
-                                                                        onMouseLeave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.borderColor = 'transparent'; }}
-                                                                        title="Remove"
-                                                                    >
-                                                                        <RiDeleteBin6Line size={14} />
-                                                                    </button>
-                                                                </>
-                                                            )}
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            </React.Fragment>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                            {/* Desktop Pagination */}
-                            <Pagination 
-                                currentPage={pagination.currentPage}
-                                totalPages={pagination.totalPages}
-                                onPageChange={handlePageChange}
-                            />
-                        </div>
-
-                        {/* TABLET & MOBILE CARD VIEW (Visible below LG breakpoint) */}
-                        <div className="lg:hidden flex-grow overflow-y-auto space-y-4 pr-1 custom-scrollbar">
-                            {submissions.map((submission) => (
-                                <div key={submission._id} className="p-5 shadow-xl transition-all duration-300 space-y-4"
-                                    style={{ background: 'var(--theme-bg-card)', borderRadius: 'var(--theme-radius-xl)', border: '1px solid var(--theme-border)', borderLeft: '4px solid var(--theme-accent)', backdropFilter: 'var(--theme-glass)' }}>
-                                    <div className="flex items-start justify-between">
-                                        <div className="space-y-1 overflow-hidden">
-                                            <div className="flex flex-col mb-1 truncate">
-                                                <span className="text-xs font-black leading-tight truncate transition-all duration-300" style={{ color: 'var(--theme-text-primary)' }}>{submission.startupProfileId?.mentorId?.userName || 'N/A'}</span>
-                                                <span className="text-[9px] font-medium italic truncate transition-all duration-300" style={{ color: 'var(--theme-text-muted)' }}>{submission.startupProfileId?.mentorId?.email}</span>
-                                            </div>
-                                            <span className="text-[10px] font-black uppercase tracking-tight transition-all duration-300" style={{ color: 'var(--theme-text-secondary)' }}>{submission.startupProfileId?.category || 'N/A'}</span>
-                                        </div>
-                                        <div className="text-right flex-shrink-0">
-                                            {getStatusBadge(submission)}
-                                            <p className="text-[8px] font-black uppercase tracking-widest mt-2 transition-all duration-300" style={{ color: 'var(--theme-text-muted)' }}>
-                                                {new Date(submission.submissionDate).toLocaleDateString()}
-                                            </p>
-                                        </div>
-                                    </div>
-                                    
-                                    <div className="flex items-center gap-2 pt-1">
-                                        {submission.status === 'approved' && !submission.isWithdrawn ? (
-                                            <button 
-                                                onClick={() => handleOpenWithdraw(submission._id)}
-                                                className="flex-1 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all active:scale-95"
-                                                style={{ background: 'var(--theme-status-rejected-bg)', color: 'var(--theme-status-rejected-text)', borderColor: 'var(--theme-status-rejected-border)' }}
-                                            >
-                                                Withdraw Idea
-                                            </button>
-                                        ) : submission.isWithdrawn ? (
-                                            <div className="flex flex-1 items-center gap-2">
-                                                <div className="flex-grow py-3 rounded-xl text-[9px] font-black uppercase tracking-widest border text-center transition-all"
-                                                    style={{ background: 'var(--theme-status-rejected-bg)', color: 'var(--theme-status-rejected-text)', borderColor: 'var(--theme-status-rejected-border)' }}>
-                                                    Withdrawn
+                        <div className="flex-grow overflow-auto custom-scrollbar border-2 rounded-[40px] shadow-2xl"
+                            style={{
+                                background: 'var(--theme-bg-card)',
+                                borderColor: 'var(--theme-border)',
+                                backdropFilter: 'var(--theme-glass)'
+                            }}
+                        >
+                            <table className="w-full text-left border-collapse">
+                                <thead className="sticky top-0 z-20" style={{ background: 'var(--theme-bg-secondary)' }}>
+                                    <tr>
+                                        <th className="px-8 py-5 text-[11px] font-black tracking-[0.2em] uppercase" style={{ color: 'var(--theme-text-muted)' }}>Lead Mentor</th>
+                                        <th className="px-8 py-5 text-[11px] font-black tracking-[0.2em] uppercase" style={{ color: 'var(--theme-text-muted)' }}>Venture Ecosystem</th>
+                                        <th className="px-8 py-5 text-[11px] font-black tracking-[0.2em] uppercase" style={{ color: 'var(--theme-text-muted)' }}>Submission State</th>
+                                        <th className="px-8 py-5 text-[11px] font-black tracking-[0.2em] uppercase text-right" style={{ color: 'var(--theme-text-muted)' }}>Control</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y" style={{ borderColor: 'var(--theme-border)' }}>
+                                    {submissions.map((submission) => (
+                                        <tr key={submission._id} className="group transition-all duration-300 hover:bg-black/[0.02] dark:hover:bg-white/[0.02]">
+                                            <td className="px-8 py-6">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-sm transition-all group-hover:scale-110"
+                                                        style={{ background: 'var(--theme-bg-secondary)', border: '1px solid var(--theme-border)', color: 'var(--theme-accent)' }}>
+                                                        <RiInboxArchiveLine />
+                                                    </div>
+                                                    <div className="flex flex-col truncate">
+                                                        <p className="text-sm font-black transition-all" style={{ color: 'var(--theme-text-primary)' }}>{submission.startupProfileId?.mentorId?.userName || 'Mentor N/A'}</p>
+                                                        <p className="text-[10px] font-bold" style={{ color: 'var(--theme-text-muted)' }}>{submission.startupProfileId?.mentorId?.email}</p>
+                                                    </div>
                                                 </div>
-                                                {submission.withdrawalReason && (
-                                                    <button 
-                                                        onClick={() => handleOpenReasonModal("Withdrawal Reason", submission.withdrawalReason)}
-                                                        className="p-3 rounded-xl border transition-all active:scale-95"
-                                                        style={{ background: 'var(--theme-bg-secondary)', color: 'var(--theme-text-muted)', borderColor: 'var(--theme-border)' }}
-                                                    >
-                                                        <RiFileTextLine size={14} />
-                                                    </button>
-                                                )}
-                                            </div>
-                                        ) : (
-                                            <>
-                                                <button 
-                                                    onClick={() => handleViewProfile(submission.startupProfileId)}
-                                                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all active:scale-95"
-                                                    style={{ background: 'var(--theme-bg-secondary)', color: 'var(--theme-accent)', borderColor: 'var(--theme-border)' }}
-                                                >
-                                                    <RiEyeLine size={14} /> Profile
-                                                </button>
-                                                <button 
-                                                    onClick={() => viewPitchDeck(submission.pitchDeckFile)}
-                                                    className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all active:scale-95"
-                                                    style={{ background: 'var(--theme-status-pending-bg)', color: 'var(--theme-status-pending-text)', borderColor: 'var(--theme-status-pending-border)' }}
-                                                >
-                                                    <RiFilePdfLine size={14} /> Pitch
-                                                </button>
-                                                <button 
-                                                    onClick={() => handleOpenDelete(submission._id)}
-                                                    className="p-3 rounded-xl border transition-all active:scale-95"
-                                                    style={{ background: 'var(--theme-status-rejected-bg)', color: 'var(--theme-status-rejected-text)', borderColor: 'var(--theme-status-rejected-border)' }}
-                                                >
-                                                    <RiDeleteBin6Line size={14} />
-                                                </button>
-                                            </>
-                                        )}
-                                        {(submission.status === 'rejected' && submission.rejectionFeedback) && (
-                                            <button 
-                                                onClick={() => handleOpenReasonModal("Mentor Feedback", submission.rejectionFeedback)}
-                                                className="p-3 rounded-xl border transition-all active:scale-95"
-                                                style={{ background: 'var(--theme-status-rejected-bg)', color: 'var(--theme-status-rejected-text)', borderColor: 'var(--theme-status-rejected-border)' }}
-                                            >
-                                                <RiFileTextLine size={14} />
-                                            </button>
-                                        )}
-                                    </div>
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="inline-flex w-fit px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border"
+                                                        style={{ background: 'var(--theme-accent-light)', color: 'var(--theme-accent)', borderColor: 'var(--theme-border)' }}>
+                                                        {submission.startupProfileId?.category || 'General'}
+                                                    </span>
+                                                    <p className="text-[9px] font-bold" style={{ color: 'var(--theme-text-muted)' }}>
+                                                        {new Date(submission.submissionDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                    </p>
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                <div className="flex flex-col items-start gap-2">
+                                                    {getStatusBadge(submission)}
+                                                    {(submission.status === 'rejected' || submission.isWithdrawn) && (
+                                                        <button 
+                                                            onClick={() => handleOpenReasonModal(submission.isWithdrawn ? "Withdrawal Log" : "Mentor Feedback", submission.isWithdrawn ? submission.withdrawalReason : submission.rejectionFeedback)}
+                                                            className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest transition-all hover:text-[var(--theme-accent)]"
+                                                            style={{ color: 'var(--theme-text-muted)' }}
+                                                        >
+                                                            <RiFileTextLine /> View Log
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6 text-right">
+                                                <div className="flex items-center justify-end gap-3">
+                                                    {!submission.isWithdrawn && submission.status === 'approved' && (
+                                                        <button 
+                                                            onClick={() => handleOpenWithdraw(submission._id)}
+                                                            className="px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest border transition-all active:scale-95"
+                                                            style={{ color: 'var(--theme-status-rejected-text)', borderColor: 'var(--theme-status-rejected-border)', background: 'var(--theme-status-rejected-bg)' }}
+                                                        >
+                                                            Withdraw
+                                                        </button>
+                                                    )}
+                                                    {!submission.isWithdrawn && (
+                                                        <>
+                                                            <button 
+                                                                onClick={() => handleViewProfile(submission.startupProfileId)}
+                                                                className="p-3 rounded-2xl transition-all hover:scale-110 active:scale-95 border-2"
+                                                                style={{ background: 'var(--theme-bg-input)', borderColor: 'var(--theme-border)', color: 'var(--theme-accent)' }}
+                                                                title="Opportunity Details"
+                                                            >
+                                                                <RiEyeLine size={18} />
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => viewPitchDeck(submission.pitchDeckFile)}
+                                                                className="p-3 rounded-2xl transition-all hover:scale-110 active:scale-95 border-2 shadow-xl"
+                                                                style={{ background: 'var(--theme-accent-gradient)', borderColor: 'transparent', color: 'var(--theme-text-on-accent)' }}
+                                                                title="View My Pitch"
+                                                            >
+                                                                <RiFilePdfLine size={18} />
+                                                            </button>
+                                                            <button 
+                                                                onClick={() => handleOpenDelete(submission._id)}
+                                                                className="p-3 rounded-2xl transition-all hover:scale-110 active:scale-95 border-2"
+                                                                style={{ background: 'var(--theme-status-rejected-bg)', borderColor: 'var(--theme-status-rejected-border)', color: 'var(--theme-status-rejected-text)' }}
+                                                                title="Remove Submission"
+                                                            >
+                                                                <RiDeleteBin6Line size={18} />
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
 
-                                </div>
-                            ))}
-                            {/* Mobile Pagination */}
+                        {/* PAGINATION */}
+                        <div className="mt-8">
                             <Pagination 
                                 currentPage={pagination.currentPage}
                                 totalPages={pagination.totalPages}
                                 onPageChange={handlePageChange}
                             />
                         </div>
-                        
-
                     </div>
                 ) : (
                     <EmptyState 
-                        message={searchTerm ? "No submissions match your search." : "You haven't submitted any startup ideas yet."}
-                        icon="🚀"
+                        message={searchTerm ? "No results found for your search." : "You haven't launched any pitches yet. Start your journey today!"} 
+                        icon={<RiRocket2Line className="text-6xl mb-6 opacity-20" />}
                     />
                 )}
             </div>
 
-            {/* Withdraw Confirmation Modal */}
-            <Modal
-                isOpen={showWithdrawModal}
-                onClose={() => !withdrawLoading && setShowWithdrawModal(false)}
-                title="Withdraw your idea?"
-            >
-                <div className="space-y-4">
-                    <div className="space-y-1">
-                        <p className="text-sm font-bold transition-all" style={{ color: 'var(--theme-text-primary)' }}>This action cannot be undone.</p>
-                        <p className="text-xs font-medium transition-all" style={{ color: 'var(--theme-text-secondary)' }}>Please tell us why you are withdrawing.</p>
-                    </div>
-                    
-                    <div>
-                        <textarea
-                            value={withdrawReason}
-                            onChange={(e) => {
-                                setWithdrawReason(e.target.value);
-                                if (e.target.value.trim().length >= 10) setWithdrawError('');
-                            }}
-                            placeholder="Write your reason for withdrawing this idea (required)..."
-                            className="w-full h-32 p-4 border rounded-2xl outline-none transition-all text-sm font-medium resize-none"
-                            style={{ 
-                                background: 'var(--theme-bg-input)', 
-                                borderColor: withdrawError ? 'var(--theme-status-rejected-border)' : 'var(--theme-border)',
-                                color: 'var(--theme-text-primary)'
-                            }}
-                            onFocus={(e) => { if(!withdrawError) { e.currentTarget.style.borderColor = 'var(--theme-status-rejected-border)'; e.currentTarget.style.background = 'var(--theme-bg-card)'; } }}
-                            onBlur={(e) => { if(!withdrawError) { e.currentTarget.style.borderColor = 'var(--theme-border)'; e.currentTarget.style.background = 'var(--theme-bg-input)'; } }}
-                        />
-                        {withdrawError && (
-                            <p className="text-[10px] font-bold mt-1 uppercase tracking-wider transition-all" style={{ color: 'var(--theme-status-rejected-text)' }}>{withdrawError}</p>
-                        )}
-                    </div>
-
-                    <div className="flex gap-3 pt-2">
-                        <button
-                            onClick={() => setShowWithdrawModal(false)}
-                            disabled={withdrawLoading}
-                            className="flex-1 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
-                            style={{ background: 'var(--theme-bg-secondary)', color: 'var(--theme-text-secondary)' }}
-                            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--theme-text-primary)'; }}
-                            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--theme-text-secondary)'; }}
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            onClick={handleConfirmWithdrawal}
-                            disabled={withdrawLoading}
-                            className="flex-1 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest text-white transition-all disabled:opacity-50"
-                            style={{ background: 'var(--theme-status-rejected-text)', boxShadow: '0 4px 12px var(--theme-status-rejected-border)' }}
-                        >
-                            {withdrawLoading ? 'Withdrawing...' : 'Confirm Withdrawal'}
-                        </button>
-                    </div>
-                </div>
-            </Modal>
-
-            {/* View Profile Modal */}
-            <Modal isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} title="Mentor Opportunity Details">
+            {/* Opportunity Details Modal */}
+            <Modal isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} title="Lead Venture Profile">
                 {selectedProfile && (
-                    <div className="space-y-6">
-                        <div className="flex items-center gap-4 p-5 rounded-2xl border shadow-sm transition-all"
-                            style={{ background: 'var(--theme-bg-secondary)', borderColor: 'var(--theme-border)' }}>
-                            <div className="p-3 rounded-xl shadow-sm border transition-all" style={{ background: 'var(--theme-bg-card)', borderColor: 'var(--theme-border)' }}>
-                                <RiRocket2Line className="text-2xl transition-all" style={{ color: 'var(--theme-accent)' }} />
+                    <div className="space-y-8 py-4 text-center lg:text-left" style={{ color: 'var(--theme-text-primary)' }}>
+                        <div className="p-8 rounded-[40px] border-2 shadow-inner" style={{ background: 'var(--theme-bg-secondary)', borderColor: 'var(--theme-border)' }}>
+                            <div className="w-20 h-20 mx-auto lg:mx-0 rounded-full flex items-center justify-center text-4xl shadow-lg border-2 mb-6"
+                                style={{ background: 'var(--theme-bg-card)', borderColor: 'var(--theme-accent)', color: 'var(--theme-accent)' }}>
+                                <RiNavigationLine />
                             </div>
-                            <div>
-                                <p className="text-[10px] font-black uppercase tracking-widest transition-all" style={{ color: 'var(--theme-accent)' }}>Target Category</p>
-                                <p className="text-xl font-black uppercase italic tracking-tight transition-all" style={{ color: 'var(--theme-text-primary)' }}>{selectedProfile.category}</p>
-                            </div>
+                            <h3 className="text-3xl font-black tracking-tight">{selectedProfile.category}</h3>
+                            <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-60 mt-1">Ecosystem Target</p>
                         </div>
+
                         <div className="grid grid-cols-2 gap-6">
-                            <div className="p-5 rounded-2xl border transition-all" style={{ background: 'var(--theme-bg-input)', borderColor: 'var(--theme-border)' }}>
-                                <p className="text-[9px] font-black uppercase tracking-widest mb-1 transition-all" style={{ color: 'var(--theme-text-muted)' }}>Max Funding</p>
-                                <p className="text-lg font-black transition-all" style={{ color: 'var(--theme-text-primary)' }}>₹{selectedProfile.fundingLimit?.toLocaleString()}</p>
+                            <div className="p-6 rounded-[32px] border-2" style={{ background: 'var(--theme-bg-input)', borderColor: 'var(--theme-border)' }}>
+                                <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-1">Max Funding</p>
+                                <p className="text-xl font-black" style={{ color: 'var(--theme-accent)' }}>₹{selectedProfile.fundingLimit?.toLocaleString()}</p>
                             </div>
-                            <div className="p-5 rounded-2xl border transition-all" style={{ background: 'var(--theme-bg-input)', borderColor: 'var(--theme-border)' }}>
-                                <p className="text-[9px] font-black uppercase tracking-widest mb-1 transition-all" style={{ color: 'var(--theme-text-muted)' }}>Equity Expectation</p>
-                                <p className="text-lg font-black transition-all" style={{ color: 'var(--theme-text-primary)' }}>{selectedProfile.avgEquityExpectation}%</p>
+                            <div className="p-6 rounded-[32px] border-2" style={{ background: 'var(--theme-bg-input)', borderColor: 'var(--theme-border)' }}>
+                                <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-1">Equity Expectation</p>
+                                <p className="text-xl font-black">{selectedProfile.avgEquityExpectation}%</p>
                             </div>
                         </div>
-                        <div className="border-t pt-6 transition-all" style={{ borderColor: 'var(--theme-border)' }}>
-                            <p className="text-[9px] font-black uppercase tracking-widest mb-2 transition-all" style={{ color: 'var(--theme-text-muted)' }}>Description</p>
-                            <p className="text-sm leading-relaxed font-medium transition-all" style={{ color: 'var(--theme-text-secondary)' }}>{selectedProfile.description}</p>
+
+                        <div className="p-8 rounded-[32px] border-2 italic font-medium leading-relaxed shadow-sm" style={{ background: 'var(--theme-bg-card)', borderColor: 'var(--theme-border)', color: 'var(--theme-text-secondary)' }}>
+                            "{selectedProfile.description}"
                         </div>
                     </div>
                 )}
             </Modal>
 
-            {/* Rejection/Withdrawal Reason View Modal */}
+            {/* Log View Modal */}
             <Modal
                 isOpen={reasonModal.show}
                 onClose={() => setReasonModal({ ...reasonModal, show: false })}
-                title={reasonModal.title}
+                title="System Evaluation Log"
             >
-                <div className="space-y-4">
-                    <div className="flex items-center gap-3 p-4 rounded-2xl border shadow-sm transition-all"
-                        style={{ background: 'var(--theme-bg-secondary)', borderColor: 'var(--theme-border)' }}>
-                        <div className="p-2 rounded-lg shadow-sm border transition-all" style={{ background: 'var(--theme-bg-card)', borderColor: 'var(--theme-border)' }}>
-                            <RiFileTextLine className="text-xl transition-all" style={{ color: 'var(--theme-accent)' }} />
-                        </div>
-                        <span className="text-[10px] font-black uppercase tracking-widest transition-all" style={{ color: 'var(--theme-text-muted)' }}>Justification</span>
+                <div className="space-y-6 py-4 text-center">
+                    <div className="w-20 h-20 mx-auto rounded-full flex items-center justify-center text-4xl shadow-xl border-2"
+                        style={{ background: 'var(--theme-bg-secondary)', borderColor: 'var(--theme-border)', color: 'var(--theme-accent)' }}>
+                        <RiFileTextLine />
                     </div>
-                    <p className="text-sm leading-relaxed font-medium p-6 rounded-3xl border italic transition-all"
+                    <p className="text-lg font-black tracking-tight">{reasonModal.title}</p>
+                    <div className="p-8 rounded-[40px] border-2 shadow-inner italic font-bold text-sm leading-relaxed"
                         style={{ background: 'var(--theme-bg-input)', borderColor: 'var(--theme-border)', color: 'var(--theme-text-secondary)' }}>
                         "{reasonModal.content}"
-                    </p>
+                    </div>
                     <button
                         onClick={() => setReasonModal({ ...reasonModal, show: false })}
-                        className="w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-xl active:scale-95"
-                        style={{ background: 'var(--theme-text-primary)', color: 'var(--theme-bg-primary)' }}
-                        onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                        onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                        className="w-full py-5 rounded-[24px] text-[10px] font-black uppercase tracking-widest text-white transition-all shadow-2xl active:scale-95"
+                        style={{ background: 'var(--theme-text-primary)' }}
                     >
-                        Close Feedback
+                        Return to Tracker
                     </button>
+                </div>
+            </Modal>
+
+            {/* Withdrawal Reason Modal */}
+            <Modal
+                isOpen={showWithdrawModal}
+                onClose={() => !withdrawLoading && setShowWithdrawModal(false)}
+                title="Withdrawal Rationale"
+            >
+                <div className="space-y-6 py-2">
+                    <div className="p-5 rounded-2xl border-2" style={{ background: 'var(--theme-status-rejected-bg)', borderColor: 'var(--theme-status-rejected-border)', color: 'var(--theme-status-rejected-text)' }}>
+                        <p className="text-xs font-black leading-tight uppercase tracking-widest text-center">Important: This action is permanent.</p>
+                    </div>
+                    
+                    <textarea
+                        value={withdrawReason}
+                        onChange={(e) => {
+                            setWithdrawReason(e.target.value);
+                            if (e.target.value.trim().length >= 10) setWithdrawError('');
+                        }}
+                        placeholder="Please state your reason for withdrawing..."
+                        className="w-full h-40 p-6 border-2 rounded-[32px] outline-none transition-all text-sm font-bold resize-none"
+                        style={{ 
+                            background: 'var(--theme-bg-input)', 
+                            borderColor: withdrawError ? 'var(--theme-status-rejected-border)' : 'var(--theme-border)',
+                            color: 'var(--theme-text-primary)'
+                        }}
+                    />
+                    {withdrawError && <p className="text-[10px] font-black uppercase tracking-widest text-center" style={{ color: 'var(--theme-status-rejected-text)' }}>{withdrawError}</p>}
+
+                    <div className="flex gap-4">
+                        <button onClick={() => setShowWithdrawModal(false)} disabled={withdrawLoading} className="flex-1 py-4 text-[10px] font-black uppercase tracking-widest opacity-60">Cancel</button>
+                        <button
+                            onClick={handleConfirmWithdrawal}
+                            disabled={withdrawLoading}
+                            className="flex-1 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest text-white transition-all shadow-xl disabled:opacity-50"
+                            style={{ background: 'var(--theme-status-rejected-text)', boxShadow: '0 10px 20px -5px var(--theme-status-rejected-border)' }}
+                        >
+                            {withdrawLoading ? 'Processing...' : 'Confirm Withdrawal'}
+                        </button>
+                    </div>
                 </div>
             </Modal>
 
@@ -563,9 +486,9 @@ const MySubmissions = () => {
                 isOpen={deleteConfirm.show}
                 onCancel={() => setDeleteConfirm({ show: false, id: null })}
                 onConfirm={handleConfirmDelete}
-                title="Remove Submission?"
-                message="Are you sure you want to remove this pitch? This will delete your submission from the mentor's dashboard as well."
-                confirmText="Yes, Remove It"
+                title="Remove Venture Record?"
+                message="This will permanently delete this pitch record from your portfolio. This action cannot be reversed."
+                confirmText="Yes, Remove Record"
                 danger={true}
             />
         </div>
