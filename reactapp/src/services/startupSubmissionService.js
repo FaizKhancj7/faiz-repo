@@ -4,7 +4,7 @@
  * Includes methods for both Entrepreneurs (Submitting) and Mentors (Reviewing).
  */
 
-import api from '../apiConfig';
+import api from '../config/apiConfig';
 
 const startupSubmissionService = {
     /**

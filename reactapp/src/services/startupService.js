@@ -4,7 +4,7 @@
  * It uses the central axios instance from apiConfig.js.
  */
 
-import api from '../apiConfig';
+import api from '../config/apiConfig';
 
 const startupService = {
     /**

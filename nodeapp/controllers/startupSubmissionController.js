@@ -47,6 +47,28 @@ exports.getMentorSubmissions = asyncHandler(async (req, res) => {
         query.status = req.query.status;
     }
 
+    // SMART SEARCH — searches across all submission fields
+    const keyword = req.query.keyword || '';
+    if (keyword) {
+        // Find profiles matching keyword in category/industry
+        const matchingProfiles = await StartupProfile.find({
+            _id: { $in: profileIds },
+            $or: [
+                { category: { $regex: keyword, $options: 'i' } },
+                { targetIndustry: { $regex: keyword, $options: 'i' } },
+                { preferredStage: { $regex: keyword, $options: 'i' } }
+            ]
+        }).select('_id');
+        const matchedProfileIds = matchingProfiles.map(p => p._id);
+
+        query.$or = [
+            { userName: { $regex: keyword, $options: 'i' } },
+            { address: { $regex: keyword, $options: 'i' } },
+            { status: { $regex: keyword, $options: 'i' } },
+            ...(matchedProfileIds.length > 0 ? [{ startupProfileId: { $in: matchedProfileIds } }] : [])
+        ];
+    }
+
     const order = req.query.order === 'asc' ? 1 : -1;
 
     const submissions = await StartupSubmission.find(query)
@@ -147,16 +169,29 @@ exports.deleteSubmission = asyncHandler(async (req, res) => {
 // Fetches all submissions made by the logged-in Entrepreneur.
 exports.getEntrepreneurSubmissions = asyncHandler(async (req, res) => {
     const { page, limit, skip } = getPagination(req.query);
-    const search = req.query.category || "";
+    const keyword = req.query.keyword || req.query.category || '';
 
     const query = { userId: req.user.id };
 
-    if (search) {
+    // SMART SEARCH — searches across all submission + profile fields
+    if (keyword) {
+        // Find profiles matching keyword in category, industry, stage, or description
         const matchingProfiles = await StartupProfile.find({
-            category: { $regex: search, $options: 'i' }
+            $or: [
+                { category: { $regex: keyword, $options: 'i' } },
+                { targetIndustry: { $regex: keyword, $options: 'i' } },
+                { preferredStage: { $regex: keyword, $options: 'i' } },
+                { description: { $regex: keyword, $options: 'i' } }
+            ]
         }).select('_id');
         const profileIds = matchingProfiles.map(p => p._id);
-        query.startupProfileId = { $in: profileIds };
+
+        query.$or = [
+            { userName: { $regex: keyword, $options: 'i' } },
+            { address: { $regex: keyword, $options: 'i' } },
+            { status: { $regex: keyword, $options: 'i' } },
+            ...(profileIds.length > 0 ? [{ startupProfileId: { $in: profileIds } }] : [])
+        ];
     }
 
     const submissions = await StartupSubmission.find(query)

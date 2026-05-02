@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>StartupNest Architecture</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a0a;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 40px;
+  }
+  .diagram {
+    width: 960px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  /* HEADER */
+  .title {
+    text-align: center;
+    color: #cc2222;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 28px;
+  }
+  .title span { color: #555; font-weight: 400; }
+
+  /* LAYER */
+  .layer {
+    border: 1px solid #2a0808;
+    background: #111111;
+    border-radius: 6px;
+    padding: 20px 28px;
+    position: relative;
+  }
+  .layer-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: #cc2222;
+    margin-bottom: 14px;
+    opacity: 0.85;
+  }
+  .layer-label span {
+    color: #444;
+    font-weight: 400;
+    margin-left: 8px;
+  }
+
+  /* BOX ROWS */
+  .row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .row:last-child { margin-bottom: 0; }
+
+  /* INDIVIDUAL BOX */
+  .box {
+    border: 1px solid #2a0808;
+    background: #0d0d0d;
+    border-radius: 4px;
+    padding: 8px 14px;
+    flex: 1;
+    min-width: 120px;
+  }
+  .box .box-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #e8e8e8;
+    margin-bottom: 2px;
+  }
+  .box .box-sub {
+    font-size: 9px;
+    color: #555;
+    line-height: 1.5;
+  }
+  .box.red-accent {
+    border-color: #7a1010;
+    background: #0f0606;
+  }
+  .box.red-accent .box-title { color: #cc4444; }
+
+  /* ARROW DIVIDER */
+  .arrow-divider {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 0;
+    gap: 2px;
+    position: relative;
+  }
+  .arrow-line {
+    width: 1px;
+    height: 18px;
+    background: #3a0808;
+  }
+  .arrow-label {
+    font-size: 8px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #5a1010;
+    background: #0a0a0a;
+    padding: 0 10px;
+    position: relative;
+  }
+  .arrow-head {
+    width: 0;
+    height: 0;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 6px solid #3a0808;
+  }
+
+  /* STATE MACHINE */
+  .state-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .state {
+    border: 1px solid #2a0808;
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 9px;
+    font-weight: 600;
+    color: #888;
+    background: #0d0d0d;
+    letter-spacing: 0.05em;
+  }
+  .state.active { border-color: #7a1010; color: #cc4444; background: #0f0606; }
+  .state-arrow { font-size: 10px; color: #3a0808; }
+  .state-sub { display: flex; gap: 8px; flex-direction: column; }
+  .state-branch { display: flex; align-items: center; gap: 8px; }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    margin-top: 24px;
+    font-size: 8px;
+    color: #2a2a2a;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+<div class="diagram">
+
+  <div class="title">StartupNest <span>— System Architecture</span></div>
+
+  <!-- LAYER 1: FRONTEND -->
+  <div class="layer">
+    <div class="layer-label">01 — Frontend <span>React · Port 3000</span></div>
+    <div class="row">
+      <div class="box red-accent">
+        <div class="box-title">Mentor View</div>
+        <div class="box-sub">Profiles · Submissions<br/>Shortlist / Reject</div>
+      </div>
+      <div class="box">
+        <div class="box-title">Redux Store</div>
+        <div class="box-sub">isAuthenticated · role<br/>userName</div>
+      </div>
+      <div class="box">
+        <div class="box-title">App.jsx</div>
+        <div class="box-sub">Rehydration Bridge<br/>MainLayout</div>
+      </div>
+      <div class="box">
+        <div class="box-title">Route Guards</div>
+        <div class="box-sub">ProtectedRoute<br/>AuthRoute</div>
+      </div>
+      <div class="box red-accent">
+        <div class="box-title">Entrepreneur View</div>
+        <div class="box-sub">Browse · Submit Idea<br/>Track Submissions</div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="box" style="flex: none; width: 100%; max-width: 240px; margin: 0 auto;">
+        <div class="box-title">apiConfig.js</div>
+        <div class="box-sub">Axios · withCredentials: true · baseURL</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARROW -->
+  <div class="arrow-divider">
+    <div class="arrow-line"></div>
+    <div class="arrow-label">REST API + httpOnly JWT Cookie</div>
+    <div class="arrow-line"></div>
+    <div class="arrow-head"></div>
+  </div>
+
+  <!-- LAYER 2: BACKEND -->
+  <div class="layer">
+    <div class="layer-label">02 — Backend <span>Node.js · Express · Port 8080</span></div>
+    <div class="row">
+      <div class="box">
+        <div class="box-title">validateToken</div>
+        <div class="box-sub">Middleware<br/>JWT → req.user</div>
+      </div>
+      <div class="box">
+        <div class="box-title">checkRole</div>
+        <div class="box-sub">Middleware<br/>Mentor / Entrepreneur</div>
+      </div>
+      <div class="box">
+        <div class="box-title">userController</div>
+        <div class="box-sub">Signup · Login<br/>Verify · Logout</div>
+      </div>
+      <div class="box">
+        <div class="box-title">profileController</div>
+        <div class="box-sub">CRUD Profiles<br/>Search · Pagination</div>
+      </div>
+      <div class="box red-accent">
+        <div class="box-title">submissionController</div>
+        <div class="box-sub">Submit · Reject<br/>Shortlist · Withdraw</div>
+      </div>
+    </div>
+    <!-- State Machine -->
+    <div class="state-row">
+      <div class="state">pending</div>
+      <div class="state-arrow">→</div>
+      <div class="state active">approved</div>
+      <div class="state-arrow">→</div>
+      <div class="state active">withdrawn</div>
+      <div style="color:#2a0808; font-size:9px; margin: 0 4px;">|</div>
+      <div class="state">rejected + feedback</div>
+    </div>
+  </div>
+
+  <!-- ARROW -->
+  <div class="arrow-divider">
+    <div class="arrow-line"></div>
+    <div class="arrow-label">Mongoose ODM</div>
+    <div class="arrow-line"></div>
+    <div class="arrow-head"></div>
+  </div>
+
+  <!-- LAYER 3: DATABASE -->
+  <div class="layer">
+    <div class="layer-label">03 — Database <span>MongoDB</span></div>
+    <div class="row">
+      <div class="box">
+        <div class="box-title">Users</div>
+        <div class="box-sub">userName · email · mobile<br/>role · password · secretQ</div>
+      </div>
+      <div class="box">
+        <div class="box-title">StartupProfiles</div>
+        <div class="box-sub">category · fundingLimit<br/>industry · mentorId</div>
+      </div>
+      <div class="box red-accent">
+        <div class="box-title">StartupSubmissions</div>
+        <div class="box-sub">status · rejectionFeedback<br/>isWithdrawn · withdrawalReason</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">StartupNest · MERN Stack · 2026</div>
+
+</div>
+</body>
+</html>

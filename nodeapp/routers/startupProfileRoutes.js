@@ -17,7 +17,6 @@ const { validateToken, checkRole } = require('../authUtils');
  * These routes are strictly for users with the 'Mentor' role.
  */
 
-// Route for creating a new profile
 router.post(
     '/create', 
     validateToken, 
@@ -25,7 +24,6 @@ router.post(
     startupController.createProfile
 );
 
-// Route for updating an existing profile
 router.put(
     '/update/:id', 
     validateToken, 
@@ -33,7 +31,6 @@ router.put(
     startupController.updateProfile
 );
 
-// Route for deleting a profile
 router.delete(
     '/delete/:id', 
     validateToken, 
@@ -41,13 +38,6 @@ router.delete(
     startupController.deleteProfile
 );
 
-/**
- * PUBLIC / SHARED ROUTES
- * These routes can be accessed by authenticated users (Mentors and Entrepreneurs).
- */
-
-// Route for viewing all profiles (browsing)
-// Both roles can see the list as per PRD
 router.get(
     '/all', 
     validateToken, 

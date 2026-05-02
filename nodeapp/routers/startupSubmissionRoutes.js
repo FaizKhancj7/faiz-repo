@@ -47,13 +47,6 @@ const upload = multer({
 
 // --- 2. ROUTE DEFINITIONS ---
 
-/**
- * POST /create
- * This route allows Entrepreneurs to submit their startup idea.
- * 1. validateToken: Checks if the user is logged in via JWT cookie.
- * 2. checkRole('Entrepreneur'): Ensures only Entrepreneurs can access this.
- * 3. upload.single('pitchDeckFile'): Multer handles the file upload.
- */
 router.post(
     '/create', 
     validateToken, 
@@ -62,10 +55,6 @@ router.post(
     submissionController.createSubmission
 );
 
-/**
- * GET /my-submissions
- * Fetches all submissions made by the logged-in Entrepreneur.
- */
 router.get(
     '/my-submissions',
     validateToken,
@@ -73,10 +62,6 @@ router.get(
     submissionController.getEntrepreneurSubmissions
 );
 
-/**
- * DELETE /delete/:id
- * Allows the Entrepreneur to remove their own submission.
- */
 router.delete(
     '/delete/:id',
     validateToken,
@@ -84,10 +69,6 @@ router.delete(
     submissionController.deleteEntrepreneurSubmission
 );
 
-/**
- * PUT /:id/withdraw
- * FEATURE: Allows the Entrepreneur to withdraw a shortlisted idea with a reason.
- */
 router.put(
     '/:id/withdraw',
     validateToken,
@@ -97,11 +78,6 @@ router.put(
 
 // --- MENTOR ROUTES ---
 
-/**
- * GET /all
- * Fetches all submissions received by the Mentor across all their profiles.
- * Features: Pagination (10/page), Status Filter, and Date Sorting.
- */
 router.get(
     '/all',
     validateToken,
@@ -109,10 +85,6 @@ router.get(
     submissionController.getMentorSubmissions
 );
 
-/**
- * PUT /status/:id
- * Allows the Mentor to update the status of a submission (Shortlist or Reject).
- */
 router.put(
     '/status/:id',
     validateToken,
@@ -120,10 +92,6 @@ router.put(
     submissionController.updateSubmissionStatus
 );
 
-/**
- * PUT /:id/reject
- * FEATURE: Allows the Mentor to reject a submission with mandatory feedback.
- */
 router.put(
     '/:id/reject',
     validateToken,
@@ -131,10 +99,6 @@ router.put(
     submissionController.rejectSubmission
 );
 
-/**
- * DELETE /delete/:id
- * Allows the Mentor to remove a submission.
- */
 router.delete(
     '/delete/:id',
     validateToken,

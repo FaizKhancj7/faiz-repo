@@ -226,6 +226,13 @@ Faiz managed the registration of the new features in the main application skelet
   - **Code**: `<Route path="/entrepreneur/my-submissions" element={<MySubmissions />} />`
   - **Logic**: Placed this inside the `ProtectedRoute` for Entrepreneurs to ensure only logged-in entrepreneurs can see it.
 
+
+
+
+
+
+
+
 #### 3. `reactapp/src/EntrepreneurComponents/ViewStartupOpportunities.jsx`
 Faiz optimized how data is passed during navigation to enable real-time validation.
 - **Lines 88-91 (`handleSubmitIdea`)**:
@@ -245,6 +252,14 @@ Faiz optimized how data is passed during navigation to enable real-time validati
 3. Implemented **State Passing** logic so the submission form knows exactly what the mentor's funding limit is before the user even starts typing.
 
 ---
+
+
+
+
+
+
+
+
 
 ## 👤 Member 4: The UI/UX Specialist (Reusable Components & Layouts)
 
@@ -306,50 +321,4 @@ Member 5 built the "working parts" of the new features. They created the forms w
 
 1. Built the smart submission form with funding guards.
 2. Created the "My Submissions" dashboard for entrepreneurs to track their pitches.
-
----
-
-## 🗓️ WEDNESDAY: The "App-Like" Milestone (Responsive Overhaul & UI/UX Hardening)
-
----
-
-## 👤 Member 1-5: Joint Achievement Summary (The 24-Hour Sprint)
-
-**Core Focus:** Transitioning StartupNest from a standard web layout to a premium, mobile-first **"App-Like" Ecosystem**.
-
-### 1. 🎨 "Ascent Modernism" Design System
-We implemented a unified design language across the entire platform.
-- **Visual Identity**: Deep blue backdrops (`#0e1d2a`), kinetic orange accents (`#ff7a21`), and premium `Plus Jakarta Sans` typography.
-- **Glassmorphism**: Applied `backdrop-blur-md` and semi-transparent layers to navbars and cards to create a high-end, futuristic feel.
-- **Indented Containment**: Every page follows a strict "one-page indentation" rule—no external scrollbars are visible at the root level; all scrolling is contained within the central content area.
-
-### 2. 📱 Zero-Scroll Responsive Architecture
-We solved the most critical UI challenge: **Eliminating horizontal scroll leakage.**
-- **Dual-Layout Pattern**: 
-    - **Desktop/Tablet**: High-density `table-fixed` layouts where columns sum to exactly **100%**, ensuring perfect header-body alignment.
-    - **Mobile**: Seamless transition to a **Stackable Card-List View** below 1024px, optimized for one-handed thumb navigation.
-- **Adaptive Typography**: Implemented fluid text scaling (e.g., Home Page greeting scales from `text-3xl` on mobile to `text-6xl` on desktop).
-- **Viewport Resilience**: Wrapped all grids and lists in vertical scroll containers (`overflow-y-auto`) to ensure content is accessible on even the smallest smartphone screens.
-
-### 3. 🛠️ Controller & Service Reusability
-We hardened the "Digital Plumbing" to ensure the app is easy to maintain.
-- **Unified Service Layer**: Standardized `startupSubmissionService.js` and `startupService.js` to handle all API calls with consistent error handling and parameter mapping.
-- **Reusable UI Components**: 
-    - **Navbar**: A single, dynamic component that renders role-based links (Mentor vs Entrepreneur) and includes a new **Mobile Hamburger Menu** for full accessibility.
-    - **ConfirmDialog**: A centralized modal system used for logouts, deletions, and status updates, ensuring consistent UX.
-    - **Modal System**: Standardized centering and backdrop behavior to prevent alignment "jumping" across different screens.
-
-### 4. 📊 Real-Time Data Dashboards
-The Home Page is no longer just a welcome screen; it is now a **Live Data Hub**.
-- **Dynamic Stats**: Integrated real-time counting of **Total, Pending, Shortlisted, and Rejected** submissions.
-- **Role-Aware Views**: Entrepreneurs see their pitch health, while Mentors see their review queue status, all using the same reusable controller logic.
-- **Kinetic Feedback**: Added micro-animations (`animate-lift`) to cards and buttons to make the interface feel alive and responsive to user intent.
-
-### 5. 🛡️ Stability & Security Hardening
-- **Soft-Delete Workflow**: Implemented a secure deletion process where entrepreneurs can remove their pitches, synchronized with the mentor's view via the reusable API layer.
-- **Status-Aware Logic**: Refined the Mentor's inbox so actions (Shortlist/Reject) appear only when logical, preventing accidental double-processing.
-- **Syntax Integrity**: Performed a full codebase audit to resolve Babel build errors (Adjacent JSX elements, missing state definitions) and tag mismatches.
-
-**Final Result:** StartupNest is now a production-ready, zero-leak platform that provides a premium experience on every device, from a 4K monitor to an iPhone SE.
-
----
+3. Refined the Mentor's dashboard to focus on the Shortlist/Reject workflow.

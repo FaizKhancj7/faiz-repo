@@ -1,98 +1,53 @@
-# StartupNest — Today's Technical Brief
+# 📝 NEW FEATURE: Frontend Architecture Refactor
 
-This document provides a detailed breakdown of the work completed today. It explains how each file works, the logic applied across the stack, and the full end-to-end user journey.
+We transitioned the React application from a monolithic `Components/` folder structure to a standardized, scalable layout.
 
----
-
-## 1. File-by-File Breakdown
-
-### **A. Backend (Node.js & MongoDB)**
-
-#### **`nodeapp/models/StartupProfile.js`**
-- **What it does:** Defines the "Blueprint" for a startup opportunity.
-- **How it does it:** Uses Mongoose to specify exactly what fields a profile must have (Category, Description, Funding, Equity, etc.). It includes strict validation rules, such as `min: 0` for numbers and `minlength` for text, to ensure bad data never enters the database.
-
-#### **`nodeapp/routers/startupProfileRoutes.js`**
-- **What it does:** Acts as the "Post Office" for all profile-related requests.
-- **How it does it:** Maps incoming URLs (like `/create`, `/all`, `/update/:id`) to the correct logic in the controller. It uses `validateToken` and `checkRole('Mentor')` middleware to ensure only logged-in mentors can create, update, or delete profiles.
-
-#### **`nodeapp/controllers/startupProfileController.js`**
-- **What it does:** The "Brain" of the backend. It contains the actual instructions for every action.
-- **How it does it:**
-    - **`createProfile`**: Takes user input, attaches the Mentor's ID, and saves it.
-    - **`getAllProfiles`**: Handles the complex logic for **Server-Side Pagination** (showing 20 items at a time) and **API Search** (using Regex to find keywords in descriptions).
-    - **`updateProfile` & `deleteProfile`**: Finds a specific record and modifies/removes it, but only after checking that the current user is the owner of that record.
+1. **Domain Segmentation**: Moved monolithic logic into `src/pages/mentor/` and `src/pages/entrepreneur/` based on role functionality.
+2. **Component Granularity**: Extracted layout containers (Navbar, Footer) into `src/components/layout/` and generic visual elements (Buttons, Loaders, Pagination) into `src/components/ui/`.
+3. **Public & Error Pages**: Organized standalone pages into `src/pages/public/` (LandingPage, HomePage) and `src/pages/errors/` (ErrorPage, Unauthorized).
+4. **Resolved Casing Constraints**: Mitigated Windows-specific caching errors by forcing the lowercasing of `src/components/`.
 
 ---
 
-### **B. Frontend (React & Redux)**
+# 🔄 System Logic: Five Detailed Codebase Workflows
 
-#### **`reactapp/src/App.jsx`**
-- **What it does:** Manages the "Traffic Control" of the app.
-- **How it does it:** 
-    - Uses a `RootRoute` to check if a user is logged in. If yes, it sends them to `/home`; if no, it shows the `LandingPage`.
-    - It uses a `MainLayout` that dynamically swaps the Top Navbar based on whether the user is a Mentor or an Entrepreneur.
+### Flow 1: User Authentication & Rehydration Bridge
 
-#### **`reactapp/src/Components/LandingPage.jsx`**
-- **What it does:** The public face of the website for new visitors.
-- **How it does it:** Uses a premium design with Tailwind CSS to show a Hero section and feature cards. It provides clear "Sign In" and "Sign Up" paths.
+1. **App Initialization**: When a user loads `App.jsx`, Redux `userSlice` initializes with `isAuthenticated: null` (the "Checking" state).
+2. **Token Verification**: The `useEffect` hook in `App.jsx` fires `api.get('/user/verify')`. The browser silently attaches the secure `httpOnly` JWT cookie due to `withCredentials: true`.
+3. **Backend Middleware Validation**: The Express route `userRouter.get('/verify')` runs through `authMiddleware`. It extracts the cookie, decodes the JWT using the secret key, and queries the MongoDB `User` model.
+4. **State Injection**: The backend returns `success: true` alongside the `userName` and `role`. The frontend catches this and runs `dispatch(loginSuccess(data))`, flipping Redux to `isAuthenticated: true`.
+5. **Route Guarding execution**: `RootRoute` detects the true boolean and redirects the user from the `LandingPage` into `/home` via the `ProtectedRoute` wrapper.
 
-#### **`reactapp/src/Components/HomePage.jsx`**
-- **What it does:** The "Welcome Mat" for logged-in users.
-- **How it does it:** Displays a beautiful hero image and contact information. It is wrapped by the `MainLayout` in `App.jsx`, so it always shows the correct navbar.
+### Flow 2: Mentor Opportunity Creation
 
-#### **`reactapp/src/MentorComponents/MentorNavbar.jsx` & `EntrepreneurNavbar.jsx`**
-- **What it does:** Role-specific navigation.
-- **How it does it:** Both use a **Hover-based Dropdown** pattern. Instead of separate links everywhere, we grouped "Startup Profiles" (for Mentors) and "Startup Ideas" (for Entrepreneurs) into clean menus that appear when you hover over them.
+1. **Frontend Dispatch**: The Mentor fills out `StartupProfileForm.jsx` and clicks submit. The frontend performs regex/number validation and constructs a payload.
+2. **API Communication**: The data is sent via `startupService.createProfile(payload)`.
+3. **Backend Injection & Controller**: `startupProfileRoutes` traps the POST request, runs it through `authMiddleware` (to securely append the mentor's `req.userId` to the body), and hits `startupProfileController`.
+4. **Database Write**: MongoDB creates a new `StartupProfile` document, saving the `fundingLimit`, `description`, `category`, and associating it structurally with the Mentor's User ID.
+5. **Redux Refetch**: The API responds 200 OK. The frontend receives a success toast and redirects the Mentor to `ViewStartupProfiles.jsx`, which subsequently triggers a `dispatch(fetchStart())` to pull the latest profile list from the database.
 
-#### **`reactapp/src/MentorComponents/StartupProfileForm.jsx`**
-- **What it does:** A "Two-in-One" form for adding or editing profiles.
-- **How it does it:** It checks if it received "Profile Data" during navigation. If it did, it pre-fills the fields and changes the heading to "Update Profile". It also prevents negative numbers from being typed into the funding/equity boxes.
+### Flow 3: Entrepreneur Idea Submission (Pitch Flow)
 
-#### **`reactapp/src/MentorComponents/ViewStartupProfiles.jsx`**
-- **What it does:** The Mentor's control panel.
-- **How it does it:** Fetches a list of profiles from the API. It features a Search bar with **Debouncing** (waits for you to stop typing before searching) and buttons to Edit or Delete records.
+1. **Discovery**: The Entrepreneur navigates to `ViewStartupOpportunities.jsx`. This component fetches active StartupProfiles from the database using pagination logic.
+2. **Action Trigger**: The Entrepreneur selects an opportunity and navigates to `SubmitIdea.jsx`, passing the `profileId` and `fundingLimit` via `react-router-dom`'s location state to avoid redundant API calls.
+3. **FormData Construction**: Because the pitch requires a PDF pitch deck, the frontend constructs a `FormData` object (multipart/form-data) instead of JSON, attaching text fields and the binary file.
+4. **Multer & S3/Local Storage**: The Express backend receives the payload via `upload.single('pitchDeckFile')`. Multer parses the PDF, assigns it a secure UUID filename, and saves it locally. The file path is appended to the `req.body`.
+5. **Database Transaction**: The `startupSubmissionController` creates a `StartupSubmission` document linking the Entrepreneur (`req.userId`), the target `profileId`, and the new pitch data. The status defaults to `'pending'`.
 
-#### **`reactapp/src/services/startupService.js`**
-- **What it does:** The "Messenger" between React and the Backend.
-- **How it does it:** Uses Axios to make `GET`, `POST`, `PUT`, and `DELETE` requests to the Node.js server.
+### Flow 4: Mentor Pitch Review & Rejection
 
----
+1. **Dashboard Load**: The Mentor opens `StartupSubmissions.jsx`. The UI queries the backend using `startupSubmissionService.getMentorSubmissions()`.
+2. **Aggregation Pipeline**: The Node.js controller uses `.populate('entrepreneurId')` and `.populate('startupProfileId')` to join data, sending the Mentor a full context of who applied to which opportunity.
+3. \**Rejection Modal TriggerhdrawnAt` timestamp. It does *not\* delete the document.
+4. **Cross-Role Visibility**: Both dashboards instantly reflect this state. The Mentor's table renders a gray "Withdrawn" pill and allows them to view the Entrepre\*\*: The Mentor clicks "Reject" on a pending pitch, opening a dynamic modal where they must type a justification (>10 characters).
+5. **Status Mutation**: The frontend fires `PUT /submission/:id/reject` with the text reason. The backend updates the MongoDB document, flipping the `status` enum to `'rejected'` and permanently saving the `rejectionFeedback` string.
+6. **Feedback Loop Closure**: Upon success, the UI refreshes. The Entrepreneur's dashboard (`MySubmissions.jsx`) detects the new status and renders a red "Rejected" badge alongside a message icon that opens the Mentor's feedback.
 
-## 2. Key Logic Applied
+### Flow 5: Entrepreneur Pitch Withdrawal
 
-### **State Management (Redux)**
-We use `startupSlice.js` to store the list of profiles globally. When a user searches or changes a page, Redux updates the state, and the UI automatically re-renders without a page refresh.
-
-### **Validation Logic**
-- **Frontend**: In `StartupProfileForm.jsx`, we check every field before the user clicks "Confirm". If a field is empty or a number is negative, we show a red error message and block the API call.
-- **Backend**: Even if someone bypasses the frontend, the Mongoose model in `StartupProfile.js` will catch invalid data and return a `400 Bad Request` error.
-
-### **Routing & Layouts**
-We implemented a **Layout Pattern**. Instead of putting a Navbar in every single page, we defined them once in `App.jsx`. This makes the code cleaner and ensures the Navbar never "flickers" when you navigate between pages.
-
----
-
-## 3. The Full End-to-End Flow
-
-1.  **Visiting the Site**: A new user visits `localhost:3000/`. The `RootRoute` sees they aren't logged in and shows the **Landing Page**.
-2.  **Signing In**: The user clicks "Sign In", enters their credentials, and the `userSlice` (Redux) marks them as `isAuthenticated`.
-3.  **Redirection**: `App.jsx` sees they are now logged in and redirects them to `/home`.
-4.  **Creating a Profile (Mentor)**:
-    - The Mentor hovers over "Startup Profiles" in the Navbar and clicks "Add Profile".
-    - They fill out the form. If they try to enter `-100` for funding, the form blocks it.
-    - On clicking "Create", a **Confirm Dialog** pops up.
-    - Once confirmed, `startupService` sends the data to the backend.
-5.  **Managing Profiles**:
-    - The Mentor goes to "View Profiles".
-    - They see a table with 20 items. If they have more, they use the **Pagination** buttons at the bottom.
-    - They type "FinTech" in the search bar. The app waits 500ms (Debounce) and then fetches only FinTech profiles.
-6.  **Updating**:
-    - They click "Edit" on a profile.
-    - They are taken to the form, which is already filled with the old data.
-    - They save changes, and a **Toast Notification** appears saying "Profile updated successfully!".
-7.  **Logging Out**:
-    - They click Logout, confirm the choice, and are sent back to the **Landing Page**.
-
----
-**Document Status:** Finalized for Monday Milestone.
+1. **Requirement Check**: In `MySubmissions.jsx`, the UI logic dictates that an Entrepreneur can only withdraw an idea if the current status is `'approved'` and `isWithdrawn` is false.
+2. **Withdrawal Modal**: The Entrepreneur clicks "Withdraw" and is prompted to provide a mandatory `withdrawalReason`.
+3. **API Padatch**: The frontend sends a POST request to `/submission/:id/withdraw` with the reason.
+4. **Database Archival**: The backend updates the specific document setting `isWithdrawn = true`, recording the `withdrawalReason`, and setting a `witneur's recor reason, while the action buttons are permanently disabled, creating a secure historical ledger of the interaction.
+   ded

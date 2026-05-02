@@ -1,4 +1,5 @@
 const StartupProfile = require('../models/StartupProfile');
+const User = require('../models/userModel');
 const asyncHandler = require('../utils/asyncHandler');
 const { sendSuccess, sendError } = require('../utils/responseHandler');
 const { getPagination } = require('../utils/pagination');
@@ -24,29 +25,43 @@ exports.createProfile = asyncHandler(async (req, res) => {
 exports.getAllProfiles = asyncHandler(async (req, res) => {
     const { page, limit, skip } = getPagination(req.query);
 
-    // SEARCH LOGIC
+    // ROLE-BASED FILTERING
+    // If the requester is a Mentor, only show their own profiles.
+    // If they are an Entrepreneur, show all profiles (to allow browsing).
+    const filter = {};
+    if (req.user.role === 'Mentor') {
+        filter.mentorId = req.user.id;
+    }
+
+    // SMART SEARCH — searches across ALL text fields including mentor name
     const keyword = req.query.keyword || '';
-    const searchQuery = keyword 
-        ? { 
-            $or: [
-                { category: { $regex: keyword, $options: 'i' } },
-                { description: { $regex: keyword, $options: 'i' } },
-                { targetIndustry: { $regex: keyword, $options: 'i' } }
-            ] 
-          } 
-        : {};
+    if (keyword) {
+        // First, find mentors whose userName matches the keyword
+        const matchingMentors = await User.find({
+            userName: { $regex: keyword, $options: 'i' }
+        }).select('_id');
+        const mentorIds = matchingMentors.map(m => m._id);
+
+        filter.$or = [
+            { category: { $regex: keyword, $options: 'i' } },
+            { description: { $regex: keyword, $options: 'i' } },
+            { targetIndustry: { $regex: keyword, $options: 'i' } },
+            { preferredStage: { $regex: keyword, $options: 'i' } },
+            ...(mentorIds.length > 0 ? [{ mentorId: { $in: mentorIds } }] : [])
+        ];
+    }
 
     // SORT LOGIC
     const sortBy = req.query.sortBy || 'createdAt';
     const order = req.query.order === 'asc' ? 1 : -1;
 
-    const profiles = await StartupProfile.find(searchQuery)
+    const profiles = await StartupProfile.find(filter)
         .populate('mentorId', 'userName email')
         .skip(skip)
         .limit(limit)
         .sort({ [sortBy]: order });
 
-    const totalRecords = await StartupProfile.countDocuments(searchQuery);
+    const totalRecords = await StartupProfile.countDocuments(filter);
 
     return res.status(200).json({
         success: true,

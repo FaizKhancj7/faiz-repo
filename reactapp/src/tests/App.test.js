@@ -3,7 +3,7 @@ import { render, fireEvent, screen } from '@testing-library/react';
 import { BrowserRouter as Router } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import store from '../store';
+import store from '../store/index';
 import Login from '../Components/Login';
 import '@testing-library/jest-dom/extend-expect';
 import axios from 'axios';

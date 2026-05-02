@@ -8,7 +8,7 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'; // Importing the style for toast messages
 import './index.css';
 import App from './App';
-import store from './store'; // The central database for our app state
+import store from './store/index'; // The central database for our app state
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 

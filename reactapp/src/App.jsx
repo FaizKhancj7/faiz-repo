@@ -4,32 +4,39 @@
  * It strictly follows PRD Section 5.2.2 for route protection and role-based access.
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { loginSuccess, logoutSuccess } from './slices/userSlice';
-import api from './apiConfig';
+import { loginSuccess, logoutSuccess } from './store/userSlice';
+import api from './config/apiConfig';
+
+// Import Route Guards
+import ProtectedRoute from './routes/ProtectedRoute';
+import AuthRoute from './routes/AuthRoute';
 
 // Import our shared components
-import LandingPage from './Components/LandingPage';
-import HomePage from './Components/HomePage';
-import Login from './Components/Login';
-import Signup from './Components/Signup';
-import ForgotPassword from './Components/ForgotPassword';
+import LandingPage from './pages/public/LandingPage';
+import HomePage from './pages/public/HomePage';
+import Login from './pages/auth/Login';
+import Signup from './pages/auth/Signup';
+import ForgotPassword from './pages/auth/ForgotPassword';
 
 // Mentor Components
-import StartupProfileForm from './MentorComponents/StartupProfileForm';
-import ViewStartupProfiles from './MentorComponents/ViewStartupProfiles';
-import StartupSubmissions from './MentorComponents/StartupSubmissions';
+import StartupProfileForm from './pages/mentor/StartupProfileForm';
+import ViewStartupProfiles from './pages/mentor/ViewStartupProfiles';
+import StartupSubmissions from './pages/mentor/StartupSubmissions';
 
 // Entrepreneur Components
-import ViewStartupOpportunities from './EntrepreneurComponents/ViewStartupOpportunities';
-import SubmitIdea from './EntrepreneurComponents/SubmitIdea';
-import MySubmissions from './EntrepreneurComponents/MySubmissions';
+import ViewStartupOpportunities from './pages/entrepreneur/ViewStartupOpportunities';
+import SubmitIdea from './pages/entrepreneur/SubmitIdea';
+import MySubmissions from './pages/entrepreneur/MySubmissions';
+import ErrorPage from './pages/errors/ErrorPage';
 
 // Reusable Components
-import Navbar from './Components/Reusable/Navbar';
-import Footer from './Components/Reusable/Footer';
+import Navbar from './components/layout/Navbar';
+import Footer from './components/layout/Footer';
+import { ThemeProvider } from './context/ThemeContext';
+import AnimatedBackground from './components/ui/AnimatedBackground';
 
 // Define Navigation Links for each role
 const MENTOR_LINKS = [
@@ -56,29 +63,6 @@ const ENTREPRENEUR_LINKS = [
 ];
 
 /**
- * ProtectedRoute
- * Blocks access if not logged in. Optional role check.
- */
-const ProtectedRoute = ({ children, requiredRole }) => {
-    const { isAuthenticated, role } = useSelector((state) => state.user);
-    
-    if (isAuthenticated === null) {
-        return <div className="flex items-center justify-center min-h-screen font-semibold text-gray-500">Authenticating...</div>;
-    }
-
-    if (!isAuthenticated) {
-        return <Navigate to="/" />;
-    }
-
-    if (requiredRole && role !== requiredRole) {
-        // If they have the wrong role, we send them back to /home where the correct layout will catch them
-        return <Navigate to="/home" />;
-    }
-
-    return children;
-};
-
-/**
  * MainLayout
  * This layout dynamically renders the correct Navbar based on the user's role.
  */
@@ -86,35 +70,20 @@ const MainLayout = () => {
     const { role } = useSelector((state) => state.user);
 
     return (
-        <div className="h-screen flex flex-col overflow-hidden bg-[#0e1d2a]">
+        <div className="h-screen flex flex-col overflow-hidden relative" style={{ background: 'var(--theme-bg-primary)' }}>
+            {/* Global Animated Background for Dashboards */}
+            <AnimatedBackground showOrnaments={false} />
+            
             <Navbar 
                 role={role} 
                 links={role === 'Mentor' ? MENTOR_LINKS : ENTREPRENEUR_LINKS} 
             />
-            <main className="flex-grow pt-16 overflow-hidden relative">
+            <main className="flex-grow pt-16 overflow-hidden relative z-10">
                 <Outlet />
             </main>
             <Footer />
         </div>
     );
-};
-
-/**
- * AuthRoute
- * Blocks access to Login/Signup if already logged in.
- */
-const AuthRoute = ({ children }) => {
-    const { isAuthenticated } = useSelector((state) => state.user);
-    
-    if (isAuthenticated === null) {
-        return <div className="flex items-center justify-center min-h-screen font-semibold text-gray-500">Checking session...</div>;
-    }
-
-    if (isAuthenticated) {
-        return <Navigate to="/home" />;
-    }
-
-    return children;
 };
 
 /**
@@ -152,38 +121,55 @@ function App() {
         verifyUser();
     }, [dispatch]);
 
+    // Water Drop Effect — spawns a ripple at cursor on every mousedown
+    useEffect(() => {
+        const handleMouseDown = (e) => {
+            const drop = document.createElement('div');
+            drop.className = 'water-drop';
+            drop.style.left = `${e.clientX}px`;
+            drop.style.top = `${e.clientY}px`;
+            document.body.appendChild(drop);
+            setTimeout(() => drop.remove(), 600);
+        };
+
+        document.addEventListener('mousedown', handleMouseDown);
+        return () => document.removeEventListener('mousedown', handleMouseDown);
+    }, []);
+
     return (
-        <Router>
-            <Routes>
-                {/* --- 1. PUBLIC ROUTES --- */}
-                <Route path="/" element={<RootRoute />} />
-                <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
-                <Route path="/signup" element={<AuthRoute><Signup /></AuthRoute>} />
-                <Route path="/forgot-password" element={<AuthRoute><ForgotPassword /></AuthRoute>} />
+        <ThemeProvider>
+                <Router>
+                    <Routes>
+                        {/* --- 1. PUBLIC ROUTES --- */}
+                        <Route path="/" element={<RootRoute />} />
+                        <Route path="/login" element={<AuthRoute><Login /></AuthRoute>} />
+                        <Route path="/signup" element={<AuthRoute><Signup /></AuthRoute>} />
+                        <Route path="/forgot-password" element={<AuthRoute><ForgotPassword /></AuthRoute>} />
 
-                {/* --- 2. SHARED PROTECTED ROUTES (Catch all roles) --- */}
-                <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
-                    <Route path="/home" element={<HomePage />} />
-                </Route>
+                        {/* --- 2. SHARED PROTECTED ROUTES (Catch all roles) --- */}
+                        <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+                            <Route path="/home" element={<HomePage />} />
+                        </Route>
 
-                {/* --- 3. MENTOR SPECIFIC ROUTES --- */}
-                <Route element={<ProtectedRoute requiredRole="Mentor"><MainLayout /></ProtectedRoute>}>
-                    <Route path="/mentor/create-profile" element={<StartupProfileForm />} />
-                    <Route path="/view-profiles" element={<ViewStartupProfiles />} />
-                    <Route path="/startup-submissions" element={<StartupSubmissions />} />
-                </Route>
+                        {/* --- 3. MENTOR SPECIFIC ROUTES --- */}
+                        <Route element={<ProtectedRoute requiredRole="Mentor"><MainLayout /></ProtectedRoute>}>
+                            <Route path="/mentor/create-profile" element={<StartupProfileForm />} />
+                            <Route path="/view-profiles" element={<ViewStartupProfiles />} />
+                            <Route path="/startup-submissions" element={<StartupSubmissions />} />
+                        </Route>
 
-                {/* --- 4. ENTREPRENEUR SPECIFIC ROUTES --- */}
-                <Route element={<ProtectedRoute requiredRole="Entrepreneur"><MainLayout /></ProtectedRoute>}>
-                    <Route path="/mentor-opportunities" element={<ViewStartupOpportunities />} />
-                    <Route path="/submit-idea" element={<SubmitIdea />} />
-                    <Route path="/entrepreneur/my-submissions" element={<MySubmissions />} />
-                </Route>
+                        {/* --- 4. ENTREPRENEUR SPECIFIC ROUTES --- */}
+                        <Route element={<ProtectedRoute requiredRole="Entrepreneur"><MainLayout /></ProtectedRoute>}>
+                            <Route path="/mentor-opportunities" element={<ViewStartupOpportunities />} />
+                            <Route path="/submit-idea" element={<SubmitIdea />} />
+                            <Route path="/entrepreneur/my-submissions" element={<MySubmissions />} />
+                        </Route>
 
-                {/* --- 5. FALLBACK --- */}
-                <Route path="*" element={<Navigate to="/home" />} />
-            </Routes>
-        </Router>
+                        {/* --- 5. FALLBACK --- */}
+                        <Route path="*" element={<ErrorPage />} />
+                    </Routes>
+                </Router>
+            </ThemeProvider>
     );
 }
 
